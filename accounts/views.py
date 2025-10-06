@@ -7,38 +7,52 @@ import base64
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from django.http import JsonResponse
-from accounts.authentication import CognitoJWTAuthentication
-
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from accounts.authentication import authenticate_cognito_user
-
-@api_view(['GET'])
-def protected_view(request):
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    user = authenticate_cognito_user(token)
-    return Response({"message": f"Hello, {user.first_name}!"})
+from accounts.authentication import CognitoJWTAuthentication, authenticate_cognito_user
+from core.utils.cognito import get_cognito_domain, get_cognito_token_url
 
 @api_view(['GET'])
 @authentication_classes([CognitoJWTAuthentication])
 @permission_classes([IsAuthenticated])
 def user_profile_view(request):
+    """
+    GET /api/me/
+    Returns the authenticated user's profile
+    Requires: Authorization: Bearer <id_token>
+    """
     user = request.user
     return Response({
         "id": str(user.id),
         "email": user.email,
         "first_name": user.first_name,
         "last_name": user.last_name,
+        "phone_number": user.phone_number,
+        "gender": user.gender,
+        "birth_date": user.birth_date,
         "created_at": user.created_at,
+        "updated_at": user.updated_at,
     })
+
 
 def login_page_view(request):
     """
     GET /auth/login/
     Simple HTML page that redirects to Cognito and extracts tokens
     """
-    return render(request, 'templates.login.html')
+    # Extract the subdomain from the user pool ID (e.g., "A2XTSkfoF" from "us-east-1_A2XTSkfoF")
+    pool_id_parts = settings.COGNITO_USER_POOL_ID.split('_')
+    subdomain = pool_id_parts[1].lower() if len(pool_id_parts) > 1 else pool_id_parts[0].lower()
+    
+    # Cognito domain format: https://{region}{subdomain}.auth.{region}.amazoncognito.com
+    cognito_domain = f"https://{settings.COGNITO_REGION}{subdomain}.auth.{settings.COGNITO_REGION}.amazoncognito.com"
+    
+    context = {
+        'cognito_domain': cognito_domain,
+        'client_id': settings.COGNITO_FRONTEND_CLIENT_ID,
+    }
+    
+    return render(request, 'login.html', context)
+
 
 def cognito_callback_view(request):
     """
@@ -57,7 +71,7 @@ def cognito_callback_view(request):
         })
     
     # Implicit flow - tokens are in URL fragment, handled by JavaScript
-    return render(request, 'templates.callback.html')
+    return render(request, 'callback.html')
 
 
 @csrf_exempt
@@ -108,3 +122,24 @@ def token_exchange_view(request):
             'error': 'Failed to exchange code for tokens',
             'details': str(e)
         }, status=400)
+
+@api_view(['GET'])
+def debug_cognito_config(request):
+    """
+    GET /auth/debug/
+    Shows Cognito configuration for debugging
+    """
+    from core.utils.cognito import get_cognito_domain, get_cognito_login_url, get_cognito_token_url
+    
+    config = {
+        'user_pool_id': settings.COGNITO_USER_POOL_ID,
+        'region': settings.COGNITO_REGION,
+        'frontend_client_id': settings.COGNITO_FRONTEND_CLIENT_ID,
+        'backend_client_id': settings.COGNITO_BACKEND_CLIENT_ID,
+        'cognito_domain': get_cognito_domain(),
+        'token_url': get_cognito_token_url(),
+        'implicit_login_url': get_cognito_login_url(response_type='token'),
+        'code_login_url': get_cognito_login_url(response_type='code'),
+    }
+    
+    return Response(config)

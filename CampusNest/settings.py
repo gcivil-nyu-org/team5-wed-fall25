@@ -132,6 +132,12 @@ COGNITO_BACKEND_CLIENT_SECRET="1hqjp5a4aegs3p76ajlocgl7cqnvkmnm1f9r0rktcgg811bdl
 COGNITO_USER_POOL_ID="us-east-1_A2XTSkfoF"
 COGNITO_REGION="us-east-1"
 
+# "https://{settings.COGNITO_USER_POOL_ID.split('_')[1].lower()}.auth.{settings.COGNITO_REGION}.amazoncognito.com"
+
+# https://{settings.COGNITO_USER_POOL_ID.split('_')[1].lower()}.auth.{settings.COGNITO_REGION}.amazoncognito.com"
+# /login?client_id={{ client_id }}&response_type=token&scope=email+openid+phone&redirect_uri=http://localhost:8000/auth/callback/"
+                
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'accounts.authentication.CognitoJWTAuthentication',
@@ -141,3 +147,18 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
+
+
+'''
+https://us-east-1a2xtskfof.auth.us-east-1.amazoncognito.com/login?
+client_id=6cvnet46l5v1650mnt52ihultd&
+response_type=code&scope=email+openid+phone&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F
+
+'''
+
+'''
+https://a2xtskfof.auth.us-east-1.amazoncognito.com/login?
+client_id=6cvnet46l5v1650mnt52ihultd&
+response_type=token&scope=email+openid+phone&redirect_uri=http://localhost:8000/auth/callback/
+
+'''
