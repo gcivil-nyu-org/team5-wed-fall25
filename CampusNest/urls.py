@@ -16,8 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.http import JsonResponse
+
+def home_view(request):
+    """Simple home view to handle root path"""
+    return JsonResponse({
+        "message": "Welcome to CampusNest API",
+        "endpoints": {
+            "user_profile": "/api/me/",
+            "admin": "/admin/",
+            "auth_callback": "/auth/callback/"
+        }
+    })
 
 urlpatterns = [
+    path('', home_view, name='home'),
     path('admin/', admin.site.urls),
-    path('api/', include('accounts.urls'))
+    path('api/', include('accounts.urls')),
+    path('auth/', include('accounts.auth_urls'))
 ]

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CampusNest Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .btn {
+            display: block;
+            padding: 15px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .info {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+
+        .info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .info li {
+            margin: 5px 0;
+        }
+
+        .info strong {
+            color: #1976D2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎓 CampusNest</h1>
+        <p class="subtitle">Choose your authentication method</p>
+
+        <div class="info">
+            <strong>Authentication Options:</strong>
+            <ul>
+                <li><strong>Implicit Flow:</strong> Quick testing - tokens in browser (Less secure, for development
+                    only)</li>
+                <li><strong>Authorization Code:</strong> Production-ready - tokens via server exchange (More secure)
+                </li>
+            </ul>
+        </div>
+
+        <div class="btn-container">
+            <a href="https://us-east-1a2xtskfof.auth.us-east-1.amazoncognito.com/login?client_id=6cvnet46l5v1650mnt52ihultd&response_type=token&scope=email+openid+phone&redirect_uri=http://localhost:8000/auth/callback/"
+                class="btn">
+                🔐 Login with Implicit Flow (Testing)
+            </a>
+
+            <a href="https://us-east-1a2xtskfof.auth.us-east-1.amazoncognito.com/login?client_id=6cvnet46l5v1650mnt52ihultd&response_type=code&scope=email+openid+phone&redirect_uri=http://localhost:8000/auth/callback/"
+                class="btn secondary">
+                🔒 Login with Authorization Code (Secure)
+            </a>
+        </div>
+
+        <div class="info">
+            <strong>📖 What happens next?</strong>
+            <ul>
+                <li>You'll be redirected to AWS Cognito login page</li>
+                <li>After successful login, you'll be redirected back with your tokens</li>
+                <li>You can then test the /api/me/ endpoint with your token</li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>

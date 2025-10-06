@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Authentication Callback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #28a745;
+        }
+
+        .token-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .token-display {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin: 10px 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .info {
+            background: #d1ecf1;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>✅ Authentication Successful!</h1>
+
+        <div id="implicitFlow" class="hidden">
+            <div class="info">
+                <strong>Implicit Flow Detected</strong> - Tokens extracted from URL fragment
+            </div>
+
+            <div class="token-section">
+                <h3>ID Token:</h3>
+                <div class="token-display" id="idToken"></div>
+                <button class="btn" onclick="copyToken('idToken')">📋 Copy ID Token</button>
+            </div>
+
+            <div class="token-section">
+                <h3>Access Token:</h3>
+                <div class="token-display" id="accessToken"></div>
+                <button class="btn" onclick="copyToken('accessToken')">📋 Copy Access Token</button>
+            </div>
+
+            <div class="token-section">
+                <h3>🧪 Test Your API:</h3>
+                <button class="btn" onclick="testMeEndpoint()">Test /api/me/</button>
+                <div id="apiResponse" class="hidden token-display"></div>
+            </div>
+
+            <div class="token-section">
+                <h3>📝 Postman Instructions:</h3>
+                <ol>
+                    <li>Copy the ID Token above</li>
+                    <li>Open Postman and create a new GET request to: <code>http://localhost:8000/api/me/</code></li>
+                    <li>Go to the "Authorization" tab</li>
+                    <li>Select "Bearer Token" as the type</li>
+                    <li>Paste the ID Token</li>
+                    <li>Click "Send"</li>
+                </ol>
+            </div>
+        </div>
+
+        <div id="codeFlow" class="hidden">
+            <div class="info">
+                <strong>Authorization Code Flow Detected</strong> - Exchange code for tokens
+            </div>
+
+            <div class="token-section">
+                <h3>Authorization Code:</h3>
+                <div class="token-display" id="authCode"></div>
+                <button class="btn" onclick="exchangeCode()">🔄 Exchange for Tokens</button>
+            </div>
+
+            <div id="exchangedTokens" class="hidden">
+                <div class="token-section">
+                    <h3>ID Token:</h3>
+                    <div class="token-display" id="exchangedIdToken"></div>
+                    <button class="btn" onclick="copyToken('exchangedIdToken')">📋 Copy</button>
+                </div>
+
+                <div class="token-section">
+                    <h3>Access Token:</h3>
+                    <div class="token-display" id="exchangedAccessToken"></div>
+                </div>
+
+                <div class="token-section">
+                    <h3>🧪 Test Your API:</h3>
+                    <button class="btn" onclick="testMeEndpointWithExchangedToken()">Test /api/me/</button>
+                    <div id="exchangedApiResponse" class="hidden token-display"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="error" class="error hidden"></div>
+    </div>
+
+    <script>
+        let storedIdToken = '';
+
+        function parseURLParams() {
+            // Check for tokens in URL fragment (implicit flow)
+            const hash = window.location.hash.substring(1);
+            const hashParams = new URLSearchParams(hash);
+
+            // Check for code in query string (authorization code flow)
+            const search = window.location.search.substring(1);
+            const searchParams = new URLSearchParams(search);
+
+            const idToken = hashParams.get('id_token');
+            const accessToken = hashParams.get('access_token');
+            const code = searchParams.get('code');
+
+            if (idToken) {
+                // Implicit flow
+                document.getElementById('implicitFlow').classList.remove('hidden');
+                document.getElementById('idToken').textContent = idToken;
+                document.getElementById('accessToken').textContent = accessToken || 'N/A';
+                storedIdToken = idToken;
+
+                sessionStorage.setItem('id_token', idToken);
+                sessionStorage.setItem('access_token', accessToken);
+            } else if (code) {
+                // Authorization code flow
+                document.getElementById('codeFlow').classList.remove('hidden');
+                document.getElementById('authCode').textContent = code;
+                sessionStorage.setItem('auth_code', code);
+            } else {
+                document.getElementById('error').classList.remove('hidden');
+                document.getElementById('error').textContent = 'No tokens or authorization code found in URL';
+            }
+        }
+
+        function copyToken(elementId) {
+            const tokenElement = document.getElementById(elementId);
+            const token = tokenElement.textContent;
+
+            navigator.clipboard.writeText(token).then(() => {
+                alert('Token copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy token. Please copy manually.');
+            });
+        }
+
+        async function testMeEndpoint() {
+            const responseDiv = document.getElementById('apiResponse');
+            responseDiv.classList.remove('hidden');
+            responseDiv.textContent = 'Loading...';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/me/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${storedIdToken}`
+                    }
+                });
+
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                responseDiv.style.background = response.ok ? '#d4edda' : '#f8d7da';
+            } catch (error) {
+                responseDiv.textContent = `Error: ${error.message}`;
+                responseDiv.style.background = '#f8d7da';
+            }
+        }
+
+        async function exchangeCode() {
+            const code = sessionStorage.getItem('auth_code');
+            const errorDiv = document.getElementById('error');
+
+            try {
+                const response = await fetch('http://localhost:8000/auth/exchange/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code: code })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('exchangedTokens').classList.remove('hidden');
+                    document.getElementById('exchangedIdToken').textContent = data.id_token;
+                    document.getElementById('exchangedAccessToken').textContent = data.access_token;
+                    storedIdToken = data.id_token;
+
+                    sessionStorage.setItem('id_token', data.id_token);
+                    sessionStorage.setItem('access_token', data.access_token);
+                } else {
+                    errorDiv.classList.remove('hidden');
+                    errorDiv.textContent = `Error: ${data.error || 'Unknown error'}`;
+                }
+            } catch (error) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = `Network error: ${error.message}`;
+            }
+        }
+
+        async function testMeEndpointWithExchangedToken() {
+            const responseDiv = document.getElementById('exchangedApiResponse');
+            responseDiv.classList.remove('hidden');
+            responseDiv.textContent = 'Loading...';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/me/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${storedIdToken}`
+                    }
+                });
+
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                responseDiv.style.background = response.ok ? '#d4edda' : '#f8d7da';
+            } catch (error) {
+                responseDiv.textContent = `Error: ${error.message}`;
+                responseDiv.style.background = '#f8d7da';
+            }
+        }
+
+        // Run on page load
+        window.onload = parseURLParams;
+    </script>
+</body>
+
+</html>
