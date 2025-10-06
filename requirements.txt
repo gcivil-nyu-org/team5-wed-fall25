@@ -1,0 +1,4 @@
+djangorestframework
+cryptography
+drf-jwt  
+django-cognito-jwt

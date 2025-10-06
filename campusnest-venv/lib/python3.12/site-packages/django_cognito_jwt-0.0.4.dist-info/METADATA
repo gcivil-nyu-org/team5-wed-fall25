@@ -1,0 +1,114 @@
+Metadata-Version: 2.1
+Name: django-cognito-jwt
+Version: 0.0.4
+Summary: Django backends for AWS Cognito JWT
+Home-page: https://github.com/LabD/django-cognito-jwt
+Author: Michael van Tellingen
+Author-email: m.vantellingen@labdigital.nl
+License: MIT
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 1.11
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Requires-Dist: Django (>=1.11)
+Requires-Dist: cryptography
+Requires-Dist: djangorestframework
+Requires-Dist: pyjwt
+Requires-Dist: requests
+Provides-Extra: docs
+Requires-Dist: sphinx (>=1.4.0) ; extra == 'docs'
+Provides-Extra: test
+Requires-Dist: coverage[toml] (==5.0.3) ; extra == 'test'
+Requires-Dist: pytest (==5.3.5) ; extra == 'test'
+Requires-Dist: pytest-django (==3.8.0) ; extra == 'test'
+Requires-Dist: pytest-cov (==2.8.1) ; extra == 'test'
+Requires-Dist: pytest-responses (==0.4.0) ; extra == 'test'
+Requires-Dist: isort[pyproject] (==4.3.21) ; extra == 'test'
+Requires-Dist: flake8 (==3.7.9) ; extra == 'test'
+Requires-Dist: flake8-imports (==0.1.1) ; extra == 'test'
+Requires-Dist: flake8-blind-except (==0.1.1) ; extra == 'test'
+Requires-Dist: flake8-debugger (==3.1.0) ; extra == 'test'
+
+.. start-no-pypi
+.. image:: https://github.com/labd/django-cognito-jwt/workflows/Python%20Tests/badge.svg
+    :target: https://github.com/labd/django-cognito-jwt/workflows/Python%20Tests/
+
+.. image:: http://codecov.io/github/LabD/django-cognito-jwt/coverage.svg?branch=master
+    :target: http://codecov.io/github/LabD/django-cognito-jwt?branch=master
+
+.. image:: https://img.shields.io/pypi/v/django-cognito-jwt.svg
+    :target: https://pypi.python.org/pypi/django-cognito-jwt/
+
+.. image:: https://readthedocs.org/projects/django-cognito-jwt/badge/?version=latest
+    :target: https://django-cognito-jwt.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+.. end-no-pypi
+
+
+Django Cognito JWT
+==================
+
+An Authentication backend for Django Rest Framework for AWS Cognito JWT tokens
+
+
+Installation
+============
+
+.. code-block:: shell
+
+   pip install django-cognito-jwt
+
+Usage
+=====
+
+Add the following lines to your Django ``settings.py`` file:
+
+.. code-block:: python
+
+    COGNITO_AWS_REGION = '<aws region>' # 'eu-central-1'
+    COGNITO_USER_POOL = '<user pool>'   # 'eu-central-1_xYzaq'
+    COGNITO_AUDIENCE = '<client id>'
+
+(Optional) If you want to cache the Cognito public keys between requests you can
+enable the ``COGNITO_PUBLIC_KEYS_CACHING_ENABLED`` setting (it only works if you
+have the Django ``CACHES`` setup to anything other than the dummy backend).
+
+.. code-block:: python
+
+    COGNITO_PUBLIC_KEYS_CACHING_ENABLED = True
+    COGNITO_PUBLIC_KEYS_CACHING_TIMEOUT = 60*60*24  # 24h caching, default is 300s
+
+Also update the rest framework settings to use the correct authentication backend:
+
+.. code-block:: python
+
+    REST_FRAMEWORK = {
+        'DEFAULT_AUTHENTICATION_CLASSES': [
+            ...
+            'django_cognito_jwt.JSONWebTokenAuthentication',
+            ...
+        ],
+        ...
+     }
+
+
+
+Be sure you are passing the ID Token JWT from Cognito as the authentication header.
+Using the Access Token will work for authentication only but we're unable to use the `get_or_create_for_cognito` method with the Access Token.
+
+
+(Optional) If you want to use a different user model then the default DJANGO_USER_MODEL
+you can use the ``COGNITO_USER_MODEL`` setting.
+
+.. code-block:: python
+
+	COGNITO_USER_MODEL = "myproject.AppUser"
+
+

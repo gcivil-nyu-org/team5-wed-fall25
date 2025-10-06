@@ -37,7 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts'
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -120,3 +123,21 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Cognito 
+COGNITO_BACKEND_CLIENT_ID= "5njvcddbq4fdn0gr25rqb1iied4"
+COGNITO_FRONTEND_CLIENT_ID= "6cvnet46l5v1650mnt52ihultd"
+COGNITO_BACKEND_CLIENT_SECRET="1hqjp5a4aegs3p76ajlocgl7cqnvkmnm1f9r0rktcgg811bdlisd"
+COGNITO_USER_POOL_ID="us-east-1_A2XTSkfoF"
+COGNITO_REGION="us-east-1"
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'accounts.authentication.CognitoJWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',  # optional
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
