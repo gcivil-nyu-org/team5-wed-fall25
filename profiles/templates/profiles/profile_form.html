@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+  <h2>Create Profile</h2>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div>
+      <img id="photoPreview" style="max-width:150px; display:none;" />
+    </div>
+    <button type="submit">Create</button>
+  </form>
+</div>
+
+<script>
+  document.getElementById('id_profile_photo').addEventListener('change', e => {
+    const [file] = e.target.files;
+    if (file) {
+      const preview = document.getElementById('photoPreview');
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+    }
+  });
+</script>
+{% endblock %}

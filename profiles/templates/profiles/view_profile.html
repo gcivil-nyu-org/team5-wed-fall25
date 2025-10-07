@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="profile">
+  {% if profile %}
+    <h3>{{ profile.user.username }}</h3>
+    <img src="{{ profile.profile_photo.url }}" width="150">
+    <p><strong>Bio:</strong> {{ profile.bio }}</p>
+    <p><strong>University:</strong> {{ profile.university }}</p>
+    <p><strong>Visibility:</strong> {{ profile.visibility|yesno:"Public,Private" }}</p>
+  {% else %}
+    <p>No profile found. <a href="{% url 'create_profile' %}">Create one</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}

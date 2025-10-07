@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CampusNest</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f8fc;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #283593;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        main {
+            padding: 30px;
+        }
+        footer {
+            background: #e0e0e0;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        button {
+            background: #283593;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #3949ab;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>CampusNest</h1>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        &copy; {{ now|date:"Y" }} CampusNest
+    </footer>
+</body>
+</html>
+
+
+{% if messages %}
+  <ul style="list-style:none; padding:0; text-align:center;">
+    {% for message in messages %}
+      <li style="margin:10px 0; color:green;">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
