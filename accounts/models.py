@@ -7,10 +7,6 @@ def validation_edu_email(value):
     """
     Stricter validation: ensures domain is exactly *.edu (not *.*.edu)
     """
-    # This pattern ensures only one domain level before .edu
-    # Example: user@university.edu ✅
-    # Example: user@sub.university.edu ❌
-    
     strict_edu_pattern = r'^[\w\.-]+@[\w-]+\.edu$'
     
     if not re.match(strict_edu_pattern, value):
