@@ -1,6 +1,18 @@
 import uuid
+from django.core import validators
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.utils.ipv6 import ValidationError
+import re
+
+def validation_edu_email(value):
+    strict_edu_pattern = r'^[\w\.-]+@[\w-]+\.edu$'
+
+    if not re.match(strict_edu_pattern, value):
+        raise ValidationError(
+            'Please enter a valid .edu email address from your university'
+        )
+
 
 class MyUserManager(BaseUserManager):
     def create_user(self, cognito_sub, email, **extra_fields):
@@ -23,7 +35,7 @@ class MyUserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     cognito_sub = models.CharField(max_length=255, unique=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, validators=[validation_edu_email])
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
     is_active = models.BooleanField(default=True)
