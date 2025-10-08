@@ -1,14 +1,79 @@
 {% extends 'base.html' %}
+
+{% block title %}Your Profile - CampusNest{% endblock %}
+
 {% block content %}
-<div class="profile">
-  {% if profile %}
-    <h3>{{ profile.user.username }}</h3>
-    <img src="{{ profile.profile_photo.url }}" width="150">
-    <p><strong>Bio:</strong> {{ profile.bio }}</p>
-    <p><strong>University:</strong> {{ profile.university }}</p>
-    <p><strong>Visibility:</strong> {{ profile.visibility|yesno:"Public,Private" }}</p>
-  {% else %}
-    <p>No profile found. <a href="{% url 'create_profile' %}">Create one</a>.</p>
-  {% endif %}
-</div>
+{% if profile %}
+    <h2>Your Profile</h2>
+    
+    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+            {% if profile.profile_photo %}
+                <img src="{{ profile.profile_photo.url }}" 
+                     alt="{{ profile.user.username }}'s photo"
+                     style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #007bff;">
+            {% else %}
+                <div style="width: 150px; height: 150px; border-radius: 50%; background: #ddd; display: inline-flex; align-items: center; justify-content: center; font-size: 48px; color: #666;">
+                    {{ profile.user.first_name.0 }}{{ profile.user.last_name.0 }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong style="color: #555;">Name:</strong>
+            <p style="margin: 5px 0;">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong style="color: #555;">Username:</strong>
+            <p style="margin: 5px 0;">{{ profile.user.username }}</p>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong style="color: #555;">Email:</strong>
+            <p style="margin: 5px 0;">{{ profile.user.email }}</p>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong style="color: #555;">University:</strong>
+            <p style="margin: 5px 0;">{{ profile.get_university_display }}</p>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong style="color: #555;">Bio:</strong>
+            <p style="margin: 5px 0; line-height: 1.6;">{{ profile.bio }}</p>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong style="color: #555;">Profile Visibility:</strong>
+            <p style="margin: 5px 0;">
+                {% if profile.visibility %}
+                    <span style="color: #28a745;">✓ Public</span>
+                {% else %}
+                    <span style="color: #dc3545;">✗ Private</span>
+                {% endif %}
+            </p>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong style="color: #555;">Member Since:</strong>
+            <p style="margin: 5px 0;">{{ profile.created_at|date:"F d, Y" }}</p>
+        </div>
+    </div>
+    
+    <div style="margin-top: 20px; text-align: center;">
+    <a href="{% url 'edit_profile' %}" 
+       style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+        Edit Profile
+    </a>
+	</div>
+    
+{% else %}
+    <h2>No Profile Found</h2>
+    <p style="color: #666; margin-bottom: 20px;">You haven't created a profile yet.</p>
+    <a href="{% url 'create_profile' %}" 
+       style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+        Create Profile
+    </a>
+{% endif %}
 {% endblock %}

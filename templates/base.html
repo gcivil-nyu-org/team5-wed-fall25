@@ -1,63 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>CampusNest</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f7f8fc;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background: #283593;
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-        }
-        main {
-            padding: 30px;
-        }
-        footer {
-            background: #e0e0e0;
-            text-align: center;
-            padding: 10px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-        button {
-            background: #283593;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        button:hover {
-            background: #3949ab;
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}CampusNest{% endblock %}</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f5f5f5;
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+		}
+
+		/* Navbar Styles */
+		nav {
+			background-color: #283593;
+			padding: 15px 30px;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+		}
+
+		.nav-container {
+			max-width: 1200px;
+			margin: 0 auto;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.nav-brand {
+			color: white;
+			font-size: 24px;
+			font-weight: bold;
+			text-decoration: none;
+		}
+
+		.nav-links {
+			display: flex;
+			gap: 20px;
+			align-items: center;
+		}
+
+		.nav-links a {
+			color: white;
+			text-decoration: none;
+			padding: 8px 16px;
+			border-radius: 4px;
+			transition: background-color 0.3s;
+		}
+
+		.nav-links a:hover {
+			background-color: rgba(255, 255, 255, 0.1);
+		}
+
+		.nav-user {
+			color: white;
+			margin-right: 10px;
+		}
+
+		.logout-btn {
+			background-color: #dc3545;
+			color: white;
+			border: none;
+			padding: 8px 16px;
+			border-radius: 4px;
+			cursor: pointer;
+			text-decoration: none;
+			display: inline-block;
+		}
+
+		.logout-btn:hover {
+			background-color: #c82333;
+		}
+
+		/* Main Content */
+		main {
+			flex: 1;
+			padding: 30px 20px;
+		}
+
+		.container {
+			max-width: 800px;
+			margin: 0 auto;
+			background: white;
+			padding: 30px;
+			border-radius: 8px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		h1,
+		h2 {
+			color: #333;
+			margin-bottom: 20px;
+		}
+
+		.form-group {
+			margin-bottom: 15px;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 5px;
+			color: #555;
+			font-weight: bold;
+		}
+
+		input[type="text"],
+		input[type="email"],
+		input[type="password"],
+		input[type="file"],
+		select,
+		textarea,
+		input {
+			width: 100%;
+			padding: 10px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			font-size: 14px;
+		}
+
+		.form-group input,
+		.form-group select,
+		.form-group textarea {
+			width: 100%;
+			padding: 10px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			font-size: 14px;
+		}
+
+		button,
+		.btn {
+			width: 100%;
+			padding: 12px;
+			background-color: #007bff;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			font-size: 16px;
+			cursor: pointer;
+			text-decoration: none;
+			display: inline-block;
+			text-align: center;
+		}
+
+		button:hover,
+		.btn:hover {
+			background-color: #0056b3;
+		}
+
+		.errorlist {
+			list-style: none;
+			color: red;
+			font-size: 14px;
+			margin-bottom: 10px;
+		}
+
+		.messages {
+			margin-bottom: 20px;
+		}
+
+		.alert {
+			padding: 10px;
+			border-radius: 4px;
+			margin-bottom: 10px;
+		}
+
+		.alert-success {
+			background-color: #d4edda;
+			color: #155724;
+		}
+
+		.alert-error {
+			background-color: #f8d7da;
+			color: #721c24;
+		}
+
+		.text-center {
+			text-align: center;
+		}
+
+		a {
+			color: #007bff;
+			text-decoration: none;
+		}
+
+		a:hover {
+			text-decoration: underline;
+		}
+
+		small {
+			display: block;
+			margin-top: 5px;
+			font-size: 12px;
+		}
+
+		/* Footer */
+		footer {
+			background-color: #283593;
+			color: white;
+			text-align: center;
+			padding: 15px;
+			margin-top: auto;
+		}
+	</style>
 </head>
+
 <body>
-    <header>
-        <h1>CampusNest</h1>
-    </header>
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-    <footer>
-        &copy; {{ now|date:"Y" }} CampusNest
-    </footer>
+	<!-- Navigation Bar -->
+	<nav>
+		<div class="nav-container">
+			<a href="/" class="nav-brand">🏠 CampusNest</a>
+
+			<div class="nav-links">
+				{% if user.is_authenticated %}
+				<span class="nav-user">Hello, {{ user.first_name|default:user.username }}!</span>
+				<a href="{% url 'view_profile' %}">My Profile</a>
+				{% if user.is_staff %}
+				<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+				{% endif %}
+				<a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+				{% else %}
+				<a href="{% url 'login' %}">Login</a>
+				<a href="{% url 'register' %}">Register</a>
+				{% endif %}
+			</div>
+		</div>
+	</nav>
+
+	<!-- Main Content -->
+	<main>
+		<div class="container">
+			{% if messages %}
+			<div class="messages">
+				{% for message in messages %}
+				<div class="alert alert-{{ message.tags }}">
+					{{ message }}
+				</div>
+				{% endfor %}
+			</div>
+			{% endif %}
+
+			{% block content %}
+			{% endblock %}
+		</div>
+	</main>
+
+	<!-- Footer -->
+	<footer>
+		&copy; 2025 CampusNest - Connecting NYC Students
+	</footer>
 </body>
+
 </html>
-
-
-{% if messages %}
-  <ul style="list-style:none; padding:0; text-align:center;">
-    {% for message in messages %}
-      <li style="margin:10px 0; color:green;">{{ message }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}

@@ -5,6 +5,17 @@ from .forms import ProfileForm
 from .models import Profile
 from django.contrib.admin.views.decorators import staff_member_required
 
+def home(request):
+    """
+    Home page - redirects based on authentication status
+    """
+    if request.user.is_authenticated:
+        # If logged in, go to their profile
+        return redirect('view_profile')
+    else:
+        # If not logged in, go to login page
+        return redirect('login')
+
 @login_required
 def create_profile(request):
     if hasattr(request.user, 'profile'):

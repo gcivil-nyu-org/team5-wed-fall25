@@ -8,6 +8,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
+from django.contrib.auth import logout
 
 from .forms import RegistrationForm
 from .models import User
@@ -88,3 +89,40 @@ def verify_email(request, uidb64, token):
     else:
         messages.error(request, 'Verification link is invalid or has expired.')
         return redirect('register')
+
+from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.forms import AuthenticationForm
+
+def user_login(request):
+    """
+    Handle user login
+    """
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=email, password=password)
+            
+            if user is not None:
+                if user.is_verified:
+                    auth_login(request, user)
+                    messages.success(request, f'Welcome back, {user.first_name}!')
+                    return redirect('view_profile')
+                else:
+                    messages.error(request, 'Please verify your email before logging in.')
+            else:
+                messages.error(request, 'Invalid email or password.')
+    else:
+        form = AuthenticationForm()
+    
+    return render(request, 'accounts/login.html', {'form': form})
+
+
+def user_logout(request):
+    """
+    Handle user logout
+    """
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('login')
