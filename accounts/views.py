@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -9,6 +9,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
+from django.contrib.sessions.models import Session
 
 from .forms import RegistrationForm
 from .models import User
@@ -191,5 +192,133 @@ def resend_verification(request):
     if initial_email:
         del request.session['unverified_email']
     
-    return render(request, 'accounts/resend_verification.html', {'initial_email': initial_email}
-                  )
+    return render(request, 'accounts/resend_verification.html', {'initial_email': initial_email})
+
+
+def password_reset_request(request):
+    """
+    Handle password reset request - send reset email
+    """
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        
+        try:
+            user = User.objects.get(email=email)
+            
+            # Generate password reset token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Build reset URL
+            current_site = get_current_site(request)
+            reset_link = f"http://{current_site.domain}/accounts/password-reset/{uid}/{token}/"
+            
+            # Send password reset email
+            subject = 'Reset Your CampusNest Password'
+            message = f"""
+            Hi {user.first_name},
+            
+            You requested to reset your password for your CampusNest account.
+            
+            Click the link below to reset your password:
+            
+            {reset_link}
+            
+            This link will expire in 1 hour for security reasons.
+            
+            If you didn't request this password reset, please ignore this email and your password will remain unchanged.
+            
+            Best regards,
+            The CampusNest Team
+            """
+            
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+            
+            messages.success(request, 'Password reset email sent! Please check your inbox.')
+            return redirect('password_reset_request')
+            
+        except User.DoesNotExist:
+            # Don't reveal if email exists for security
+            messages.success(request, 'If an account exists with this email, you will receive password reset instructions.')
+            return redirect('password_reset_request')
+    
+    return render(request, 'accounts/password_reset_request.html')
+
+
+def password_reset_confirm(request, uidb64, token):
+    """
+    Handle password reset confirmation - validate token and set new password
+    """
+    try:
+        # Decode user ID from URL
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    
+    # Check if token is valid (1 hour expiry is built into default_token_generator)
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                # Save new password
+                form.save()
+                
+                # Terminate all active sessions for this user (security)
+                terminate_user_sessions(user)
+                
+                # Send confirmation email
+                subject = 'Your CampusNest Password Has Been Changed'
+                message = f"""
+                Hi {user.first_name},
+                
+                This is to confirm that your password for CampusNest has been successfully changed.
+                
+                If you did not make this change, please contact us immediately.
+                
+                For security, all your active sessions have been logged out. Please log in again with your new password.
+                
+                Best regards,
+                The CampusNest Team
+                """
+                
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                
+                messages.success(request, 'Password reset successful! You can now log in with your new password.')
+                return redirect('login')
+        else:
+            form = SetPasswordForm(user)
+        
+        return render(request, 'accounts/password_reset_confirm.html', {'form': form})
+    else:
+        messages.error(request, 'Password reset link is invalid or has expired. Please request a new one.')
+        return redirect('password_reset_request')
+
+
+def terminate_user_sessions(user):
+    """
+    Terminate all active sessions for a specific user
+    This is called when password is reset for security
+    """
+    user_sessions = []
+    all_sessions = Session.objects.all()
+    
+    for session in all_sessions:
+        session_data = session.get_decoded()
+        if session_data.get('_auth_user_id') == str(user.id):
+            user_sessions.append(session.pk)
+    
+    # Delete all sessions for this user
+    Session.objects.filter(pk__in=user_sessions).delete()
