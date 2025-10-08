@@ -1,93 +1,87 @@
-# Team Project repo
+# CampusNest - Quick Start Guide
 
-# CampusNest
+## Prerequisites
+- Python 3.13
+- `uv` package manager
+- Git
 
-## Description
-Every year, over 500,000 students come to New York City to study at universities and colleges across the five boroughs. While the city offers endless opportunities, one of the biggest challenges students face is finding safe, affordable, and reliable housing, often while juggling classes, jobs, and adjusting to a new environment.
+## Initial Setup
+### 1. Clone the Repository
+```bash
+git clone <repository-url>
+cd campusnest_pure_django
+```
 
-Currently, many students turn to Craigslist, Facebook, or WhatsApp groups. These options are often overwhelming, unsafe, or unreliable, leaving students stressed and distracted from what truly matters: their education and personal growth.
+### 2. Create Virtual Environment with uv
+```bash
+uv venv
+source .venv/bin/activate
+```
 
-**CampusNest** will be built to solve this problem. By requiring a `.edu` email login, the platform ensures that only verified students can join, creating a safer community. Students can quickly post or browse listings for housing, roommates, sublets, and even items like furniture or electronics. CampusNest helps students find the right fit faster, whether it’s a room near campus or a fellow student looking for a roommate.
+### 3. Install Dependencies
+```bash
+uv pip install -r requirements.txt
+```
 
-By reducing the time and stress of housing searches, CampusNest empowers students to focus on building their futures.
+### 4. Configure Environment Variables
+Create a `.env` file in the project root:
 
----
+```bash
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+```
 
-## Problem Statement
-Students in New York City rely heavily on WhatsApp groups to find housing or roommates. While useful, these groups create multiple challenges:
+**Note:** For email functionality, you need a Gmail App Password (not your regular password).
+### 5. Run Database Migrations
+```bash
+python manage.py migrate
+```
 
-- **Cluttered Information**  
-  Listings appear as long chat messages, making it hard to search, filter, or compare options.
+### 6. Create a Superuser (Optional)
+```bash
+python manage.py createsuperuser
+```
 
-- **Lack of Organization**  
-  No structured way to post or view details like budget, location, or availability → leads to confusion.
+### 7. Run the Development Server
+```bash
+python manage.py runserver
+```
 
-- **Safety & Trust Concerns**  
-  Anyone can join these groups → frequent scams/spam from malicious actors.
-
-- **Stress on Students**  
-  Instead of focusing on academics, students waste hours navigating cluttered groups.  
-  > Example: A friend’s PhD housing was withdrawn a week before arrival, leaving them scrambling for last-minute accommodation.
-
----
-
-## User Personas & Major Features
-
-### 1. The Incoming Student (Domestic/International)
-- **Needs:** Affordable housing, safe neighborhoods, verified roommates, easy onboarding.  
-- **Features:**  
-  - `.edu` login  
-  - Search & filter by budget, location, lifestyle, move-in date  
-
-### 2. The Lease Holder / Subletter
-- **Needs:** Reliable tenants without spam or scams.  
-- **Features:**  
-  - Quick posting of subleases/lease transfers  
-  - Availability period & rent details  
-  - In-app chat for direct communication  
-
-### 3. The Marketplace Student
-- **Needs:** A clutter-free, trusted space to trade essentials.  
-- **Features:**  
-  - Marketplace category (furniture, electronics, etc.)  
-  - Item listings with images, prices, pickup details  
-  - Search & filter by category  
-
-### 4. The Returning / Current Student
-- **Needs:** Easier housing discovery and roommate finding.  
-- **Features:**  
-  - Personalized filters (non-smoking, vegetarian, etc.)  
-  - Notifications for new matching listings  
+Visit: **http://127.0.0.1:8000/**
 
 ---
 
-## MVP (Minimum Viable Product)
-- **User Authentication with .edu Emails**  
-- **Housing Listings (Create + Browse)**  
-- **Basic Search & Filters** (budget, location, availability)  
-- **Marketplace Listings** (furniture, books, electronics)  
-- **Listing Management (CRUD)**  
-- **In-App Chat / Messaging**  
+## Project Structure
+```
+CampusNest/
+├── accounts/           # User authentication (register, login, password reset)
+├── profiles/           # User profiles
+├── templates/          # Shared templates
+├── media/             # User uploaded files
+├── manage.py
+└── .env               # Environment variables (DO NOT COMMIT)
+```
 
 ---
 
-##  MLP (Minimum Loveable Product)
-- **Roommate Matching** (preferences: budget, lifestyle, location)  
-- **Saved Searches & Alerts**  
-- **Profile Badges & Trust Indicators**  
-- **Media Uploads** (images for housing/marketplace listings)  
+## Available URLs
 
----
+### Authentication
+- `/accounts/register/` - Create new account
+- `/accounts/login/` - Login
+- `/accounts/logout/` - Logout
+- `/accounts/password-reset/` - Reset password
+- `/accounts/resend-verification/` - Resend verification email
 
-## Nice-To-Have Features
-- **Map-Based Search** (neighborhoods & subway lines)  
-- **Reviews & Ratings** (roommates, landlords, buyers/sellers)  
-- **Integrated Calendar / Scheduling** (tours, pickup times)  
-- **Verified Landlords & Brokers** (optional onboarding with badge)  
-- **Community Features** (forums for moving tips, roommate advice, furniture swaps)  
+### Profiles
+- `/` - Home (redirects based on auth status)
+- `/profiles/view/` - View your profile
+- `/profiles/create/` - Create profile
+- `/profiles/edit/` - Edit profile
+- `/profiles/admin-dashboard/` - Admin dashboard (staff only)
 
----
-
-## Summary
-CampusNest is a **student-only housing and marketplace platform** designed to reduce stress, eliminate scams, and provide a structured, safe, and reliable way for students in NYC to find housing, roommates, and essentials.
+### Admin
+- `/admin/` - Django admin panel
 
