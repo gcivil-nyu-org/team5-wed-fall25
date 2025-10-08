@@ -1,0 +1,30 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Resend Verification - CampusNest{% endblock %}
+
+{% block content %}
+<h2>Resend Verification Email</h2>
+<p style="margin-bottom: 20px; color: #666;">
+	Didn't receive the verification email? Enter your email below to get a new one.
+</p>
+
+<form method="post">
+	{% csrf_token %}
+
+	<div class="form-group">
+		<label for="email">Email Address</label>
+		<input type="email" name="email" id="email" required placeholder="your.email@university.edu"
+			value="{{ initial_email }}">
+	</div>
+
+	<button type="submit">Send Verification Email</button>
+</form>
+
+<p class="text-center" style="margin-top: 20px;">
+	Already verified? <a href="{% url 'login' %}">Login</a>
+</p>
+
+<p class="text-center" style="margin-top: 10px;">
+	Need to register? <a href="{% url 'register' %}">Create an account</a>
+</p>
+{% endblock %}
