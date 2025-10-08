@@ -1,12 +1,18 @@
 branch-defaults:
+  django-base:
+    environment: campusnest-env
   epic-reg/auth:
     environment: campusnest-env
     group_suffix: null
+environment-defaults:
+  campusnest-env:
+    branch: null
+    repository: null
 global:
-  application_name: CampusNest
+  application_name: campusnest
   branch: null
   default_ec2_keyname: aws-eb
-  default_platform: Python 3.13 running on 64bit Amazon Linux 2023
+  default_platform: Python 3.13
   default_region: us-east-1
   include_git_submodules: true
   instance_profile: null
