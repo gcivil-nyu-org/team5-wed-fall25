@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ listing.title }}</h2>
+  <p><strong>Address:</strong> {{ listing.address }}</p>
+  <p><strong>Rent:</strong> ${{ listing.rent }}</p>
+  <p><strong>Description:</strong> {{ listing.description }}</p>
+  <p><strong>Amenities:</strong> {{ listing.amenities }}</p>
+  <p><strong>Availability:</strong> {{ listing.availability_start }} to {{ listing.availability_end }}</p>
+  <h5>Photos:</h5>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    {% for img in listing.images.all %}
+      <img src="{{ img.image.url }}" width="200" style="border-radius:8px;">
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
