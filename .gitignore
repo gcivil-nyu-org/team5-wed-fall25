@@ -24,3 +24,6 @@ media/
 # Static files (collected)
 staticfiles/
 static_root/
+
+# Elatic Beanstalk
+.elasticbeanstalk/
