@@ -126,6 +126,34 @@ def edit_listing(request, listing_id):
 
 
 @login_required
+def delete_listing(request, listing_id):
+    """Delete a listing with confirmation"""
+    listing = get_object_or_404(Listing, id=listing_id, user=request.user)
+    
+    if request.method == 'POST':
+        # Store listing title for success message
+        listing_title = listing.title
+        
+        # Delete the listing (images will be deleted automatically via CASCADE)
+        listing.delete()
+        
+        # Send confirmation email
+        send_mail(
+            subject="Your CampusNest Listing Has Been Deleted",
+            message=f"Your listing '{listing_title}' has been successfully deleted from CampusNest.\n\nIf you didn't perform this action, please contact us immediately.\n\nBest regards,\nThe CampusNest Team",
+            from_email="noreply@campusnest.com",
+            recipient_list=[request.user.email],
+            fail_silently=True,
+        )
+        
+        messages.success(request, f"Listing '{listing_title}' has been deleted successfully.")
+        return redirect('my_listings')
+    
+    # GET request - show confirmation page
+    return render(request, 'listings/delete_listing.html', {'listing': listing})
+
+
+@login_required
 def view_listing(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id, user=request.user)
     return render(request, 'listings/view_listing.html', {'listing': listing})

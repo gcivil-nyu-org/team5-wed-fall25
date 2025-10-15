@@ -59,7 +59,7 @@
 					<span style="color: #dc3545;">✗ Inactive</span>
 					{% endif %}
 				</p>
-				<div style="display: flex; gap: 10px;">
+				<div style="display: flex; gap: 10px; flex-wrap: wrap;">
 					<a href="{% url 'view_listing' listing.id %}"
 						style="display: inline-block; padding: 8px 16px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
 						View Details
@@ -67,6 +67,10 @@
 					<a href="{% url 'edit_listing' listing.id %}"
 						style="display: inline-block; padding: 8px 16px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px;">
 						Edit
+					</a>
+					<a href="{% url 'delete_listing' listing.id %}"
+						style="display: inline-block; padding: 8px 16px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px;">
+						Delete
 					</a>
 				</div>
 			</div>
@@ -85,4 +89,17 @@
 	</a>
 </div>
 {% endif %}
+
+<style>
+	@media (max-width: 768px) {
+		div[style*="display: flex; gap: 20px; align-items: start"] {
+			flex-direction: column;
+		}
+		
+		div[style*="display: flex; gap: 10px; flex-wrap: wrap"] a {
+			flex: 1;
+			text-align: center;
+		}
+	}
+</style>
 {% endblock %}

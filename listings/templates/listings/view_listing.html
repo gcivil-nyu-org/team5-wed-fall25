@@ -86,10 +86,14 @@
     </div>
   </div>
 
-  <div style="margin-top: 20px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+  <div style="margin-top: 20px; text-align: center; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
     <a href="{% url 'edit_listing' listing.id %}" 
        style="display: inline-block; padding: 12px 24px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px;">
       Edit Listing
+    </a>
+    <a href="{% url 'delete_listing' listing.id %}" 
+       style="display: inline-block; padding: 12px 24px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px;">
+      Delete Listing
     </a>
     <a href="{% url 'my_listings' %}" 
        style="display: inline-block; padding: 12px 24px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px;">

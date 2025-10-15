@@ -1,0 +1,98 @@
+{{% extends 'base.html' %}
+
+{% block title %}Delete Listing - CampusNest{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+	<h2 style="color: #dc3545;">Delete Listing</h2>
+
+	<div
+		style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 4px; margin: 20px 0;">
+		<strong style="color: #856404;">⚠️ Warning</strong>
+		<p style="margin: 10px 0 0 0; color: #856404;">
+			This action cannot be undone. Are you sure you want to delete this listing?
+		</p>
+	</div>
+
+	<!-- Listing Preview -->
+	<div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+		<h3 style="margin-bottom: 15px;">{{ listing.title }}</h3>
+
+		{% if listing.images.first %}
+		<img src="{{ listing.images.first.image.url }}"
+			style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">
+		{% endif %}
+
+		<div style="margin-bottom: 10px;">
+			<strong style="color: #555;">Address:</strong>
+			<span style="color: #666;">{{ listing.address }}</span>
+		</div>
+
+		<div style="margin-bottom: 10px;">
+			<strong style="color: #555;">Rent:</strong>
+			<span style="color: #666;">${{ listing.rent }}/month</span>
+		</div>
+
+		<div style="margin-bottom: 10px;">
+			<strong style="color: #555;">Available:</strong>
+			<span style="color: #666;">{{ listing.availability_start|date:"M. d, Y" }} to {{
+				listing.availability_end|date:"M. d, Y" }}</span>
+		</div>
+
+		<div style="margin-bottom: 10px;">
+			<strong style="color: #555;">Posted:</strong>
+			<span style="color: #666;">{{ listing.created_at|date:"F d, Y" }}</span>
+		</div>
+	</div>
+
+	<!-- Deletion Info -->
+	<div
+		style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 20px; border-radius: 4px; margin: 20px 0;">
+		<strong style="color: #721c24;">What will be deleted:</strong>
+		<ul style="margin: 10px 0 0 20px; color: #721c24;">
+			<li>All listing information</li>
+			<li>All uploaded photos ({{ listing.images.count }} image{{ listing.images.count|pluralize }})
+			</li>
+			<li>All listing history</li>
+		</ul>
+	</div>
+
+	<!-- Confirmation Form -->
+	<form method="POST" style="margin-top: 30px;">
+		{% csrf_token %}
+
+		<div style="display: flex; gap: 15px; justify-content: center;">
+			<button type="submit"
+				style="background-color: #dc3545; padding: 12px 30px; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; font-weight: bold;">
+				Yes, Delete Listing
+			</button>
+
+			<a href="{% url 'view_listing' listing.id %}"
+				style="display: inline-block; padding: 12px 30px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 16px; text-align: center;">
+				Cancel
+			</a>
+		</div>
+	</form>
+
+	<p class="text-center" style="margin-top: 20px; color: #666;">
+		Changed your mind? <a href="{% url 'my_listings' %}">Go back to My Listings</a>
+	</p>
+</div>
+
+<style>
+	button[type="submit"]:hover {
+		background-color: #c82333;
+	}
+
+	@media (max-width: 768px) {
+		div[style*="display: flex; gap: 15px"] {
+			flex-direction: column;
+		}
+
+		button[type="submit"],
+		a[style*="display: inline-block"] {
+			width: 100%;
+		}
+	}
+</style>
+{% endblock %}
