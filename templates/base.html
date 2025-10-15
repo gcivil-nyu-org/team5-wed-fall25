@@ -223,6 +223,7 @@
 				{% if user.is_authenticated %}
 				<span class="nav-user">Hello, {{ user.first_name|default:user.username }}!</span>
 				<a href="{% url 'view_profile' %}">My Profile</a>
+				<a href="{% url 'my_listings' %}">My Listings</a>
 				{% if user.is_staff %}
 				<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
 				{% endif %}

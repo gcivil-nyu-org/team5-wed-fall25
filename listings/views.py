@@ -49,3 +49,9 @@ def create_listing(request):
 def view_listing(request, listing_id):
     listing = Listing.objects.get(id=listing_id, user=request.user)
     return render(request, 'listings/view_listing.html', {'listing': listing})
+
+@login_required
+def my_listings(request):
+    """Display all listings created by the current user"""
+    listings = Listing.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'listings/my_listings.html', {'listings': listings})

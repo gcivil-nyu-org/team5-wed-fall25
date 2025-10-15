@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}My Listings - CampusNest{% endblock %}
+
+{% block content %}
+<h2>My Listings</h2>
+
+<div style="margin-bottom: 20px;">
+	<a href="{% url 'create_listing' %}" class="btn"
+		style="width: auto; display: inline-block; padding: 10px 20px;">
+		+ Create New Listing
+	</a>
+</div>
+
+{% if listings %}
+<div style="display: grid; gap: 20px;">
+	{% for listing in listings %}
+	<div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border-left: 4px solid #007bff;">
+		<div style="display: flex; gap: 20px; align-items: start;">
+			{% if listing.images.first %}
+			<img src="{{ listing.images.first.image.url }}"
+				style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;">
+			{% else %}
+			<div
+				style="width: 150px; height: 150px; background: #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666;">
+				No Image
+			</div>
+			{% endif %}
+
+			<div style="flex: 1;">
+				<h3 style="margin-bottom: 10px;">{{ listing.title }}</h3>
+				<p style="color: #666; margin-bottom: 5px;">
+					<strong>Address:</strong> {{ listing.address }}
+				</p>
+				<p style="color: #666; margin-bottom: 5px;">
+					<strong>Rent:</strong> ${{ listing.rent }}/month
+				</p>
+				<p style="color: #666; margin-bottom: 5px;">
+					<strong>Available:</strong> {{ listing.availability_start }} to {{
+					listing.availability_end }}
+				</p>
+				<p style="color: #666; margin-bottom: 10px;">
+					<strong>Posted:</strong> {{ listing.created_at|date:"F d, Y" }}
+				</p>
+				<p style="color: #666; margin-bottom: 10px;">
+					<strong>Status:</strong>
+					{% if listing.is_active %}
+					<span style="color: #28a745;">✓ Active</span>
+					{% else %}
+					<span style="color: #dc3545;">✗ Inactive</span>
+					{% endif %}
+				</p>
+				<a href="{% url 'view_listing' listing.id %}"
+					style="display: inline-block; padding: 8px 16px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+					View Details
+				</a>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% else %}
+<div style="text-align: center; padding: 40px; background: #f9f9f9; border-radius: 8px;">
+	<p style="color: #666; font-size: 18px; margin-bottom: 20px;">
+		You haven't created any listings yet.
+	</p>
+	<a href="{% url 'create_listing' %}"
+		style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+		Create Your First Listing
+	</a>
+</div>
+{% endif %}
+{% endblock %}
