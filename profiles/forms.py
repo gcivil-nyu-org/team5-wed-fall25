@@ -6,30 +6,6 @@ from .models import Profile
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-<<<<<<< HEAD
-        fields = ["bio", "university", "profile_photo", "visibility"]
-        widgets = {
-            "bio": forms.Textarea(
-                attrs={
-                    "rows": 4,
-                    "placeholder": "Tell us about yourself... (10–500 chars)",
-                    "style": "width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;",
-                }
-            ),
-            "university": forms.Select(
-                attrs={
-                    "style": "width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-                }
-            ),
-            "profile_photo": forms.FileInput(
-                attrs={
-                    "style": "width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-                }
-            ),
-            "visibility": forms.CheckboxInput(
-                attrs={"style": "width: 20px; height: 20px;"}
-            ),
-=======
         fields = [
             'bio', 
             'university', 
@@ -67,7 +43,7 @@ class ProfileForm(forms.ModelForm):
             'visibility': forms.CheckboxInput(attrs={
                 'style': 'width: 20px; height: 20px;'
             }),
->>>>>>> origin/profile-branch
+
         }
         labels = {
             'eating_habit': '🍽️ Eating Preference',
@@ -100,10 +76,6 @@ class ProfileForm(forms.ModelForm):
             # Check file type
             if photo.content_type not in ["image/jpeg", "image/png", "image/webp"]:
                 raise forms.ValidationError("Only JPG, PNG, and WebP formats allowed.")
-<<<<<<< HEAD
-
-        return photo
-=======
         
         return photo
->>>>>>> origin/profile-branch
+

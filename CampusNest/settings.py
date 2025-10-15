@@ -13,11 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-<<<<<<< HEAD
-
 # from decouple import config
-=======
->>>>>>> origin/profile-branch
 
 
 load_dotenv()
@@ -47,7 +43,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-<<<<<<< HEAD
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -58,18 +54,6 @@ INSTALLED_APPS = [
     "profiles",
     #    'storages',
     "listings",
-=======
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'accounts',
-    'profiles',
-    #'storages',
-    'listings',
->>>>>>> origin/profile-branch
 ]
 
 MIDDLEWARE = [
