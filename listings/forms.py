@@ -28,18 +28,18 @@ class ListingForm(forms.ModelForm):
             raise ValidationError("Description must be at least 20 characters long.")
         return description
 
-    def clean(self):
-        cleaned_data = super().clean()
-        files = self.files.getlist('images')
-        
-        if not files:
-            raise ValidationError({'images': "Please upload at least one image."})
-        
-        if len(files) > 5:
-            raise ValidationError({'images': "You can upload a maximum of 5 images."})
-        
-        for file in files:
-            if file.content_type and not file.content_type.startswith('image/'):
-                raise ValidationError({'images': f"{file.name} is not a valid image file."})
-        
-        return cleaned_data
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     files = self.files.getlist('images')
+    #
+    #     if not files:
+    #         raise ValidationError({'images': "Please upload at least one image."})
+    #
+    #     if len(files) > 5:
+    #         raise ValidationError({'images': "You can upload a maximum of 5 images."})
+    #
+    #     for file in files:
+    #         if file.content_type and not file.content_type.startswith('image/'):
+    #             raise ValidationError({'images': f"{file.name} is not a valid image file."})
+    #
+    #     return cleaned_data

@@ -13,17 +13,28 @@ def create_listing(request):
         return redirect('view_profile')
 
     if request.method == 'POST':
-        print("POST data:", request.POST)
-        print("FILES data:", request.FILES)
-        print("FILES.getlist('images'):", request.FILES.getlist('images'))
-        form = ListingForm(request.POST, request.FILES)
-        if form.is_valid():
+        form = ListingForm(request.POST)
+        files = request.FILES.getlist('images')
+        
+        # Validate images
+        if not files:
+            form.add_error(None, "Please upload at least one image.")
+        elif len(files) > 5:
+            form.add_error(None, "You can upload a maximum of 5 images.")
+        else:
+            # Validate file types
+            for file in files:
+                if not file.content_type.startswith('image/'):
+                    form.add_error(None, f"{file.name} is not a valid image file.")
+                    break
+        
+        if form.is_valid() and files and len(files) <= 5:
             listing = form.save(commit=False)
             listing.user = request.user
             listing.save()
 
             # Save all uploaded images
-            for file in request.FILES.getlist('images'):
+            for file in files:
                 ListingImage.objects.create(listing=listing, image=file)
 
             # Send confirmation email
@@ -37,8 +48,6 @@ def create_listing(request):
 
             messages.success(request, "Listing created successfully! A confirmation email has been sent.")
             return redirect('view_listing', listing_id=listing.id)
-        else:
-            print("Form errors:", form.errors)
     else:
         form = ListingForm()
 
