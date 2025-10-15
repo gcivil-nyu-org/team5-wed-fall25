@@ -4,6 +4,8 @@ branch-defaults:
   epic-reg/auth:
     environment: campusnest-env
     group_suffix: null
+  rishi-branch:
+    environment: campusnest-env
 environment-defaults:
   campusnest-env:
     branch: null
