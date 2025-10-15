@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-from decouple import config
 
 
 load_dotenv()
@@ -51,7 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'profiles',
-    'storages',
+    #'storages',
     'listings',
 ]
 
