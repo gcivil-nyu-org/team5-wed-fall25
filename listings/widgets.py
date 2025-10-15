@@ -1,4 +1,4 @@
-from django.forms.widgets import ClearableFileInput
+from django.forms.widgets import FileInput
 
-class MultiFileInput(ClearableFileInput):
+class MultipleFileInput(FileInput):
     allow_multiple_selected = True

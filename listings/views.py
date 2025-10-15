@@ -13,6 +13,9 @@ def create_listing(request):
         return redirect('view_profile')
 
     if request.method == 'POST':
+        print("POST data:", request.POST)
+        print("FILES data:", request.FILES)
+        print("FILES.getlist('images'):", request.FILES.getlist('images'))
         form = ListingForm(request.POST, request.FILES)
         if form.is_valid():
             listing = form.save(commit=False)

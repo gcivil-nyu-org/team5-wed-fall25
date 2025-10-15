@@ -5,6 +5,15 @@
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
+    
+    <div class="form-group">
+      <label for="id_images">Upload up to 5 images:</label>
+      <input type="file" name="images" id="id_images" multiple accept="image/*" required>
+      {% if form.errors.images %}
+        <div class="text-danger">{{ form.errors.images }}</div>
+      {% endif %}
+    </div>
+    
     <button type="submit" class="btn btn-primary mt-3">Post Listing</button>
   </form>
 </div>
