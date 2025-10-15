@@ -27,11 +27,13 @@ class Listing(models.Model):
     address = models.CharField(max_length=300)
     rent = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(max_length=2000)
-    amenities = models.CharField(max_length=500, blank=True)  # Store as comma-separated values
-    custom_amenities = models.CharField(max_length=300, blank=True)  # Add this field
+    amenities = models.CharField(max_length=500, blank=True)
+    custom_amenities = models.CharField(max_length=300, blank=True)
     availability_start = models.DateField(validators=[validate_future_date])
     availability_end = models.DateField(validators=[validate_future_date])
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)  # Add this field
+    is_edited = models.BooleanField(default=False)  # Add this field
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

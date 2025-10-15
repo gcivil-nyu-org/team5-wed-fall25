@@ -28,7 +28,14 @@
 			{% endif %}
 
 			<div style="flex: 1;">
-				<h3 style="margin-bottom: 10px;">{{ listing.title }}</h3>
+				<h3 style="margin-bottom: 10px;">
+					{{ listing.title }}
+					{% if listing.is_edited %}
+					<span style="background: #ffc107; color: #856404; padding: 3px 8px; border-radius: 3px; font-size: 12px; margin-left: 8px;">
+						EDITED
+					</span>
+					{% endif %}
+				</h3>
 				<p style="color: #666; margin-bottom: 5px;">
 					<strong>Address:</strong> {{ listing.address }}
 				</p>
@@ -40,6 +47,9 @@
 				</p>
 				<p style="color: #666; margin-bottom: 10px;">
 					<strong>Posted:</strong> {{ listing.created_at|date:"F d, Y" }}
+					{% if listing.is_edited %}
+					<br><strong>Last Updated:</strong> {{ listing.updated_at|date:"F d, Y" }}
+					{% endif %}
 				</p>
 				<p style="color: #666; margin-bottom: 10px;">
 					<strong>Status:</strong>
@@ -49,10 +59,16 @@
 					<span style="color: #dc3545;">✗ Inactive</span>
 					{% endif %}
 				</p>
-				<a href="{% url 'view_listing' listing.id %}"
-					style="display: inline-block; padding: 8px 16px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
-					View Details
-				</a>
+				<div style="display: flex; gap: 10px;">
+					<a href="{% url 'view_listing' listing.id %}"
+						style="display: inline-block; padding: 8px 16px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+						View Details
+					</a>
+					<a href="{% url 'edit_listing' listing.id %}"
+						style="display: inline-block; padding: 8px 16px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px;">
+						Edit
+					</a>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -64,6 +64,68 @@ def create_listing(request):
 
 
 @login_required
+def edit_listing(request, listing_id):
+    """Edit an existing listing"""
+    listing = get_object_or_404(Listing, id=listing_id, user=request.user)
+    
+    if request.method == 'POST':
+        form = ListingForm(request.POST, instance=listing)
+        files = request.FILES.getlist('images')
+        
+        # Check if user wants to keep existing images or upload new ones
+        keep_existing = request.POST.get('keep_existing_images') == 'on'
+        
+        # Validate images only if new images are uploaded
+        has_image_error = False
+        if files:
+            if len(files) > 10:
+                form.add_error(None, "You can upload a maximum of 10 images.")
+                has_image_error = True
+            else:
+                # Validate file types and size
+                for file in files:
+                    if not file.content_type.startswith('image/'):
+                        form.add_error(None, f"{file.name} is not a valid image file.")
+                        has_image_error = True
+                        break
+                    if file.size > 5 * 1024 * 1024:
+                        form.add_error(None, f"{file.name} exceeds 5MB size limit.")
+                        has_image_error = True
+                        break
+        elif not keep_existing and not listing.images.exists():
+            form.add_error(None, "Please upload at least one image or keep existing images.")
+            has_image_error = True
+        
+        if form.is_valid() and not has_image_error:
+            listing = form.save(commit=False)
+            listing.is_edited = True  # Mark as edited
+            listing.save()
+
+            # Handle images
+            if files:
+                # If new images uploaded, delete old ones
+                listing.images.all().delete()
+                # Save new images
+                for file in files:
+                    ListingImage.objects.create(listing=listing, image=file)
+            # If keep_existing is checked, don't touch the images
+
+            messages.success(request, "Listing updated successfully!")
+            return redirect('view_listing', listing_id=listing.id)
+    else:
+        # Pre-populate form with existing data
+        form = ListingForm(instance=listing)
+        # Pre-populate amenities checkboxes
+        if listing.amenities:
+            form.initial['amenities'] = listing.amenities.split(',')
+
+    return render(request, 'listings/edit_listing.html', {
+        'form': form,
+        'listing': listing
+    })
+
+
+@login_required
 def view_listing(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id, user=request.user)
     return render(request, 'listings/view_listing.html', {'listing': listing})
