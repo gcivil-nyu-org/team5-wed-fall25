@@ -7,6 +7,7 @@
     <h2>Your Profile</h2>
     
     <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+        <!-- Profile Photo Section -->
         <div style="text-align: center; margin-bottom: 20px;">
             {% if profile.profile_photo %}
                 <img src="{{ profile.profile_photo.url }}" 
@@ -19,6 +20,7 @@
             {% endif %}
         </div>
         
+        <!-- Basic Information -->
         <div style="margin-bottom: 15px;">
             <strong style="color: #555;">Name:</strong>
             <p style="margin: 5px 0;">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
@@ -43,22 +45,55 @@
             <strong style="color: #555;">Bio:</strong>
             <p style="margin: 5px 0; line-height: 1.6;">{{ profile.bio }}</p>
         </div>
-        
-        <div style="margin-bottom: 15px;">
-            <strong style="color: #555;">Profile Visibility:</strong>
-            <p style="margin: 5px 0;">
-                {% if profile.visibility %}
-                    <span style="color: #28a745;">✓ Public</span>
-                {% else %}
-                    <span style="color: #dc3545;">✗ Private</span>
-                {% endif %}
-            </p>
+
+        <!-- Lifestyle Preferences -->
+        <div style="border-bottom: 1px solid #dee2e6; padding-bottom: 15px; margin-bottom: 15px;">
+            <h3 style="color: #333; margin-bottom: 15px;">🏠 Lifestyle Preferences</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="background: white; padding: 10px; border-radius: 4px;">
+                    <strong style="color: #555;">🍽️ Eating:</strong>
+                    <p style="margin: 5px 0;">{{ profile.get_preference_display_with_icon.eating|default:profile.get_eating_habit_display }}</p>
+                </div>
+                
+                <div style="background: white; padding: 10px; border-radius: 4px;">
+                    <strong style="color: #555;">🚬 Smoking:</strong>
+                    <p style="margin: 5px 0;">{{ profile.get_preference_display_with_icon.smoking|default:profile.get_smoking_preference_display }}</p>
+                </div>
+                
+                <div style="background: white; padding: 10px; border-radius: 4px;">
+                    <strong style="color: #555;">🤝 Sharing:</strong>
+                    <p style="margin: 5px 0;">{{ profile.get_preference_display_with_icon.sharing|default:profile.get_sharing_preference_display }}</p>
+                </div>
+                
+                <div style="background: white; padding: 10px; border-radius: 4px;">
+                    <strong style="color: #555;">🍷 Drinking:</strong>
+                    <p style="margin: 5px 0;">{{ profile.get_preference_display_with_icon.drinking|default:profile.get_drinking_preference_display }}</p>
+                </div>
+            </div>
         </div>
         
-        <div style="margin-bottom: 15px;">
-            <strong style="color: #555;">Member Since:</strong>
-            <p style="margin: 5px 0;">{{ profile.created_at|date:"F d, Y" }}</p>
+        <!-- Account Details -->
+        <div>
+            <h3 style="color: #333; margin-bottom: 15px;">⚙️ Account Details</h3>
+            
+            <div style="margin-bottom: 10px;">
+                <strong style="color: #555;">Profile Visibility:</strong>
+                <p style="margin: 5px 0;">
+                    {% if profile.visibility %}
+                        <span style="color: #28a745;">✓ Public - Visible to other students</span>
+                    {% else %}
+                        <span style="color: #dc3545;">✗ Private - Hidden from searches</span>
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <strong style="color: #555;">Member Since:</strong>
+                <p style="margin: 5px 0;">{{ profile.created_at|date:"F d, Y" }}</p>
+            </div>
         </div>
+        
     </div>
     
     <div style="margin-top: 20px; text-align: center;">

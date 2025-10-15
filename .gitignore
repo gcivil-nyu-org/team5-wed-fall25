@@ -25,6 +25,10 @@ media/
 staticfiles/
 static_root/
 
+<<<<<<< HEAD
 
 # Elastic beanstalk
+=======
+# Elatic Beanstalk
+>>>>>>> origin/profile-branch
 .elasticbeanstalk/

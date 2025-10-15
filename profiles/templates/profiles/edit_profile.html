@@ -17,6 +17,7 @@
 	</ul>
 	{% endif %}
 
+	<!-- Basic Information Section -->
 	<div class="form-group">
 		<label for="{{ form.bio.id_for_label }}">Bio</label>
 		{{ form.bio }}
@@ -64,18 +65,63 @@
 		</div>
 	</div>
 
-	<div class="form-group">
-		<label for="{{ form.visibility.id_for_label }}">Profile Visibility</label>
-		{{ form.visibility }}
-		{% if form.visibility.errors %}
-		<ul class="errorlist">
-			{% for error in form.visibility.errors %}
-			<li>{{ error }}</li>
-			{% endfor %}
-		</ul>
-		{% endif %}
-		<small style="color: #666;">Make your profile visible to other students</small>
-	</div>
+
+    <!-- Lifestyle Preferences Section -->
+    <div style="background: #f0f8ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h3 style="margin-bottom: 15px; color: #333;">🏠 Lifestyle Preferences</h3>
+        <p style="color: #666; margin-bottom: 15px;">Update your preferences to find better roommate matches</p>
+        
+        <div class="form-group">
+            <label for="{{ form.eating_habit.id_for_label }}">{{ form.eating_habit.label }}</label>
+            {{ form.eating_habit }}
+            {% if form.eating_habit.help_text %}
+                <small style="color: #666;">{{ form.eating_habit.help_text }}</small>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.smoking_preference.id_for_label }}">{{ form.smoking_preference.label }}</label>
+            {{ form.smoking_preference }}
+            {% if form.smoking_preference.help_text %}
+                <small style="color: #666;">{{ form.smoking_preference.help_text }}</small>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.sharing_preference.id_for_label }}">{{ form.sharing_preference.label }}</label>
+            {{ form.sharing_preference }}
+            {% if form.sharing_preference.help_text %}
+                <small style="color: #666;">{{ form.sharing_preference.help_text }}</small>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.drinking_preference.id_for_label }}">{{ form.drinking_preference.label }}</label>
+            {{ form.drinking_preference }}
+            {% if form.drinking_preference.help_text %}
+                <small style="color: #666;">{{ form.drinking_preference.help_text }}</small>
+            {% endif %}
+        </div>
+    </div>
+
+	<!-- Privacy Settings -->
+    <div style="background: #fff9e6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h3 style="margin-bottom: 15px; color: #333;">🔒 Privacy Settings</h3>
+        
+        <div class="form-group">
+            <label for="{{ form.visibility.id_for_label }}">
+                {{ form.visibility }} Make my profile visible to other students
+            </label>
+            {% if form.visibility.errors %}
+                <ul class="errorlist">
+                    {% for error in form.visibility.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <small style="color: #666;">Your profile will be searchable by other verified students</small>
+        </div>
+    </div>
 
 	<button type="submit">Update Profile</button>
 </form>
