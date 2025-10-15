@@ -1,4 +1,4 @@
-{{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Delete Listing - CampusNest{% endblock %}
 
@@ -8,7 +8,7 @@
 
 	<div
 		style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 4px; margin: 20px 0;">
-		<strong style="color: #856404;">⚠️ Warning</strong>
+		<strong style="color: #856404;">Warning</strong>
 		<p style="margin: 10px 0 0 0; color: #856404;">
 			This action cannot be undone. Are you sure you want to delete this listing?
 		</p>
@@ -35,8 +35,7 @@
 
 		<div style="margin-bottom: 10px;">
 			<strong style="color: #555;">Available:</strong>
-			<span style="color: #666;">{{ listing.availability_start|date:"M. d, Y" }} to {{
-				listing.availability_end|date:"M. d, Y" }}</span>
+			<span style="color: #666;">{{ listing.availability_start|date:"M. d, Y" }} to {{listing.availability_end|date:"M. d, Y" }}</span>
 		</div>
 
 		<div style="margin-bottom: 10px;">
