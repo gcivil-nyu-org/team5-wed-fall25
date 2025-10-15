@@ -78,8 +78,7 @@
 	<!-- Availability Dates -->
 	<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
 		<div class="form-group" style="margin-bottom: 0;">
-			<label for="{{ form.availability_start.id_for_label }}">{{ form.availability_start.label
-				}}</label>
+			<label for="{{ form.availability_start.id_for_label }}">{{ form.availability_start.label }}</label>
 			{{ form.availability_start }}
 			{% if form.availability_start.errors %}
 			<ul class="errorlist">
@@ -103,17 +102,15 @@
 		</div>
 	</div>
 
-	<!-- Amenities -->
+	<!-- Amenities - FIXED VERSION -->
 	<div class="form-group">
 		<label>{{ form.amenities.label }}</label>
 		<div class="amenities-grid">
 			{% for checkbox in form.amenities %}
-			<div class="amenity-item">
+			<label class="amenity-item">
 				{{ checkbox.tag }}
-				<label for="{{ checkbox.id_for_label }}" class="amenity-label">
-					{{ checkbox.choice_label }}
-				</label>
-			</div>
+				<span class="amenity-label">{{ checkbox.choice_label }}</span>
+			</label>
 			{% endfor %}
 		</div>
 		{% if form.amenities.errors %}
@@ -143,18 +140,14 @@
 	{% if listing.images.all %}
 	<div class="form-group">
 		<label>Current Images</label>
-		<div
-			style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px;">
+		<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px;">
 			{% for img in listing.images.all %}
-			<img src="{{ img.image.url }}"
-				style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+			<img src="{{ img.image.url }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
 			{% endfor %}
 		</div>
 		<div style="margin-top: 10px;">
-			<input type="checkbox" name="keep_existing_images" id="keep_existing_images" checked
-				style="width: auto;">
-			<label for="keep_existing_images"
-				style="display: inline; margin-left: 5px; font-weight: normal;">
+			<input type="checkbox" name="keep_existing_images" id="keep_existing_images" checked style="width: auto;">
+			<label for="keep_existing_images" style="display: inline; margin-left: 5px; font-weight: normal;">
 				Keep existing images (uncheck to replace with new images)
 			</label>
 		</div>
@@ -165,12 +158,10 @@
 	<div class="form-group">
 		<label for="id_images">Upload New Photos (optional, maximum 10)</label>
 		<input type="file" name="images" id="id_images" multiple accept="image/*">
-		<small style="color: #666;">Leave empty to keep current images. Accepted formats: JPG, PNG, WebP. Max
-			5MB per image.</small>
+		<small style="color: #666;">Leave empty to keep current images. Accepted formats: JPG, PNG, WebP. Max 5MB per image.</small>
 
 		<!-- Image Preview -->
-		<div id="imagePreview"
-			style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;">
+		<div id="imagePreview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;">
 		</div>
 
 		<div id="imageCount" style="margin-top: 10px; color: #666; font-size: 14px;"></div>
@@ -184,21 +175,6 @@
 </p>
 
 <style>
-	/* Responsive Grid */
-	@media (max-width: 768px) {
-		.container {
-			padding: 15px;
-		}
-
-		div[style*="grid-template-columns: 1fr 1fr"] {
-			grid-template-columns: 1fr !important;
-		}
-
-		.amenities-grid {
-			grid-template-columns: 1fr !important;
-		}
-	}
-
 	/* Form Controls */
 	.form-control {
 		width: 100%;
@@ -214,11 +190,11 @@
 		box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 	}
 
-	/* Amenities Grid */
+	/* Amenities Grid - FIXED TO MATCH CREATE PAGE */
 	.amenities-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 12px;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 10px;
 		padding: 15px;
 		background: #f9f9f9;
 		border-radius: 4px;
@@ -228,14 +204,22 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
+		cursor: pointer;
+		padding: 8px;
+		border-radius: 4px;
+		transition: background-color 0.2s;
 	}
 
-	.amenity-checkbox {
+	.amenity-item:hover {
+		background-color: #e9ecef;
+	}
+
+	.amenity-item input[type="checkbox"] {
 		width: 18px;
 		height: 18px;
+		margin: 0;
 		cursor: pointer;
 		flex-shrink: 0;
-		margin: 0;
 	}
 
 	.amenity-label {
@@ -278,6 +262,21 @@
 
 	.image-preview-item .remove-btn:hover {
 		background: rgba(200, 35, 51, 1);
+	}
+
+	/* Responsive Design */
+	@media (max-width: 768px) {
+		.container {
+			padding: 15px;
+		}
+
+		div[style*="grid-template-columns: 1fr 1fr"] {
+			grid-template-columns: 1fr !important;
+		}
+
+		.amenities-grid {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>
 
@@ -340,10 +339,8 @@
 			return;
 		}
 
-		// Store files
 		selectedFiles = files;
 
-		// Update count
 		if (files.length > 0) {
 			imageCountDiv.textContent = `${files.length} new image(s) selected`;
 			imageCountDiv.style.color = '#28a745';
@@ -351,10 +348,8 @@
 			imageCountDiv.textContent = '';
 		}
 
-		// Clear previous previews
 		imagePreview.innerHTML = '';
 
-		// Create previews
 		files.forEach((file, index) => {
 			if (!file.type.startsWith('image/')) {
 				alert(`${file.name} is not a valid image file.`);
@@ -371,27 +366,23 @@
 				const previewItem = document.createElement('div');
 				previewItem.className = 'image-preview-item';
 				previewItem.innerHTML = `
-          <img src="${e.target.result}" alt="Preview ${index + 1}">
-          <button type="button" class="remove-btn" onclick="removeImage(${index})" title="Remove image">×</button>
-        `;
+					<img src="${e.target.result}" alt="Preview ${index + 1}">
+					<button type="button" class="remove-btn" onclick="removeImage(${index})" title="Remove image">×</button>
+				`;
 				imagePreview.appendChild(previewItem);
 			};
 			reader.readAsDataURL(file);
 		});
 	});
 
-	// Remove image function
 	function removeImage(index) {
 		selectedFiles.splice(index, 1);
-
 		const dataTransfer = new DataTransfer();
 		selectedFiles.forEach(file => dataTransfer.items.add(file));
 		imageInput.files = dataTransfer.files;
-
 		imageInput.dispatchEvent(new Event('change'));
 	}
 
-	// Form validation before submit
 	document.getElementById('listingForm').addEventListener('submit', function (e) {
 		const files = imageInput.files;
 
@@ -401,7 +392,6 @@
 			return false;
 		}
 
-		// Disable submit button to prevent double submission
 		document.getElementById('submitBtn').disabled = true;
 		document.getElementById('submitBtn').textContent = 'Updating...';
 	});

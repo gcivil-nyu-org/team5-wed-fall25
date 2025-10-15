@@ -25,6 +25,5 @@ media/
 staticfiles/
 static_root/
 
-
-# Elastic beanstalk
+# Elatic Beanstalk
 .elasticbeanstalk/

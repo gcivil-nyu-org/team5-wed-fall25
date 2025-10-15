@@ -17,6 +17,7 @@
         </ul>
     {% endif %}
     
+    <!-- Basic Information Section -->
     <div class="form-group">
         <label for="{{ form.bio.id_for_label }}">Bio</label>
         {{ form.bio }}
@@ -57,7 +58,46 @@
             <img id="photoPreview" style="max-width: 150px; border-radius: 4px; display: none;" />
         </div>
     </div>
+
+    <!-- Lifestyle Preferences Section -->
+    <div style="background: #f0f8ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h3 style="margin-bottom: 15px; color: #333;">🏠 Lifestyle Preferences</h3>
+        <p style="color: #666; margin-bottom: 15px;">Help us match you with compatible roommates</p>
+        
+        <div class="form-group">
+            <label for="{{ form.eating_habit.id_for_label }}">{{ form.eating_habit.label }}</label>
+            {{ form.eating_habit }}
+            {% if form.eating_habit.help_text %}
+                <small style="color: #666;">{{ form.eating_habit.help_text }}</small>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.smoking_preference.id_for_label }}">{{ form.smoking_preference.label }}</label>
+            {{ form.smoking_preference }}
+            {% if form.smoking_preference.help_text %}
+                <small style="color: #666;">{{ form.smoking_preference.help_text }}</small>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.sharing_preference.id_for_label }}">{{ form.sharing_preference.label }}</label>
+            {{ form.sharing_preference }}
+            {% if form.sharing_preference.help_text %}
+                <small style="color: #666;">{{ form.sharing_preference.help_text }}</small>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.drinking_preference.id_for_label }}">{{ form.drinking_preference.label }}</label>
+            {{ form.drinking_preference }}
+            {% if form.drinking_preference.help_text %}
+                <small style="color: #666;">{{ form.drinking_preference.help_text }}</small>
+            {% endif %}
+        </div>
+    </div>
     
+    <!-- Privacy Settings -->
     <div class="form-group">
         <label for="{{ form.visibility.id_for_label }}">Profile Visibility</label>
         {{ form.visibility }}
