@@ -158,21 +158,6 @@
 </p>
 
 <style>
-  /* Responsive Grid */
-  @media (max-width: 768px) {
-    .container {
-      padding: 15px;
-    }
-    
-    div[style*="grid-template-columns: 1fr 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-    
-    .amenities-grid {
-      grid-template-columns: 1fr !important;
-    }
-  }
-
   /* Form Controls */
   .form-control {
     width: 100%;
@@ -188,10 +173,10 @@
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
   }
 
-  /* Amenities Grid - Fixed Alignment */
+  /* Amenities Grid - Fixed */
   .amenities-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 12px;
     padding: 15px;
     background: #f9f9f9;
@@ -202,6 +187,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0; /* Allow flex items to shrink */
   }
 
   .amenity-checkbox {
@@ -217,6 +203,8 @@
     font-weight: normal;
     cursor: pointer;
     user-select: none;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   /* Image Preview Styles */
@@ -252,6 +240,28 @@
 
   .image-preview-item .remove-btn:hover {
     background: rgba(200, 35, 51, 1);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .container {
+      padding: 15px;
+    }
+    
+    div[style*="grid-template-columns: 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    .amenities-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .amenities-grid {
+      padding: 10px;
+      gap: 10px;
+    }
   }
 </style>
 
