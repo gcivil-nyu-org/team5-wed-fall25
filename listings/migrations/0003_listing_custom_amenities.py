@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('listings', '0002_alter_listing_amenities_and_more'),
+        ("listings", "0002_alter_listing_amenities_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='listing',
-            name='custom_amenities',
+            model_name="listing",
+            name="custom_amenities",
             field=models.CharField(blank=True, max_length=300),
         ),
     ]

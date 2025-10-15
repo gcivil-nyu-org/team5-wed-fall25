@@ -5,17 +5,18 @@ from django.contrib import messages
 from .forms import ListingForm
 from .models import Listing, ListingImage
 
+
 @login_required
 def create_listing(request):
     # Verify .edu email domain
-    if not request.user.email.endswith('.edu'):
+    if not request.user.email.endswith(".edu"):
         messages.error(request, "Only verified .edu email addresses can post listings.")
-        return redirect('view_profile')
+        return redirect("view_profile")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ListingForm(request.POST)
-        files = request.FILES.getlist('images')
-        
+        files = request.FILES.getlist("images")
+
         # Validate images
         has_image_error = False
         if not files:
@@ -27,7 +28,7 @@ def create_listing(request):
         else:
             # Validate file types and size
             for file in files:
-                if not file.content_type.startswith('image/'):
+                if not file.content_type.startswith("image/"):
                     form.add_error(None, f"{file.name} is not a valid image file.")
                     has_image_error = True
                     break
@@ -36,7 +37,7 @@ def create_listing(request):
                     form.add_error(None, f"{file.name} exceeds 5MB size limit.")
                     has_image_error = True
                     break
-        
+
         if form.is_valid() and not has_image_error:
             listing = form.save(commit=False)
             listing.user = request.user
@@ -55,26 +56,29 @@ def create_listing(request):
                 fail_silently=True,
             )
 
-            messages.success(request, "Listing created successfully! A confirmation email has been sent.")
-            return redirect('view_listing', listing_id=listing.id)
+            messages.success(
+                request,
+                "Listing created successfully! A confirmation email has been sent.",
+            )
+            return redirect("view_listing", listing_id=listing.id)
     else:
         form = ListingForm()
 
-    return render(request, 'listings/create_listing.html', {'form': form})
+    return render(request, "listings/create_listing.html", {"form": form})
 
 
 @login_required
 def edit_listing(request, listing_id):
     """Edit an existing listing"""
     listing = get_object_or_404(Listing, id=listing_id, user=request.user)
-    
-    if request.method == 'POST':
+
+    if request.method == "POST":
         form = ListingForm(request.POST, instance=listing)
-        files = request.FILES.getlist('images')
-        
+        files = request.FILES.getlist("images")
+
         # Check if user wants to keep existing images or upload new ones
-        keep_existing = request.POST.get('keep_existing_images') == 'on'
-        
+        keep_existing = request.POST.get("keep_existing_images") == "on"
+
         # Validate images only if new images are uploaded
         has_image_error = False
         if files:
@@ -84,7 +88,7 @@ def edit_listing(request, listing_id):
             else:
                 # Validate file types and size
                 for file in files:
-                    if not file.content_type.startswith('image/'):
+                    if not file.content_type.startswith("image/"):
                         form.add_error(None, f"{file.name} is not a valid image file.")
                         has_image_error = True
                         break
@@ -93,9 +97,11 @@ def edit_listing(request, listing_id):
                         has_image_error = True
                         break
         elif not keep_existing and not listing.images.exists():
-            form.add_error(None, "Please upload at least one image or keep existing images.")
+            form.add_error(
+                None, "Please upload at least one image or keep existing images."
+            )
             has_image_error = True
-        
+
         if form.is_valid() and not has_image_error:
             listing = form.save(commit=False)
             listing.is_edited = True  # Mark as edited
@@ -111,32 +117,31 @@ def edit_listing(request, listing_id):
             # If keep_existing is checked, don't touch the images
 
             messages.success(request, "Listing updated successfully!")
-            return redirect('view_listing', listing_id=listing.id)
+            return redirect("view_listing", listing_id=listing.id)
     else:
         # Pre-populate form with existing data
         form = ListingForm(instance=listing)
         # Pre-populate amenities checkboxes
         if listing.amenities:
-            form.initial['amenities'] = listing.amenities.split(',')
+            form.initial["amenities"] = listing.amenities.split(",")
 
-    return render(request, 'listings/edit_listing.html', {
-        'form': form,
-        'listing': listing
-    })
+    return render(
+        request, "listings/edit_listing.html", {"form": form, "listing": listing}
+    )
 
 
 @login_required
 def delete_listing(request, listing_id):
     """Delete a listing with confirmation"""
     listing = get_object_or_404(Listing, id=listing_id, user=request.user)
-    
-    if request.method == 'POST':
+
+    if request.method == "POST":
         # Store listing title for success message
         listing_title = listing.title
-        
+
         # Delete the listing (images will be deleted automatically via CASCADE)
         listing.delete()
-        
+
         # Send confirmation email
         send_mail(
             subject="Your CampusNest Listing Has Been Deleted",
@@ -145,22 +150,24 @@ def delete_listing(request, listing_id):
             recipient_list=[request.user.email],
             fail_silently=True,
         )
-        
-        messages.success(request, f"Listing '{listing_title}' has been deleted successfully.")
-        return redirect('my_listings')
-    
+
+        messages.success(
+            request, f"Listing '{listing_title}' has been deleted successfully."
+        )
+        return redirect("my_listings")
+
     # GET request - show confirmation page
-    return render(request, 'listings/delete_listing.html', {'listing': listing})
+    return render(request, "listings/delete_listing.html", {"listing": listing})
 
 
 @login_required
 def view_listing(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id, user=request.user)
-    return render(request, 'listings/view_listing.html', {'listing': listing})
+    return render(request, "listings/view_listing.html", {"listing": listing})
 
 
 @login_required
 def my_listings(request):
     """Display all listings created by the current user"""
-    listings = Listing.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'listings/my_listings.html', {'listings': listings})
+    listings = Listing.objects.filter(user=request.user).order_by("-created_at")
+    return render(request, "listings/my_listings.html", {"listings": listings})

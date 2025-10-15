@@ -7,23 +7,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('listings', '0001_initial'),
+        ("listings", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='listing',
-            name='amenities',
+            model_name="listing",
+            name="amenities",
             field=models.CharField(blank=True, max_length=500),
         ),
         migrations.AlterField(
-            model_name='listing',
-            name='availability_end',
+            model_name="listing",
+            name="availability_end",
             field=models.DateField(validators=[listings.models.validate_future_date]),
         ),
         migrations.AlterField(
-            model_name='listing',
-            name='availability_start',
+            model_name="listing",
+            name="availability_start",
             field=models.DateField(validators=[listings.models.validate_future_date]),
         ),
     ]

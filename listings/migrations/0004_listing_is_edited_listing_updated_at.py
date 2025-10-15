@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('listings', '0003_listing_custom_amenities'),
+        ("listings", "0003_listing_custom_amenities"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='listing',
-            name='is_edited',
+            model_name="listing",
+            name="is_edited",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='listing',
-            name='updated_at',
+            model_name="listing",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
     ]

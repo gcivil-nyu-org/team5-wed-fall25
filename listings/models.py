@@ -3,22 +3,24 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
+
 def validate_future_date(value):
     """Validate that the date is not in the past"""
     if value < timezone.now().date():
-        raise ValidationError('Date cannot be in the past.')
+        raise ValidationError("Date cannot be in the past.")
+
 
 class Listing(models.Model):
     AMENITY_CHOICES = [
-        ('furnished', 'Furnished'),
-        ('utilities', 'Utilities Included'),
-        ('wifi', 'WiFi'),
-        ('laundry', 'Laundry'),
-        ('elevator', 'Elevator'),
-        ('pets', 'Pets Allowed'),
-        ('ac', 'Air Conditioning'),
+        ("furnished", "Furnished"),
+        ("utilities", "Utilities Included"),
+        ("wifi", "WiFi"),
+        ("laundry", "Laundry"),
+        ("elevator", "Elevator"),
+        ("pets", "Pets Allowed"),
+        ("ac", "Air Conditioning"),
     ]
-    
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     address = models.CharField(max_length=300)
@@ -35,30 +37,36 @@ class Listing(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.user.username}"
-    
+
     def get_amenities_list(self):
         """Return amenities as a list"""
         if self.amenities:
-            return self.amenities.split(',')
+            return self.amenities.split(",")
         return []
-    
+
     def get_amenities_display(self):
         """Return formatted amenities for display"""
         amenities_dict = dict(self.AMENITY_CHOICES)
         amenities_list = self.get_amenities_list()
-        display_list = [amenities_dict.get(amenity, amenity) for amenity in amenities_list]
-        
+        display_list = [
+            amenities_dict.get(amenity, amenity) for amenity in amenities_list
+        ]
+
         # Add custom amenities if they exist
         if self.custom_amenities:
-            custom_list = [a.strip() for a in self.custom_amenities.split(',') if a.strip()]
+            custom_list = [
+                a.strip() for a in self.custom_amenities.split(",") if a.strip()
+            ]
             display_list.extend(custom_list)
-        
+
         return display_list
 
 
 class ListingImage(models.Model):
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='listing_photos/')
+    listing = models.ForeignKey(
+        Listing, on_delete=models.CASCADE, related_name="images"
+    )
+    image = models.ImageField(upload_to="listing_photos/")
 
     def __str__(self):
         return f"Image for {self.listing.title}"

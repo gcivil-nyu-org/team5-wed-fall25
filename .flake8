@@ -1,0 +1,69 @@
+[flake8]
+# Maximum line length
+max-line-length = 100
+
+# Directories to exclude from linting
+exclude =
+    # Django migrations
+    */migrations/*,
+    # Virtual environments
+    venv,
+    .venv,
+    env,
+    # Python cache
+    __pycache__,
+    *.pyc,
+    # Build artifacts
+    build,
+    dist,
+    *.egg-info,
+    # Static/media files
+    staticfiles,
+    static_root,
+    media,
+    # IDE
+    .vscode,
+    .idea,
+    # Django settings (often has long lines for security keys)
+    */settings.py,
+
+# Error codes to ignore
+ignore =
+    # Line break before binary operator (conflicts with Black)
+    W503,
+    # Line break after binary operator
+    W504,
+    # Line too long (handled by max-line-length)
+    E501,
+    # Module level import not at top (Django uses this pattern)
+    E402,
+
+# Files to include
+include = *.py
+
+# Maximum complexity (cyclomatic complexity)
+max-complexity = 10
+
+# Show source code for each error
+show-source = True
+
+# Show error codes in output
+show-pep8 = True
+
+# Count errors
+count = True
+
+# Statistical report
+statistics = True
+
+# Per-file ignores (for specific files that need exceptions)
+per-file-ignores =
+    # Allow unused imports in __init__.py files
+    __init__.py:F401,
+    # Django admin files often have long lines
+    */admin.py:E501,
+    # Django settings can have long lines
+    */settings.py:E501,F405,
+    # Tests can be more lenient
+    */tests.py:E501,
+    */test_*.py:E501,
