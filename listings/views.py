@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib import messages
@@ -17,18 +17,27 @@ def create_listing(request):
         files = request.FILES.getlist('images')
         
         # Validate images
+        has_image_error = False
         if not files:
             form.add_error(None, "Please upload at least one image.")
-        elif len(files) > 5:
-            form.add_error(None, "You can upload a maximum of 5 images.")
+            has_image_error = True
+        elif len(files) > 10:
+            form.add_error(None, "You can upload a maximum of 10 images.")
+            has_image_error = True
         else:
-            # Validate file types
+            # Validate file types and size
             for file in files:
                 if not file.content_type.startswith('image/'):
                     form.add_error(None, f"{file.name} is not a valid image file.")
+                    has_image_error = True
+                    break
+                # Check file size (max 5MB per image)
+                if file.size > 5 * 1024 * 1024:
+                    form.add_error(None, f"{file.name} exceeds 5MB size limit.")
+                    has_image_error = True
                     break
         
-        if form.is_valid() and files and len(files) <= 5:
+        if form.is_valid() and not has_image_error:
             listing = form.save(commit=False)
             listing.user = request.user
             listing.save()
@@ -56,8 +65,9 @@ def create_listing(request):
 
 @login_required
 def view_listing(request, listing_id):
-    listing = Listing.objects.get(id=listing_id, user=request.user)
+    listing = get_object_or_404(Listing, id=listing_id, user=request.user)
     return render(request, 'listings/view_listing.html', {'listing': listing})
+
 
 @login_required
 def my_listings(request):

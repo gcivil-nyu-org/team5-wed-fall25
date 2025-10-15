@@ -36,8 +36,7 @@
 					<strong>Rent:</strong> ${{ listing.rent }}/month
 				</p>
 				<p style="color: #666; margin-bottom: 5px;">
-					<strong>Available:</strong> {{ listing.availability_start }} to {{
-					listing.availability_end }}
+					<strong>Available:</strong> {{ listing.availability_start|date:"M. d, Y" }} to {{ listing.availability_end|date:"M. d, Y" }}
 				</p>
 				<p style="color: #666; margin-bottom: 10px;">
 					<strong>Posted:</strong> {{ listing.created_at|date:"F d, Y" }}
