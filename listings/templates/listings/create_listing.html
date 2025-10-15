@@ -101,17 +101,15 @@
     </div>
   </div>
 
-  <!-- Amenities -->
+  <!-- Amenities - FIXED VERSION -->
   <div class="form-group">
     <label>{{ form.amenities.label }}</label>
     <div class="amenities-grid">
       {% for checkbox in form.amenities %}
-      <div class="amenity-item">
+      <label class="amenity-item">
         {{ checkbox.tag }}
-        <label for="{{ checkbox.id_for_label }}" class="amenity-label">
-          {{ checkbox.choice_label }}
-        </label>
-      </div>
+        <span class="amenity-label">{{ checkbox.choice_label }}</span>
+      </label>
       {% endfor %}
     </div>
     {% if form.amenities.errors %}
@@ -173,11 +171,11 @@
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
   }
 
-  /* Amenities Grid - Fixed */
+  /* Amenities Grid - FIXED */
   .amenities-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
+    gap: 10px;
     padding: 15px;
     background: #f9f9f9;
     border-radius: 4px;
@@ -187,15 +185,22 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    min-width: 0; /* Allow flex items to shrink */
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
   }
 
-  .amenity-checkbox {
+  .amenity-item:hover {
+    background-color: #e9ecef;
+  }
+
+  .amenity-item input[type="checkbox"] {
     width: 18px;
     height: 18px;
+    margin: 0;
     cursor: pointer;
     flex-shrink: 0;
-    margin: 0;
   }
 
   .amenity-label {
@@ -203,8 +208,6 @@
     font-weight: normal;
     cursor: pointer;
     user-select: none;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
   }
 
   /* Image Preview Styles */
@@ -256,13 +259,6 @@
       grid-template-columns: 1fr;
     }
   }
-
-  @media (max-width: 480px) {
-    .amenities-grid {
-      padding: 10px;
-      gap: 10px;
-    }
-  }
 </style>
 
 <script>
@@ -293,7 +289,6 @@
   imageInput.addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
     
-    // Validate number of files
     if (files.length < 1) {
       alert('Please select at least 1 image.');
       return;
@@ -304,25 +299,19 @@
       return;
     }
     
-    // Store files
     selectedFiles = files;
     
-    // Update count
     imageCountDiv.textContent = `${files.length} image(s) selected`;
     imageCountDiv.style.color = files.length >= 1 && files.length <= 10 ? '#28a745' : '#dc3545';
     
-    // Clear previous previews
     imagePreview.innerHTML = '';
     
-    // Create previews
     files.forEach((file, index) => {
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         alert(`${file.name} is not a valid image file.`);
         return;
       }
       
-      // Validate file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert(`${file.name} exceeds 5MB size limit.`);
         return;
@@ -342,20 +331,14 @@
     });
   });
 
-  // Remove image function
   function removeImage(index) {
     selectedFiles.splice(index, 1);
-    
-    // Create new FileList
     const dataTransfer = new DataTransfer();
     selectedFiles.forEach(file => dataTransfer.items.add(file));
     imageInput.files = dataTransfer.files;
-    
-    // Trigger change event to update preview
     imageInput.dispatchEvent(new Event('change'));
   }
 
-  // Form validation before submit
   document.getElementById('listingForm').addEventListener('submit', function(e) {
     const files = imageInput.files;
     
@@ -371,7 +354,6 @@
       return false;
     }
     
-    // Disable submit button to prevent double submission
     document.getElementById('submitBtn').disabled = true;
     document.getElementById('submitBtn').textContent = 'Posting...';
   });
