@@ -38,7 +38,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     ".elasticbeanstalk.com",
      ".us-east-1.elasticbeanstalk.com",
-    ''172.31.*.*'',  # AWS private IPs
+    '172.31.*.*',  # AWS private IPs
         '*',  # Or just allow all for now
 ]
 
