@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+
 # from decouple import config
 
 
@@ -37,15 +38,14 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     ".elasticbeanstalk.com",
-     ".us-east-1.elasticbeanstalk.com",
-    '172.31.*.*',  # AWS private IPs
-        '*',  # Or just allow all for now
+    ".us-east-1.elasticbeanstalk.com",
+    "172.31.*.*",  # AWS private IPs
+    "*",  # Or just allow all for now
 ]
 
 # Application definition
 
 INSTALLED_APPS = [
-
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
