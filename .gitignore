@@ -14,7 +14,6 @@ __pycache__/
 .Python
 
 # Django
-db.sqlite3
 *.log
 local_settings.py
 
@@ -27,3 +26,5 @@ static_root/
 
 # Elatic Beanstalk
 .elasticbeanstalk/
+
+
