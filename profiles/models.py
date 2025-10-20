@@ -61,7 +61,7 @@ class Profile(models.Model):
     sharing_preference = models.CharField(
         max_length=20,
         choices=SHARING_CHOICES,
-        default='depends',
+        default='no_preference',
         verbose_name='Sharing Preference'
     )
     drinking_preference = models.CharField(
