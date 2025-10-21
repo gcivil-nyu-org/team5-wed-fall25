@@ -32,8 +32,6 @@ def create_profile(request):
             profile.save()
             messages.success(request, "Profile created successfully!")
             return redirect("view_profile")  # ✅ this needs to exist
-        else:
-            print("Form errors:", form.errors)
     else:
         form = ProfileForm()
     return render(request, "profiles/profile_form.html", {"form": form})
