@@ -49,26 +49,64 @@
         <!-- Lifestyle Preferences -->
         <div style="border-bottom: 1px solid #dee2e6; padding-bottom: 15px; margin-bottom: 15px;">
             <h3 style="color: #333; margin-bottom: 15px;">🏠 Lifestyle Preferences</h3>
-            
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div style="background: white; padding: 10px; border-radius: 4px;">
                     <strong style="color: #555;">🍽️ Eating:</strong>
                     <p style="margin: 5px 0;">{{ profile.get_preference_display_with_icon.eating|default:profile.get_eating_habit_display }}</p>
                 </div>
-                
+
                 <div style="background: white; padding: 10px; border-radius: 4px;">
                     <strong style="color: #555;">🚬 Smoking:</strong>
                     <p style="margin: 5px 0;">{{ profile.get_preference_display_with_icon.smoking|default:profile.get_smoking_preference_display }}</p>
                 </div>
-                
+
                 <div style="background: white; padding: 10px; border-radius: 4px;">
                     <strong style="color: #555;">🤝 Sharing:</strong>
                     <p style="margin: 5px 0;">{{ profile.get_preference_display_with_icon.sharing|default:profile.get_sharing_preference_display }}</p>
                 </div>
-                
+
                 <div style="background: white; padding: 10px; border-radius: 4px;">
                     <strong style="color: #555;">🍷 Drinking:</strong>
                     <p style="margin: 5px 0;">{{ profile.get_preference_display_with_icon.drinking|default:profile.get_drinking_preference_display }}</p>
+                </div>
+
+                <div style="background: white; padding: 10px; border-radius: 4px;">
+                    <strong style="color: #555;">🐾 Pets:</strong>
+                    <p style="margin: 5px 0;">{{ profile.get_preference_display_with_icon.pets|default:profile.get_pet_preference_display }}</p>
+                </div>
+
+                <div style="background: white; padding: 10px; border-radius: 4px;">
+                    <strong style="color: #555;">✨ Cleanliness:</strong>
+                    <p style="margin: 5px 0;">{{ profile.get_preference_display_with_icon.cleanliness|default:profile.get_cleanliness_preference_display }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Housing Preferences -->
+        <div style="border-bottom: 1px solid #dee2e6; padding-bottom: 15px; margin-bottom: 15px;">
+            <h3 style="color: #333; margin-bottom: 15px;">🏘️ Housing Preferences</h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="background: white; padding: 10px; border-radius: 4px;">
+                    <strong style="color: #555;">💰 Budget Range:</strong>
+                    <p style="margin: 5px 0;">${{ profile.budget_min }} - ${{ profile.budget_max }} per month</p>
+                </div>
+
+                <div style="background: white; padding: 10px; border-radius: 4px;">
+                    <strong style="color: #555;">📍 Preferred Location:</strong>
+                    <p style="margin: 5px 0;">{{ profile.location|default:"Not specified" }}</p>
+                </div>
+
+                <div style="background: white; padding: 10px; border-radius: 4px;">
+                    <strong style="color: #555;">📅 Move-In Date:</strong>
+                    <p style="margin: 5px 0;">
+                        {% if profile.move_in_date %}
+                            {{ profile.move_in_date|date:"F d, Y" }}
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </div>
