@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import re
-from typing import List
+from typing import List, Optional
 
 from django.conf import settings
 from django.contrib import messages
@@ -18,13 +18,15 @@ from django.utils import timezone
 from .forms import ListingForm
 from .models import Listing, ListingImage
 
-
 # ---------- config ----------
 MAX_IMAGES = 10
 MAX_IMAGE_MB = 5
 
 # allow foo.edu or foo.bar.edu, etc.
-_EDU_REGEX = re.compile(r"^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)+edu$", re.IGNORECASE)
+_EDU_REGEX = re.compile(
+    r"^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)+edu$",
+    re.IGNORECASE,
+)
 
 
 def _is_edu_email(email: str) -> bool:
@@ -36,6 +38,30 @@ def _build_abs(request, url_name: str, *args, **kwargs) -> str:
     """Build absolute URL for emails in dev/prod."""
     rel = reverse(url_name, args=args, kwargs=kwargs)
     return request.build_absolute_uri(rel)
+
+
+def _validate_images_for_edit(
+    files, keep_existing: bool, listing: Listing
+) -> Optional[str]:
+    """
+    Return an error message if validation fails, otherwise None.
+    This is split out to keep edit_listing complexity low.
+    """
+    if files:
+        if len(files) > MAX_IMAGES:
+            return f"You can upload a maximum of {MAX_IMAGES} images."
+        for f in files:
+            content_type = getattr(f, "content_type", "") or ""
+            if not content_type.startswith("image/"):
+                return f"{f.name} is not a valid image file."
+            if f.size > MAX_IMAGE_MB * 1024 * 1024:
+                return f"{f.name} exceeds {MAX_IMAGE_MB}MB size limit."
+        return None
+
+    # No new files uploaded
+    if not keep_existing and not listing.images.exists():
+        return "Please upload at least one image or keep existing images."
+    return None
 
 
 # ---------- public browse ----------
@@ -155,14 +181,12 @@ def create_listing(request):
 def edit_listing(request, listing_id: int):  # noqa: C901
     listing = get_object_or_404(Listing, id=listing_id, user=request.user)
 
-    # Always have a value for form, so the final render() never crashes
-    form = ListingForm(instance=listing)
-
     if request.method == "POST":
         form = ListingForm(request.POST, instance=listing)
         files = request.FILES.getlist("images")
         keep_existing = request.POST.get("keep_existing_images") == "on"
 
+<<<<<<< HEAD
         has_image_error = False
         if files:
             if len(files) > MAX_IMAGES:
@@ -187,27 +211,44 @@ def edit_listing(request, listing_id: int):  # noqa: C901
                 None, "Please upload at least one image or keep existing images."
             )
             has_image_error = True
+=======
+        error = _validate_images_for_edit(files, keep_existing, listing)
+        if error:
+            form.add_error(None, error)
+>>>>>>> 4b4ae5f (resolved flake8 issue)
 
-        if form.is_valid() and not has_image_error:
+        if form.is_valid() and not error:
             with transaction.atomic():
                 obj = form.save(commit=False)
                 obj.is_edited = True
                 obj.save()
 
                 if files:
+                    # replace old images with new ones
                     listing.images.all().delete()
                     for f in files:
                         ListingImage.objects.create(listing=listing, image=f)
 
             messages.success(request, "Listing updated successfully!")
             return redirect("listings:view_listing", listing_id=listing.id)
+    else:
+        form = ListingForm(instance=listing)
+        if getattr(listing, "amenities", ""):
+            form.initial["amenities"] = listing.amenities.split(",")
 
+<<<<<<< HEAD
     # Pre-populate amenities on initial GET (or keep it if you want only on GET)
     if request.method != "POST" and getattr(listing, "amenities", ""):
         form.initial["amenities"] = listing.amenities.split(",")
 
     return render(
         request, "listings/edit_listing.html", {"form": form, "listing": listing}
+=======
+    return render(
+        request,
+        "listings/edit_listing.html",
+        {"form": form, "listing": listing},
+>>>>>>> 4b4ae5f (resolved flake8 issue)
     )
 
 
@@ -223,9 +264,9 @@ def delete_listing(request, listing_id: int):
         send_mail(
             subject="Your CampusNest Listing Has Been Deleted",
             message=(
-                f"Your listing '{title}' has been successfully deleted from CampusNest.\n\n"
-                f"If you didn't perform this action, please contact us immediately.\n\n"
-                f"Best regards,\nThe CampusNest Team"
+                f"Your listing '{title}' has been successfully deleted from "
+                f"CampusNest.\n\nIf you didn't perform this action, please contact "
+                f"us immediately.\n\nBest regards,\nThe CampusNest Team"
             ),
             from_email=settings.DEFAULT_FROM_EMAIL or "noreply@campusnest.com",
             recipient_list=[request.user.email],

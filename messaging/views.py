@@ -64,11 +64,11 @@ def thread_view(request, thread_id):
     if request.method == "POST":
         body = (request.POST.get("body") or "").strip()
         if not body:
-            dj_messages.error(request, "Message cannot be empty.")
+            messages.error(request, "Message cannot be empty.")
             return redirect("messaging:thread", thread_id=t.id)
 
         Message.objects.create(thread=t, sender=request.user, body=body)
-        dj_messages.success(request, "Message sent.")
+        messages.success(request, "Message sent.")
         return redirect("messaging:thread", thread_id=t.id)
 
     return render(
@@ -88,6 +88,7 @@ def start_thread(request):
     Creates (or finds) a thread between request.user and the listing owner,
     posts the initial message, and redirects to the thread page.
     """
+    # Don't reference listing_id unless we actually have a POST payload
     if request.method != "POST":
         # Nothing to do – go back to inbox (avoids undefined listing_id).
         return redirect("messaging:inbox")
@@ -95,6 +96,11 @@ def start_thread(request):
     body = (request.POST.get("body") or "").strip()
     listing_id = request.POST.get("listing_id")
     recipient_id = request.POST.get("recipient_id")
+
+    # Basic input checks
+    if not listing_id or not recipient_id:
+        messages.error(request, "Invalid request.")
+        return redirect("listings:public_listings")
 
     if not body:
         messages.error(request, "Message cannot be empty.")
