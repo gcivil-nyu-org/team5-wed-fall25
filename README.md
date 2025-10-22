@@ -1,7 +1,7 @@
 # CampusNest
 
-[![Build Status](https://app.travis-ci.com/Matrix030/team5-wed-fall25.svg?token=WHHjuyD4b8zGdFuFp8yp)](https://app.travis-ci.com/Matrix030/team5-wed-fall25)
-[![Coverage Status](https://coveralls.io/repos/github/Matrix030/team5-wed-fall25/badge.svg?branch=develop)](https://coveralls.io/github/Matrix030/team5-wed-fall25?branch=develop)
+[![Build Status](https://app.travis-ci.com/gcivil-nyu-org/team5-wed-fall25.svg?token=WHHjuyD4b8zGdFuFp8yp)](https://app.travis-ci.com/gcivil-nyu-org/team5-wed-fall25)
+[![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/team5-wed-fall25/badge.svg?branch=develop)](https://coveralls.io/github/gcivil-nyu-org/team5-wed-fall25?branch=develop)
 
 ## CampusNest - Quick Start Guide
 
