@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - CampusNest{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 20px 0;">
+    <h1 style="color: #283593; margin-bottom: 10px; font-size: 36px;">Welcome to CampusNest</h1>
+    <p style="color: #666; font-size: 18px; margin-bottom: 40px;">Your NYC Student Housing & Roommate Connection Platform</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 30px;">
+    <!-- Profile Card -->
+    <div style="background: #667eea; padding: 30px; border-radius: 12px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h3 style="color: white; margin-bottom: 15px; font-size: 24px;">Your Profile</h3>
+        <p style="margin-bottom: 20px; line-height: 1.6;">Manage your personal information and roommate preferences</p>
+        <a href="{% url 'view_profile' %}"
+           style="display: inline-block; padding: 12px 24px; background-color: white; color: #667eea; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            View Profile
+        </a>
+    </div>
+
+    <!-- Roommate Search Card -->
+    <div style="background: #f5576c; padding: 30px; border-radius: 12px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h3 style="color: white; margin-bottom: 15px; font-size: 24px;">Find Roommates</h3>
+        <p style="margin-bottom: 20px; line-height: 1.6;">Search for compatible roommates based on your preferences</p>
+        <a href="{% url 'roommate_search' %}"
+           style="display: inline-block; padding: 12px 24px; background-color: white; color: #f5576c; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            Search Now
+        </a>
+    </div>
+
+    <!-- Housing Listings Card -->
+    <div style="background: #4facfe; padding: 30px; border-radius: 12px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h3 style="color: white; margin-bottom: 15px; font-size: 24px;">Housing Listings</h3>
+        <p style="margin-bottom: 20px; line-height: 1.6;">Browse and manage your housing listings</p>
+        <a href="{% url 'my_listings' %}"
+           style="display: inline-block; padding: 12px 24px; background-color: white; color: #4facfe; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            My Listings
+        </a>
+    </div>
+</div>
+
+<!-- Quick Stats Section -->
+<div style="background: #f9f9f9; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+    <h2 style="color: #333; margin-bottom: 20px; text-align: center;">Your Activity</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <div style="text-align: center; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 32px; color: #283593; font-weight: bold; margin-bottom: 5px;">
+                {% if user.profile %}✓{% else %}✗{% endif %}
+            </div>
+            <div style="color: #666; font-size: 14px;">Profile Status</div>
+            <div style="color: #999; font-size: 12px; margin-top: 5px;">
+                {% if user.profile %}Active{% else %}Not Created{% endif %}
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 32px; color: #f5576c; font-weight: bold; margin-bottom: 5px;">
+                {{ favorites_count|default:0 }}
+            </div>
+            <div style="color: #666; font-size: 14px;">Favorite Profiles</div>
+            <a href="{% url 'my_favorites' %}" style="color: #007bff; font-size: 12px; margin-top: 5px; display: block;">
+                View All
+            </a>
+        </div>
+
+        <div style="text-align: center; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 32px; color: #4facfe; font-weight: bold; margin-bottom: 5px;">
+                {{ pending_requests|default:0 }}
+            </div>
+            <div style="color: #666; font-size: 14px;">Connection Requests</div>
+            <a href="{% url 'connection_requests' %}" style="color: #007bff; font-size: 12px; margin-top: 5px; display: block;">
+                View Requests
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="background: white; padding: 30px; border-radius: 12px; border-left: 4px solid #283593;">
+    <h2 style="color: #333; margin-bottom: 20px;">Quick Actions</h2>
+    <div style="display: grid; gap: 15px;">
+        {% if not user.profile %}
+        <a href="{% url 'create_profile' %}"
+           style="display: flex; align-items: center; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; text-decoration: none; color: #856404;">
+            <span style="font-size: 24px; margin-right: 15px;">⚠️</span>
+            <div>
+                <strong style="display: block; margin-bottom: 3px;">Create Your Profile</strong>
+                <span style="font-size: 14px;">Get started by setting up your profile to connect with roommates</span>
+            </div>
+        </a>
+        {% endif %}
+
+        <a href="{% url 'create_listing' %}"
+           style="display: flex; align-items: center; padding: 15px; background: #f9f9f9; border-left: 4px solid #007bff; border-radius: 4px; text-decoration: none; color: #333;">
+            <span style="font-size: 24px; margin-right: 15px;">➕</span>
+            <div>
+                <strong style="display: block; margin-bottom: 3px;">Create New Listing</strong>
+                <span style="font-size: 14px; color: #666;">Post a housing listing to find tenants or roommates</span>
+            </div>
+        </a>
+
+        <a href="{% url 'roommate_search' %}"
+           style="display: flex; align-items: center; padding: 15px; background: #f9f9f9; border-left: 4px solid #28a745; border-radius: 4px; text-decoration: none; color: #333;">
+            <span style="font-size: 24px; margin-right: 15px;">🔍</span>
+            <div>
+                <strong style="display: block; margin-bottom: 3px;">Search for Roommates</strong>
+                <span style="font-size: 14px; color: #666;">Find compatible roommates based on your preferences</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<style>
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 28px !important;
+        }
+
+        p {
+            font-size: 16px !important;
+        }
+
+        div[style*="grid-template-columns"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}

@@ -272,7 +272,7 @@
 	<!-- Navigation Bar -->
 	<nav>
 		<div class="nav-container">
-			<a href="/" class="nav-brand">🏠 CampusNest</a>
+			<a href="{% url 'home' %}" class="nav-brand">🏠 CampusNest</a>
 
 			<div class="nav-links">
 				{% if user.is_authenticated %}

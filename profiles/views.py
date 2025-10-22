@@ -11,14 +11,24 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 def home(request):
     """
-    Home page - redirects based on authentication status
+    Home page - displays dashboard for authenticated users
     """
-    if request.user.is_authenticated:
-        # If logged in, go to their profile
-        return redirect("view_profile")
-    else:
+    if not request.user.is_authenticated:
         # If not logged in, go to login page
         return redirect("login")
+
+    # Get user statistics for the dashboard
+    favorites_count = Favorite.objects.filter(user=request.user).count()
+    pending_requests = ConnectionRequest.objects.filter(
+        to_user=request.user, status='pending'
+    ).count()
+
+    context = {
+        'favorites_count': favorites_count,
+        'pending_requests': pending_requests,
+    }
+
+    return render(request, 'home.html', context)
 
 
 @login_required
