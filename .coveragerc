@@ -1,0 +1,29 @@
+[run]
+source = .
+omit = 
+    */migrations/*
+    */tests.py
+    */test_*.py
+    */__init__.py
+    */admin.py
+    */apps.py
+    manage.py
+    */venv/*
+    */.venv/*
+    */env/*
+    CampusNest/asgi.py
+    CampusNest/wsgi.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    def __str__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if settings.DEBUG:
+    pass
+
+precision = 2
+show_missing = True
