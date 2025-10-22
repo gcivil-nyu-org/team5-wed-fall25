@@ -4,7 +4,6 @@ from django.utils import timezone
 from django.db.utils import IntegrityError
 from django.contrib.messages import get_messages
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from io import BytesIO
 from PIL import Image
@@ -26,7 +25,7 @@ def create_image(image_mode="RGB", size=(5, 5), color="white", image_format="PNG
 class ProfileModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            email="test@example.edu", username="testuser", password="testpw0rd"
+            email="test@nyu.edu", username="testuser", password="testpw0rd"
         )
         self.profile = Profile.objects.create(
             user=self.user,
@@ -36,7 +35,7 @@ class ProfileModelTests(TestCase):
             visibility=True,
             eating_habit="no_preference",
             smoking_preference="non_smoker",
-            sharing_preference="depends",
+            sharing_preference="no_preference",
             drinking_preference="no_preference",
         )
 
@@ -50,13 +49,13 @@ class ProfileModelTests(TestCase):
         self.assertTrue(profile.visibility)
         self.assertEqual(profile.eating_habit, "no_preference")
         self.assertEqual(profile.smoking_preference, "non_smoker")
-        self.assertEqual(profile.sharing_preference, "depends")
+        self.assertEqual(profile.sharing_preference, "no_preference")
         self.assertEqual(profile.drinking_preference, "no_preference")
         self.assertEqual(Profile.objects.filter(user=self.user).count(), 1)
 
     def test_create_duplicate_profile(self):
         with self.assertRaises(IntegrityError):
-            profile = Profile.objects.create(
+            Profile.objects.create(
                 user=self.user,
                 bio="test bio",
                 university="New York University",
@@ -64,39 +63,24 @@ class ProfileModelTests(TestCase):
                 visibility=True,
             )
 
-    def test_invalid_bio(self):
-        with self.assertRaises(ValidationError):
-            self.profile.bio = "a" * 501
-            self.profile.full_clean()
-
-    def test_invalid_university(self):
-        with self.assertRaises(ValidationError):
-            self.profile.university = "Fake University"
-            self.profile.full_clean()
-
-    def test_invalid_eating_habit(self):
-        with self.assertRaises(ValidationError):
-            self.profile.eating_habit = "Fake diet"
-            self.profile.full_clean()
-
-    def test_invalid_smoking_preference(self):
-        with self.assertRaises(ValidationError):
-            self.profile.smoking_preference = "Super smoker"
-            self.profile.full_clean()
-
-    def test_invalid_sharing_preference(self):
-        with self.assertRaises(ValidationError):
-            self.profile.sharing_preference = "Open to Chering"
-            self.profile.full_clean()
-
-    def test_invalid_drinking_preference(self):
-        with self.assertRaises(ValidationError):
-            self.profile.drinking_preference = "Liver failure"
-            self.profile.full_clean()
+    def test_invalid_fields(self):
+        cases = [
+            {"field": "bio", "value": "a" * 501},
+            {"field": "university", "value": "Fake University"},
+            {"field": "eating_habit", "value": "Fake diet"},
+            {"field": "smoking_preference", "value": "Super smoker"},
+            {"field": "sharing_preference", "value": "Open to Chering"},
+            {"field": "drinking_preference", "value": "Liver Failure"},
+        ]
+        for case in cases:
+            with self.subTest():
+                setattr(self.profile, case["field"], case["value"])
+                with self.assertRaises(ValidationError):
+                    self.profile.full_clean()
 
     def test_defaults(self):
         user2 = User.objects.create_user(
-            email="test2@example.edu", username="test2user", password="testpw0rd"
+            email="test2@nyu.edu", username="test2user", password="testpw0rd"
         )
         before = timezone.now()
         profile = Profile.objects.create(
@@ -119,12 +103,28 @@ class ProfileModelTests(TestCase):
         self.user.delete()
         self.assertFalse(Profile.objects.filter(user_id=self.user.id).exists())
 
+    def test_profile_str(self):
+        self.assertEqual(str(self.profile), "testuser's Profile")
+        self.assertEqual(
+            self.profile.get_preference_display_with_icon("eating"), "🤷 No Preference"
+        )
+        self.assertEqual(
+            self.profile.get_preference_display_with_icon("smoking"), "🚭 Non-Smoker"
+        )
+        self.assertEqual(
+            self.profile.get_preference_display_with_icon("sharing"), "🤷 No Preference"
+        )
+        self.assertEqual(
+            self.profile.get_preference_display_with_icon("drinking"),
+            "🤷 No Preference",
+        )
+
 
 class ProfileViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
-            email="test@example.edu", username="testuser", password="testpw0rd"
+            email="test@nyu.edu", username="testuser", password="testpw0rd"
         )
         self.create_profile_url = reverse("create_profile")
         self.edit_profile_url = reverse("edit_profile")
@@ -141,7 +141,7 @@ class ProfileViewTests(TestCase):
             "sharing_preference": "no_preference",
             "drinking_preference": "no_preference",
         }
-        self.client.login(email="test@example.edu", password="testpw0rd")
+        self.client.login(email="test@nyu.edu", password="testpw0rd")
 
     def tearDown(self):
         self.user.delete()
