@@ -1,0 +1,17 @@
+# .ebignore
+*.pyc
+__pycache__/
+.git/
+.gitignore
+*.md
+.venv/
+venv/
+env/
+.env
+*.log
+db.sqlite3
+
+# Test files
+*/tests.py
+*/test_*.py
+**/tests/
