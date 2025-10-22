@@ -36,6 +36,7 @@ static_root/
 
 # Database
 db.sqlite3
+*.sqlite3
 
 # Django
 __pycache__/
