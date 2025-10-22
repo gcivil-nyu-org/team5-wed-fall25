@@ -1,7 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
-from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.messages import get_messages
 from io import BytesIO
@@ -44,7 +43,10 @@ class ItemModelTests(TestCase):
         self.assertIsNotNone(item)
         self.assertEqual(item.user, self.user)
         self.assertEqual(item.title, "Test Item")
-        self.assertEqual(item.description, "This is a test item description with at least 20 characters")
+        self.assertEqual(
+            item.description,
+            "This is a test item description with at least 20 characters",
+        )
         self.assertEqual(item.condition, "good")
         self.assertEqual(item.price, Decimal("50.00"))
         self.assertEqual(item.pickup_location, "Bobst Library")
@@ -191,12 +193,14 @@ class ItemFormTests(TestCase):
     def test_valid_form(self):
         """Test form with valid data"""
         from .forms import ItemForm
+
         form = ItemForm(data=self.valid_data)
         self.assertTrue(form.is_valid())
 
     def test_price_validation_negative(self):
         """Test price validation rejects negative values"""
         from .forms import ItemForm
+
         data = {**self.valid_data, "price": "-10.00"}
         form = ItemForm(data=data)
         self.assertFalse(form.is_valid())
@@ -206,6 +210,7 @@ class ItemFormTests(TestCase):
     def test_price_validation_zero(self):
         """Test price validation rejects zero"""
         from .forms import ItemForm
+
         data = {**self.valid_data, "price": "0.00"}
         form = ItemForm(data=data)
         self.assertFalse(form.is_valid())
@@ -215,15 +220,19 @@ class ItemFormTests(TestCase):
     def test_price_validation_too_high(self):
         """Test price validation rejects unrealistic high values"""
         from .forms import ItemForm
+
         data = {**self.valid_data, "price": "100001.00"}
         form = ItemForm(data=data)
         self.assertFalse(form.is_valid())
         self.assertIn("price", form.errors)
-        self.assertIn("Price amount seems unrealistic. Please verify.", form.errors["price"])
+        self.assertIn(
+            "Price amount seems unrealistic. Please verify.", form.errors["price"]
+        )
 
     def test_price_validation_valid_edge_cases(self):
         """Test price validation accepts valid edge cases"""
         from .forms import ItemForm
+
         test_cases = ["0.01", "100.00", "99999.99", "100000.00"]
         for price in test_cases:
             with self.subTest(price=price):
@@ -234,15 +243,20 @@ class ItemFormTests(TestCase):
     def test_description_validation_too_short(self):
         """Test description validation rejects short descriptions"""
         from .forms import ItemForm
+
         data = {**self.valid_data, "description": "Too short"}
         form = ItemForm(data=data)
         self.assertFalse(form.is_valid())
         self.assertIn("description", form.errors)
-        self.assertIn("Description must be at least 20 characters long.", form.errors["description"])
+        self.assertIn(
+            "Description must be at least 20 characters long.",
+            form.errors["description"],
+        )
 
     def test_description_validation_minimum_length(self):
         """Test description validation accepts minimum valid length"""
         from .forms import ItemForm
+
         data = {**self.valid_data, "description": "a" * 20}
         form = ItemForm(data=data)
         self.assertTrue(form.is_valid())
@@ -250,15 +264,19 @@ class ItemFormTests(TestCase):
     def test_contact_details_validation_too_short(self):
         """Test contact details validation rejects short input"""
         from .forms import ItemForm
+
         data = {**self.valid_data, "contact_details": "abc"}
         form = ItemForm(data=data)
         self.assertFalse(form.is_valid())
         self.assertIn("contact_details", form.errors)
-        self.assertIn("Please provide valid contact details.", form.errors["contact_details"])
+        self.assertIn(
+            "Please provide valid contact details.", form.errors["contact_details"]
+        )
 
     def test_contact_details_validation_minimum_length(self):
         """Test contact details validation accepts minimum valid length"""
         from .forms import ItemForm
+
         data = {**self.valid_data, "contact_details": "a" * 5}
         form = ItemForm(data=data)
         self.assertTrue(form.is_valid())
@@ -266,7 +284,16 @@ class ItemFormTests(TestCase):
     def test_required_fields(self):
         """Test all required fields are validated"""
         from .forms import ItemForm
-        required_fields = ["title", "description", "condition", "price", "pickup_location", "owner_name", "contact_details"]
+
+        required_fields = [
+            "title",
+            "description",
+            "condition",
+            "price",
+            "pickup_location",
+            "owner_name",
+            "contact_details",
+        ]
         for field in required_fields:
             with self.subTest(field=field):
                 data = {**self.valid_data}
@@ -308,14 +335,16 @@ class CreateItemViewTests(TestCase):
         self.assertEqual(item.title, "Test Item")
         self.assertEqual(item.images.count(), 1)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse("view_item", kwargs={"item_id": item.id}))
+        self.assertRedirects(
+            response, reverse("view_item", kwargs={"item_id": item.id})
+        )
 
     def test_create_item_multiple_images(self):
         """Test creating an item with multiple images"""
         self.client.login(email="test@nyu.edu", password="testpw0rd")
         images = [create_image() for _ in range(3)]
         data = {**self.valid_data, "images": images}
-        response = self.client.post(self.create_item_url, data)
+        self.client.post(self.create_item_url, data)
 
         self.assertEqual(Item.objects.filter(user=self.user).count(), 1)
         item = Item.objects.get(user=self.user)
@@ -343,7 +372,9 @@ class CreateItemViewTests(TestCase):
     def test_create_item_invalid_image_type(self):
         """Test creating an item with non-image file fails"""
         self.client.login(email="test@nyu.edu", password="testpw0rd")
-        text_file = SimpleUploadedFile("test.txt", b"not an image", content_type="text/plain")
+        text_file = SimpleUploadedFile(
+            "test.txt", b"not an image", content_type="text/plain"
+        )
         data = {**self.valid_data, "images": [text_file]}
         response = self.client.post(self.create_item_url, data)
 
@@ -353,7 +384,9 @@ class CreateItemViewTests(TestCase):
     def test_create_item_image_too_large(self):
         """Test creating an item with oversized image fails"""
         self.client.login(email="test@nyu.edu", password="testpw0rd")
-        large_file = SimpleUploadedFile("large.jpg", b"x" * (6 * 1024 * 1024), content_type="image/jpeg")
+        large_file = SimpleUploadedFile(
+            "large.jpg", b"x" * (6 * 1024 * 1024), content_type="image/jpeg"
+        )
         data = {**self.valid_data, "images": [large_file]}
         response = self.client.post(self.create_item_url, data)
 
@@ -370,7 +403,12 @@ class CreateItemViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Item.objects.filter(user=self.non_edu_user).count(), 0)
         messages_list = list(get_messages(response.wsgi_request))
-        self.assertTrue(any("Only verified .edu email addresses can post items" in str(m) for m in messages_list))
+        self.assertTrue(
+            any(
+                "Only verified .edu email addresses can post items" in str(m)
+                for m in messages_list
+            )
+        )
 
     def test_create_item_not_logged_in(self):
         """Test unauthenticated user is redirected to login"""
@@ -645,7 +683,7 @@ class EditItemViewTests(TestCase):
             "contact_details": self.item.contact_details,
             "images": new_images,
         }
-        response = self.client.post(url, data)
+        self.client.post(url, data)
 
         self.item.refresh_from_db()
         self.assertEqual(self.item.images.count(), 3)
@@ -667,7 +705,7 @@ class EditItemViewTests(TestCase):
             "contact_details": self.item.contact_details,
             "removed_images": str(self.item_image.id),
         }
-        response = self.client.post(url, data)
+        self.client.post(url, data)
 
         self.item.refresh_from_db()
         self.assertEqual(self.item.images.count(), 1)
@@ -709,7 +747,7 @@ class EditItemViewTests(TestCase):
             "removed_images": str(self.item_image.id),
             "images": [new_image],
         }
-        response = self.client.post(url, data)
+        self.client.post(url, data)
 
         self.item.refresh_from_db()
         self.assertEqual(self.item.images.count(), 1)
@@ -876,7 +914,9 @@ class MarkAsSoldViewTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse("view_item", kwargs={"item_id": self.item.id}))
+        self.assertRedirects(
+            response, reverse("view_item", kwargs={"item_id": self.item.id})
+        )
         self.item.refresh_from_db()
         self.assertFalse(self.item.is_sold)
 
@@ -890,24 +930,28 @@ class HelperFunctionTests(TestCase):
     def test_parse_removed_image_ids_valid(self):
         """Test parsing valid comma-separated IDs"""
         from .views import parse_removed_image_ids
+
         result = parse_removed_image_ids("1,2,3")
         self.assertEqual(result, [1, 2, 3])
 
     def test_parse_removed_image_ids_with_spaces(self):
         """Test parsing IDs with spaces"""
         from .views import parse_removed_image_ids
+
         result = parse_removed_image_ids("1, 2, 3")
         self.assertEqual(result, [1, 2, 3])
 
     def test_parse_removed_image_ids_empty(self):
         """Test parsing empty string"""
         from .views import parse_removed_image_ids
+
         result = parse_removed_image_ids("")
         self.assertEqual(result, [])
 
     def test_parse_removed_image_ids_none(self):
         """Test parsing None"""
         from .views import parse_removed_image_ids
+
         result = parse_removed_image_ids(None)
         self.assertEqual(result, [])
 
@@ -915,6 +959,7 @@ class HelperFunctionTests(TestCase):
         """Test validating valid image files"""
         from .views import validate_uploaded_files
         from .forms import ItemForm
+
         valid_data = {
             "title": "Valid Item",
             "description": "This is a valid description with more than 20 characters",
@@ -933,6 +978,7 @@ class HelperFunctionTests(TestCase):
         """Test validating more than 10 files"""
         from .views import validate_uploaded_files
         from .forms import ItemForm
+
         valid_data = {
             "title": "Valid Item",
             "description": "This is a valid description with more than 20 characters",
@@ -951,6 +997,7 @@ class HelperFunctionTests(TestCase):
         """Test validating non-image file"""
         from .views import validate_uploaded_files
         from .forms import ItemForm
+
         valid_data = {
             "title": "Valid Item",
             "description": "This is a valid description with more than 20 characters",
@@ -961,7 +1008,9 @@ class HelperFunctionTests(TestCase):
             "contact_details": "test@nyu.edu",
         }
         form = ItemForm(data=valid_data)
-        text_file = SimpleUploadedFile("test.txt", b"not an image", content_type="text/plain")
+        text_file = SimpleUploadedFile(
+            "test.txt", b"not an image", content_type="text/plain"
+        )
         result = validate_uploaded_files([text_file], form)
         self.assertTrue(result)
 
@@ -969,6 +1018,7 @@ class HelperFunctionTests(TestCase):
         """Test validating oversized file"""
         from .views import validate_uploaded_files
         from .forms import ItemForm
+
         valid_data = {
             "title": "Valid Item",
             "description": "This is a valid description with more than 20 characters",
@@ -979,7 +1029,9 @@ class HelperFunctionTests(TestCase):
             "contact_details": "test@nyu.edu",
         }
         form = ItemForm(data=valid_data)
-        large_file = SimpleUploadedFile("large.jpg", b"x" * (6 * 1024 * 1024), content_type="image/jpeg")
+        large_file = SimpleUploadedFile(
+            "large.jpg", b"x" * (6 * 1024 * 1024), content_type="image/jpeg"
+        )
         result = validate_uploaded_files([large_file], form)
         self.assertTrue(result)
 
@@ -990,7 +1042,7 @@ class MarketplaceHomeViewTests(TestCase):
 
     def test_marketplace_home_redirect(self):
         """Test marketplace home redirects to my_items"""
-        user = User.objects.create_user(
+        User.objects.create_user(
             email="test@nyu.edu", username="testuser", password="testpw0rd"
         )
         self.client.login(email="test@nyu.edu", password="testpw0rd")
