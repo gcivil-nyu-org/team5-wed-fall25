@@ -161,10 +161,17 @@
                                     View Profile
                                 </a>
                                 
-                                <button class="favorite-btn{% if profile.user.id in user_favorites %} favorited{% endif %}" data-user-id="{{ profile.user.id }}" 
-                                        style="padding: 10px 15px; color: #333; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
-                                    {% if profile.user.id in user_favorites %}❤️{% else %}🤍{% endif %}
-                                </button>
+                                {% if profile.user.id in user_favorites %}
+                                    <button class="favorite-btn favorited" data-user-id="{{ profile.user.id }}" 
+                                            style="flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.3s;">
+                                        ♥ Added to Favorites
+                                    </button>
+                                {% else %}
+                                    <button class="favorite-btn" data-user-id="{{ profile.user.id }}" 
+                                            style="flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s;">
+                                        ❤️
+                                    </button>
+                                {% endif %}
                             </div>
                             
                             <!-- Connection Request Status -->
@@ -202,11 +209,20 @@
 
 <style>
 .favorite-btn {
-    background-color: #e9ecef;
+    background-color: #e9ecef !important;
+    color: #dc3545 !important;
+}
+
+.favorite-btn:hover {
+    background-color: #007bff !important;
 }
 
 .favorite-btn.favorited {
-    background-color: #ffc107;
+    background-color: #e9ecef !important;
+}
+
+.favorite-btn.favorited:hover {
+    background-color: #007bff !important;
 }
 </style>
 
@@ -228,8 +244,13 @@ document.querySelectorAll('.favorite-btn').forEach(btn => {
             const data = await response.json();
             
             if (response.ok) {
-                this.textContent = data.favorited ? '❤️' : '🤍';
-                this.style.backgroundColor = data.favorited ? '#ffc107' : '#e9ecef';
+                if (data.favorited) {
+                    this.textContent = '♥ Added to Favorites';
+                    this.style.fontSize = '14px';
+                } else {
+                    this.textContent = '❤️';
+                    this.style.fontSize = '16px';
+                }
             }
         } catch (error) {
             console.error('Error:', error);
