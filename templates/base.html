@@ -280,11 +280,11 @@
 				<a href="{% url 'view_profile' %}">My Profile</a>
 				<a href="{% url 'my_listings' %}">My Listings</a>
 				<div class="nav-dropdown">
-					<a href="#" class="dropdown-toggle">🏠 Find Roommates ▼</a>
+					<a href="#" class="dropdown-toggle">Find Roommates ▼</a>
 					<div class="dropdown-menu">
-						<a href="{% url 'roommate_search' %}">🔍 Search Roommates</a>
-						<a href="{% url 'my_favorites' %}">❤️ My Favorites</a>
-						<a href="{% url 'connection_requests' %}">📬 Connection Requests</a>
+						<a href="{% url 'roommate_search' %}">Search Roommates</a>
+						<a href="{% url 'my_favorites' %}">My Favorites</a>
+						<a href="{% url 'connection_requests' %}">Connection Requests</a>
 					</div>
 				</div>
 				{% if user.is_staff %}
@@ -292,7 +292,6 @@
 				{% endif %}
 				<a href="{% url 'logout' %}" class="logout-btn">Logout</a>
 				{% else %}
-				<a href="{% url 'login' %}">Login</a>
 				<a href="{% url 'register' %}">Register</a>
 				{% endif %}
 			</div>

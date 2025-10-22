@@ -16,11 +16,11 @@ LAST_NAMES = [
     'Wilson', 'Anderson', 'Thomas'
 ]
 
-UNIVERSITIES = ['nyu', 'columbia', 'cuny', 'pace']
+UNIVERSITIES = ['NYU', 'Columbia', 'CUNY', 'Pace', 'Fordham', 'The New School']
 
-SMOKING_CHOICES = ['Non-Smoker', 'Smoker', 'Occasionally']
-PET_CHOICES = ['No Pets', 'Cats', 'Dogs', 'Other', 'No Preference']
-CLEANLINESS_CHOICES = ['very_clean', 'clean', 'moderate', 'relaxed']
+SMOKING_CHOICES = ['non_smoker', 'smoker', 'occasionally']
+PET_CHOICES = ['no_pets', 'cats', 'dogs', 'other', 'no_preference']
+CLEANLINESS_CHOICES = ['very_clean', 'clean', 'moderate', 'relaxed', 'no_preference']
 
 
 class Command(BaseCommand):
