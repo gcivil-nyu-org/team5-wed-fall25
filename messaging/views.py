@@ -41,25 +41,26 @@ def thread_view(request, thread_id):
     if request.user.id not in (t.user_a_id, t.user_b_id):
         return HttpResponseForbidden("Not your conversation.")
 
-    msgs = t.messages.select_related('sender')
+    chat_messages = t.messages.select_related('sender').order_by('created_at')
 
     # mark incoming as read
-    msgs.filter(is_read=False).exclude(sender=request.user).update(is_read=True, read_at=timezone.now())
+    t.messages.filter(is_read=False).exclude(sender=request.user)\
+        .update(is_read=True, read_at=timezone.now())
 
-    if request.method == 'POST':
-        body = (request.POST.get('body') or '').strip()
+    if request.method == "POST":
+        body = (request.POST.get("body") or "").strip()
         if not body:
             dj_messages.error(request, "Message cannot be empty.")
-            return redirect('messaging:thread', thread_id=t.id)
+            return redirect("messaging:thread", thread_id=t.id)
         Message.objects.create(thread=t, sender=request.user, body=body)
         dj_messages.success(request, "Message sent.")
-        return redirect('messaging:thread', thread_id=t.id)
+        return redirect("messaging:thread", thread_id=t.id)
 
-    return render(request, 'messaging/thread.html', {
-    'thread': t,
-    'chat_messages': msgs,                   
-    'other': t.other_participant(request.user),
-})
+    return render(request, "messaging/thread.html", {
+        "thread": t,
+        "other": t.other_participant(request.user),
+        "chat_messages": chat_messages,      # <-- not 'messages'
+    })
 
 @login_required
 def start_thread(request):
