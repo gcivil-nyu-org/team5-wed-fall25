@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from .models import Listing, ListingImage
+from .models import Listing
 
 
 class ListingForm(forms.ModelForm):

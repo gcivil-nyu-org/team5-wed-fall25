@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
 from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
@@ -44,15 +43,15 @@ def register(request):
             subject = "Verify Your CampusNest Account"
             message = f"""
             Hi {user.first_name},
-            
+
             Welcome to CampusNest! Please verify your email address by clicking the link below:
-            
+
             {verification_link}
-            
+
             This link will expire in 24 hours.
-            
+
             If you didn't create this account, please ignore this email.
-            
+
             Best regards,
             The CampusNest Team
             """
@@ -169,17 +168,17 @@ def resend_verification(request):
             subject = "Verify Your CampusNest Account"
             message = f"""
             Hi {user.first_name},
-            
+
             You requested a new verification link for your CampusNest account.
-            
+
             Please verify your email address by clicking the link below:
-            
+
             {verification_link}
-            
+
             This link will expire in 24 hours.
-            
+
             If you didn't request this, please ignore this email.
-            
+
             Best regards,
             The CampusNest Team
             """
@@ -234,17 +233,17 @@ def password_reset_request(request):
             subject = "Reset Your CampusNest Password"
             message = f"""
             Hi {user.first_name},
-            
+
             You requested to reset your password for your CampusNest account.
-            
+
             Click the link below to reset your password:
-            
+
             {reset_link}
-            
+
             This link will expire in 1 hour for security reasons.
-            
+
             If you didn't request this password reset, please ignore this email and your password will remain unchanged.
-            
+
             Best regards,
             The CampusNest Team
             """
@@ -299,13 +298,13 @@ def password_reset_confirm(request, uidb64, token):
                 subject = "Your CampusNest Password Has Been Changed"
                 message = f"""
                 Hi {user.first_name},
-                
+
                 This is to confirm that your password for CampusNest has been successfully changed.
-                
+
                 If you did not make this change, please contact us immediately.
-                
+
                 For security, all your active sessions have been logged out. Please log in again with your new password.
-                
+
                 Best regards,
                 The CampusNest Team
                 """

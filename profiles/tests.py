@@ -346,7 +346,8 @@ class ProfileViewTests(TestCase):
         self.client.logout()
         pfp_file = create_image()
         response = self.client.post(
-            self.edit_profile_url, {**self.profile_data, "bio": "my test bio 2", "profile_photo": pfp_file}
+            self.edit_profile_url,
+            {**self.profile_data, "bio": "my test bio 2", "profile_photo": pfp_file},
         )
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/accounts/login/?next=/profiles/edit/")
@@ -446,7 +447,9 @@ class FavoriteModelTests(TestCase):
 
     def test_favorite_delete_cascade_profile(self):
         Favorite.objects.create(user=self.user1, favorite_profile=self.profile2)
-        self.assertTrue(Favorite.objects.filter(favorite_profile=self.profile2).exists())
+        self.assertTrue(
+            Favorite.objects.filter(favorite_profile=self.profile2).exists()
+        )
         self.profile2.delete()
         self.assertFalse(
             Favorite.objects.filter(favorite_profile_id=self.profile2.id).exists()
@@ -605,9 +608,7 @@ class RoommateSearchViewTests(TestCase):
         self.assertEqual(len(profiles), 0)
 
     def test_roommate_search_filter_location(self):
-        response = self.client.get(
-            self.roommate_search_url, {"location": "Brooklyn"}
-        )
+        response = self.client.get(self.roommate_search_url, {"location": "Brooklyn"})
         profiles = list(response.context["profiles"])
         self.assertIn(self.profile2, profiles)
 

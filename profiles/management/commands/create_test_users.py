@@ -6,36 +6,63 @@ import random
 User = get_user_model()
 
 FIRST_NAMES = [
-    'Alex', 'Jordan', 'Casey', 'Morgan', 'Riley', 'Taylor', 'Jamie', 'Avery',
-    'Sam', 'Quinn', 'Blake', 'Drew', 'Reese', 'Dakota', 'Skylar', 'Sage'
+    "Alex",
+    "Jordan",
+    "Casey",
+    "Morgan",
+    "Riley",
+    "Taylor",
+    "Jamie",
+    "Avery",
+    "Sam",
+    "Quinn",
+    "Blake",
+    "Drew",
+    "Reese",
+    "Dakota",
+    "Skylar",
+    "Sage",
 ]
 
 LAST_NAMES = [
-    'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller',
-    'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez',
-    'Wilson', 'Anderson', 'Thomas'
+    "Smith",
+    "Johnson",
+    "Williams",
+    "Brown",
+    "Jones",
+    "Garcia",
+    "Miller",
+    "Davis",
+    "Rodriguez",
+    "Martinez",
+    "Hernandez",
+    "Lopez",
+    "Gonzalez",
+    "Wilson",
+    "Anderson",
+    "Thomas",
 ]
 
-UNIVERSITIES = ['NYU', 'Columbia', 'CUNY', 'Pace', 'Fordham', 'The New School']
+UNIVERSITIES = ["NYU", "Columbia", "CUNY", "Pace", "Fordham", "The New School"]
 
-SMOKING_CHOICES = ['non_smoker', 'smoker', 'occasionally']
-PET_CHOICES = ['no_pets', 'cats', 'dogs', 'other', 'no_preference']
-CLEANLINESS_CHOICES = ['very_clean', 'clean', 'moderate', 'relaxed', 'no_preference']
+SMOKING_CHOICES = ["non_smoker", "smoker", "occasionally"]
+PET_CHOICES = ["no_pets", "cats", "dogs", "other", "no_preference"]
+CLEANLINESS_CHOICES = ["very_clean", "clean", "moderate", "relaxed", "no_preference"]
 
 
 class Command(BaseCommand):
-    help = 'Create test users with roommate preferences for testing the find roommates feature'
+    help = "Create test users with roommate preferences for testing the find roommates feature"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--count',
+            "--count",
             type=int,
             default=5,
-            help='Number of test users to create (default: 5)'
+            help="Number of test users to create (default: 5)",
         )
 
     def handle(self, *args, **options):
-        count = options['count']
+        count = options["count"]
         created_count = 0
 
         for i in range(count):
@@ -53,10 +80,10 @@ class Command(BaseCommand):
             user = User.objects.create_user(
                 username=username,
                 email=email,
-                password='testpass123',
+                password="testpass123",
                 first_name=first_name,
                 last_name=last_name,
-                is_verified=True
+                is_verified=True,
             )
 
             # Create/update profile with random preferences
@@ -66,7 +93,9 @@ class Command(BaseCommand):
             profile.cleanliness_preference = random.choice(CLEANLINESS_CHOICES)
             profile.budget_min = random.choice([800, 1000, 1200, 1500])
             profile.budget_max = profile.budget_min + random.choice([300, 500, 700])
-            profile.location = random.choice(['Manhattan', 'Brooklyn', 'Queens', 'Astoria'])
+            profile.location = random.choice(
+                ["Manhattan", "Brooklyn", "Queens", "Astoria"]
+            )
             profile.university = random.choice(UNIVERSITIES)
             profile.bio = f"Hi! I'm {first_name}, a student looking for a great roommate. Let's connect!"
             profile.save()
@@ -83,7 +112,7 @@ class Command(BaseCommand):
         )
         self.stdout.write(
             self.style.WARNING(
-                f"\nAll test users have password: testpass123\n"
-                f"You can login with any username to test the find roommates feature."
+                "\nAll test users have password: testpass123\n"
+                "You can login with any username to test the find roommates feature."
             )
         )

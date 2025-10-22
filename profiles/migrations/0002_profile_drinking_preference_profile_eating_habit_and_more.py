@@ -6,28 +6,66 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0001_initial'),
+        ("profiles", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='drinking_preference',
-            field=models.CharField(choices=[('non_drinker', 'Non-Drinker'), ('social_drinker', 'Social Drinker'), ('regular_drinker', 'Regular Drinker'), ('no_preference', 'No Preference')], default='no_preference', max_length=20, verbose_name='Drinking Preference'),
+            model_name="profile",
+            name="drinking_preference",
+            field=models.CharField(
+                choices=[
+                    ("non_drinker", "Non-Drinker"),
+                    ("social_drinker", "Social Drinker"),
+                    ("regular_drinker", "Regular Drinker"),
+                    ("no_preference", "No Preference"),
+                ],
+                default="no_preference",
+                max_length=20,
+                verbose_name="Drinking Preference",
+            ),
         ),
         migrations.AddField(
-            model_name='profile',
-            name='eating_habit',
-            field=models.CharField(choices=[('vegetarian', 'Vegetarian'), ('non_vegetarian', 'Non-Vegetarian'), ('vegan', 'Vegan'), ('no_preference', 'No Preference')], default='no_preference', max_length=20, verbose_name='Eating Preference'),
+            model_name="profile",
+            name="eating_habit",
+            field=models.CharField(
+                choices=[
+                    ("vegetarian", "Vegetarian"),
+                    ("non_vegetarian", "Non-Vegetarian"),
+                    ("vegan", "Vegan"),
+                    ("no_preference", "No Preference"),
+                ],
+                default="no_preference",
+                max_length=20,
+                verbose_name="Eating Preference",
+            ),
         ),
         migrations.AddField(
-            model_name='profile',
-            name='sharing_preference',
-            field=models.CharField(choices=[('sharing', 'Open to Sharing'), ('non_sharing', 'Prefer Not to Share'), ('depends', 'Depends on Item')], default='depends', max_length=20, verbose_name='Sharing Preference'),
+            model_name="profile",
+            name="sharing_preference",
+            field=models.CharField(
+                choices=[
+                    ("sharing", "Open to Sharing"),
+                    ("non_sharing", "Prefer Not to Share"),
+                    ("depends", "Depends on Item"),
+                ],
+                default="depends",
+                max_length=20,
+                verbose_name="Sharing Preference",
+            ),
         ),
         migrations.AddField(
-            model_name='profile',
-            name='smoking_preference',
-            field=models.CharField(choices=[('non_smoker', 'Non-Smoker'), ('smoker', 'Smoker'), ('occasionally', 'Occasionally')], default='non_smoker', max_length=20, verbose_name='Smoking Preference'),
+            model_name="profile",
+            name="smoking_preference",
+            field=models.CharField(
+                choices=[
+                    ("non_smoker", "Non-Smoker"),
+                    ("smoker", "Smoker"),
+                    ("occasionally", "Occasionally"),
+                ],
+                default="non_smoker",
+                max_length=20,
+                verbose_name="Smoking Preference",
+            ),
         ),
     ]

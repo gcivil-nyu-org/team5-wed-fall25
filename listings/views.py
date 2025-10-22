@@ -6,6 +6,23 @@ from .forms import ListingForm
 from .models import Listing, ListingImage
 
 
+def validate_image_files(files, form):
+    """Validate uploaded image files. Returns True if validation fails."""
+    if len(files) > 10:
+        form.add_error(None, "You can upload a maximum of 10 images.")
+        return True
+
+    for file in files:
+        if not file.content_type.startswith("image/"):
+            form.add_error(None, f"{file.name} is not a valid image file.")
+            return True
+        if file.size > 5 * 1024 * 1024:
+            form.add_error(None, f"{file.name} exceeds 5MB size limit.")
+            return True
+
+    return False
+
+
 @login_required
 def create_listing(request):
     # Verify .edu email domain
@@ -75,59 +92,48 @@ def edit_listing(request, listing_id):
     if request.method == "POST":
         form = ListingForm(request.POST, instance=listing)
         files = request.FILES.getlist("images")
-
-        # Check if user wants to keep existing images or upload new ones
         keep_existing = request.POST.get("keep_existing_images") == "on"
 
-        # Validate images only if new images are uploaded
-        has_image_error = False
-        if files:
-            if len(files) > 10:
-                form.add_error(None, "You can upload a maximum of 10 images.")
-                has_image_error = True
-            else:
-                # Validate file types and size
-                for file in files:
-                    if not file.content_type.startswith("image/"):
-                        form.add_error(None, f"{file.name} is not a valid image file.")
-                        has_image_error = True
-                        break
-                    if file.size > 5 * 1024 * 1024:
-                        form.add_error(None, f"{file.name} exceeds 5MB size limit.")
-                        has_image_error = True
-                        break
-        elif not keep_existing and not listing.images.exists():
-            form.add_error(
-                None, "Please upload at least one image or keep existing images."
-            )
-            has_image_error = True
+        # Validate images
+        has_image_error = _validate_listing_images(files, keep_existing, listing, form)
 
         if form.is_valid() and not has_image_error:
             listing = form.save(commit=False)
-            listing.is_edited = True  # Mark as edited
+            listing.is_edited = True
             listing.save()
 
-            # Handle images
-            if files:
-                # If new images uploaded, delete old ones
-                listing.images.all().delete()
-                # Save new images
-                for file in files:
-                    ListingImage.objects.create(listing=listing, image=file)
-            # If keep_existing is checked, don't touch the images
+            _handle_listing_images(files, listing)
 
             messages.success(request, "Listing updated successfully!")
             return redirect("view_listing", listing_id=listing.id)
     else:
-        # Pre-populate form with existing data
         form = ListingForm(instance=listing)
-        # Pre-populate amenities checkboxes
         if listing.amenities:
             form.initial["amenities"] = listing.amenities.split(",")
 
     return render(
         request, "listings/edit_listing.html", {"form": form, "listing": listing}
     )
+
+
+def _validate_listing_images(files, keep_existing, listing, form):
+    """Validate images for listing edit. Returns True if there's an error."""
+    if files:
+        return validate_image_files(files, form)
+    elif not keep_existing and not listing.images.exists():
+        form.add_error(
+            None, "Please upload at least one image or keep existing images."
+        )
+        return True
+    return False
+
+
+def _handle_listing_images(files, listing):
+    """Handle image uploads for a listing."""
+    if files:
+        listing.images.all().delete()
+        for file in files:
+            ListingImage.objects.create(listing=listing, image=file)
 
 
 @login_required

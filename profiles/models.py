@@ -100,8 +100,12 @@ class Profile(models.Model):
     )
 
     # Housing Preference Fields
-    budget_min = models.IntegerField(default=0, verbose_name="Minimum Monthly Budget ($)")
-    budget_max = models.IntegerField(default=5000, verbose_name="Maximum Monthly Budget ($)")
+    budget_min = models.IntegerField(
+        default=0, verbose_name="Minimum Monthly Budget ($)"
+    )
+    budget_max = models.IntegerField(
+        default=5000, verbose_name="Maximum Monthly Budget ($)"
+    )
     location = models.CharField(
         max_length=200,
         default="",
@@ -124,7 +128,7 @@ class Profile(models.Model):
             "vegetarian": "🥗",
             "no_preference": "🤷",
             "vegan": "🌱",
-            #Sm
+            # Sm
             "non_smoker": "🚭",
             "smoker": "🚬",
             "occasionally": "😶‍🌫️",
@@ -176,6 +180,7 @@ class Profile(models.Model):
 
 class Favorite(models.Model):
     """Model to track favorited roommate profiles"""
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -198,6 +203,7 @@ class Favorite(models.Model):
 
 class ConnectionRequest(models.Model):
     """Model to track connection requests between users"""
+
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("accepted", "Accepted"),
