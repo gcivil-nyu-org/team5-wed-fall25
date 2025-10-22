@@ -1,6 +1,6 @@
 # profiles/forms.py
 from django import forms
-from .models import Profile
+from .models import Profile, Favorite, ConnectionRequest
 
 
 class ProfileForm(forms.ModelForm):
@@ -14,6 +14,12 @@ class ProfileForm(forms.ModelForm):
             'smoking_preference',
             'sharing_preference',
             'drinking_preference',
+            'pet_preference',
+            'cleanliness_preference',
+            'budget_min',
+            'budget_max',
+            'location',
+            'move_in_date',
             'visibility'
         ]
         widgets = {
@@ -40,22 +46,55 @@ class ProfileForm(forms.ModelForm):
             'drinking_preference': forms.Select(attrs={
                 'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;'
             }),
+            'pet_preference': forms.Select(attrs={
+                'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;'
+            }),
+            'cleanliness_preference': forms.Select(attrs={
+                'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;'
+            }),
+            'budget_min': forms.NumberInput(attrs={
+                'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;',
+                'placeholder': 'Minimum monthly budget'
+            }),
+            'budget_max': forms.NumberInput(attrs={
+                'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;',
+                'placeholder': 'Maximum monthly budget'
+            }),
+            'location': forms.TextInput(attrs={
+                'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;',
+                'placeholder': 'e.g., Manhattan, Brooklyn, Queens'
+            }),
+            'move_in_date': forms.DateInput(attrs={
+                'type': 'date',
+                'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;'
+            }),
             'visibility': forms.CheckboxInput(attrs={
                 'style': 'width: 20px; height: 20px;'
             }),
-
         }
         labels = {
             'eating_habit': '🍽️ Eating Preference',
-            'smoking_preference': '🚬 Smoking',
+            'smoking_preference': '🚬Sm',
             'sharing_preference': '🤝 Sharing Items',
             'drinking_preference': '🍷 Drinking',
+            'pet_preference': '🐾 Pet Preference',
+            'cleanliness_preference': '✨ Cleanliness Level',
+            'budget_min': '💰 Minimum Monthly Budget',
+            'budget_max': '💰 Maximum Monthly Budget',
+            'location': '📍 Preferred Location',
+            'move_in_date': '📅 Preferred Move-In Date',
         }
         help_texts = {
             'eating_habit': 'Your dietary preferences',
             'smoking_preference': 'Your smoking habits',
-            'sharing_preference': 'Are you comfortable with sharing ?',
+            'sharing_preference': 'Are you comfortable with sharing?',
             'drinking_preference': 'Your drinking preferences',
+            'pet_preference': 'Your pet preferences',
+            'cleanliness_preference': 'Your cleanliness standards',
+            'budget_min': 'Minimum monthly rent budget',
+            'budget_max': 'Maximum monthly rent budget',
+            'location': 'Where you prefer to live',
+            'move_in_date': 'When you plan to move in',
         }
 
     def clean_bio(self):
@@ -79,3 +118,84 @@ class ProfileForm(forms.ModelForm):
         
         return photo
 
+    def clean(self):
+        cleaned_data = super().clean()
+        budget_min = cleaned_data.get('budget_min')
+        budget_max = cleaned_data.get('budget_max')
+        
+        if budget_min is not None and budget_max is not None:
+            if budget_min > budget_max:
+                raise forms.ValidationError("Minimum budget cannot be greater than maximum budget.")
+        
+        return cleaned_data
+
+
+class RoommateSearchForm(forms.Form):
+    """Form for filtering roommate search"""
+    
+    # Lifestyle filters
+    smoking_preference = forms.MultipleChoiceField(
+        choices=Profile.SMOKING_CHOICES,
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'style': 'margin: 5px 0;'
+        }),
+        label='🚬Sm Preference'
+    )
+    
+    pet_preference = forms.MultipleChoiceField(
+        choices=Profile.PET_CHOICES,
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'style': 'margin: 5px 0;'
+        }),
+        label='🐾 Pet Preference'
+    )
+    
+    cleanliness_preference = forms.MultipleChoiceField(
+        choices=Profile.CLEANLINESS_CHOICES,
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'style': 'margin: 5px 0;'
+        }),
+        label='✨ Cleanliness Level'
+    )
+    
+    # Housing filters
+    budget_min = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;',
+            'placeholder': 'Min budget'
+        }),
+        label='💰 Minimum Budget'
+    )
+    
+    budget_max = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;',
+            'placeholder': 'Max budget'
+        }),
+        label='💰 Maximum Budget'
+    )
+    
+    location = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;',
+            'placeholder': 'e.g., Manhattan, Brooklyn'
+        }),
+        label='📍 Location'
+    )
+    
+    university = forms.MultipleChoiceField(
+        choices=Profile.UNIVERSITY_CHOICES,
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'style': 'margin: 5px 0;'
+        }),
+        label='🎓 University'
+    )

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Connection Requests - CampusNest{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding: 20px;">
+    <h1 style="color: #333; margin-bottom: 30px;">📬 Connection Requests</h1>
+    
+    <a href="{% url 'roommate_search' %}" style="color: #007bff; text-decoration: none; font-weight: 600; margin-bottom: 20px; display: inline-block;">
+        ← Back to Search
+    </a>
+    
+    {% if received_requests %}
+        <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
+            {% for request in received_requests %}
+                <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="display: grid; grid-template-columns: 120px 1fr auto; gap: 20px; align-items: start;">
+                        <!-- Profile Photo -->
+                        <div style="text-align: center;">
+                            {% if request.from_user.profile.profile_photo %}
+                                <img src="{{ request.from_user.profile.profile_photo.url }}" 
+                                     alt="{{ request.from_user.first_name }}"
+                                     style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #007bff;">
+                            {% else %}
+                                <div style="width: 100px; height: 100px; border-radius: 50%; background: #ddd; display: inline-flex; align-items: center; justify-content: center; font-size: 36px; color: #666; border: 3px solid #007bff;">
+                                    {{ request.from_user.first_name.0 }}{{ request.from_user.last_name.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Request Details -->
+                        <div>
+                            <h3 style="color: #333; margin: 0 0 10px 0; font-size: 20px;">{{ request.from_user.first_name }} {{ request.from_user.last_name }}</h3>
+                            <p style="color: #666; font-size: 14px; margin: 5px 0;">{{ request.from_user.profile.get_university_display }}</p>
+                            
+                            {% if request.message %}
+                                <div style="background: #f8f9fa; padding: 12px; border-radius: 4px; margin: 15px 0;">
+                                    <p style="color: #666; font-size: 14px; margin: 0; font-style: italic;">💬 "{{ request.message }}"</p>
+                                </div>
+                            {% endif %}
+                            
+                            <p style="color: #999; font-size: 12px; margin: 10px 0 0 0;">Sent {{ request.created_at|timesince }} ago</p>
+                            
+                            <!-- Status Badge -->
+                            {% if request.status == 'pending' %}
+                                <p style="color: #ffc107; font-weight: 600; margin: 10px 0 0 0;">⏳ Pending</p>
+                            {% elif request.status == 'accepted' %}
+                                <p style="color: #28a745; font-weight: 600; margin: 10px 0 0 0;">✓ Accepted</p>
+                            {% else %}
+                                <p style="color: #dc3545; font-weight: 600; margin: 10px 0 0 0;">✗ Rejected</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a href="{% url 'roommate_detail' request.from_user.id %}" 
+                               style="padding: 10px 16px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 600; text-align: center;">
+                                View Profile
+                            </a>
+                            
+                            {% if request.status == 'pending' %}
+                                <form method="post" action="{% url 'respond_to_request' request.id %}" style="display: flex; gap: 8px;">
+                                    {% csrf_token %}
+                                    <button type="submit" name="action" value="accept" 
+                                            style="flex: 1; padding: 10px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                                        ✓ Accept
+                                    </button>
+                                    <button type="submit" name="action" value="reject" 
+                                            style="flex: 1; padding: 10px 12px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                                        ✗ Reject
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 60px 20px; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
+            <p style="font-size: 18px; color: #666; margin-bottom: 10px;">😊 No connection requests</p>
+            <p style="color: #999; margin-bottom: 20px;">When someone sends you a connection request, it will appear here.</p>
+            <a href="{% url 'roommate_search' %}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-weight: 600;">
+                Find Roommates
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
