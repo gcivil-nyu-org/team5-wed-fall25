@@ -279,6 +279,7 @@
 				<span class="nav-user">Hello, {{ user.first_name|default:user.username }}!</span>
 				<a href="{% url 'view_profile' %}">My Profile</a>
 				<a href="{% url 'my_listings' %}">My Listings</a>
+				<a href="{% url 'my_items' %}">My Items</a>
 				<div class="nav-dropdown">
 					<a href="#" class="dropdown-toggle">Find Roommates ▼</a>
 					<div class="dropdown-menu">
