@@ -8,7 +8,7 @@ def validation_edu_email(value):
     """
     Stricter validation: ensures domain is exactly *.edu (not *.*.edu)
     """
-    strict_edu_pattern = r"^[\w\.-]+@[\w-]+\.edu$"
+    strict_edu_pattern = r"^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)*edu$"
 
     if not re.match(strict_edu_pattern, value):
         raise ValidationError(

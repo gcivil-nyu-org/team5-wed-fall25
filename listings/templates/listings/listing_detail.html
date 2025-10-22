@@ -1,0 +1,113 @@
+{# templates/listings/listing_detail.html #}
+{% extends "base.html" %}
+{% block title %}{{ listing.title }} – CampusNest{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 0 auto;">
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+    <div>
+      <h2 style="margin-bottom:6px;">{{ listing.title }}</h2>
+      <div style="color:#666; font-size:14px;">
+        Posted by {{ listing.user.username }} · {{ listing.created_at|date:"M d, Y" }}
+        {% if listing.is_edited %} · <span title="Edited">edited</span>{% endif %}
+      </div>
+      <div style="margin-top:8px; color:#28a745; font-weight:700; font-size:22px;">
+        ${{ listing.rent }}
+      </div>
+    </div>
+
+    <div style="text-align:right; min-width:200px;">
+      {% if request.user.is_authenticated and request.user.id == listing.user.id %}
+        <a class="btn" style="width:auto; margin-bottom:8px;"
+           href="{% url 'listings:edit_listing' listing.id %}">Edit listing</a>
+        <a class="btn" style="width:auto; background:#dc3545;"
+           href="{% url 'listings:delete_listing' listing.id %}">Delete listing</a>
+      {% endif %}
+      <a class="btn" style="width:auto; background:#6c757d;" href="{% url 'listings:public_listings' %}">← All listings</a>
+    </div>
+  </div>
+
+  <!-- Image gallery -->
+  <div style="margin:18px 0;">
+    {% with imgs=listing.images.all %}
+      {% if imgs %}
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px;">
+          {% for img in imgs %}
+            <img src="{{ img.image.url }}" alt="Photo {{ forloop.counter }}"
+                 style="width:100%; height:220px; object-fit:cover; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.08);" />
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="background:#f2f2f2; height:220px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#777;">
+          No photos uploaded
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Details -->
+  <div style="background:#fff; border:1px solid #eee; border-radius:8px; padding:18px;">
+    <div style="margin-bottom:10px;">
+      <strong>Address:</strong>
+      <div>{{ listing.address }}</div>
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <strong>Availability:</strong>
+      <div>
+        {{ listing.availability_start|date:"M d, Y" }} – {{ listing.availability_end|date:"M d, Y" }}
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <strong>Description:</strong>
+      <p style="margin-top:6px; line-height:1.6;">{{ listing.description }}</p>
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <strong>Amenities:</strong>
+      <div style="margin-top:8px;">
+        {% if listing.get_amenities_display %}
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            {% for amenity in listing.get_amenities_display %}
+              <span style="background:#e9f2ff; color:#0b5ed7; padding:6px 10px; border-radius:16px; font-size:12px;">{{ amenity }}</span>
+            {% endfor %}
+          </div>
+        {% elif listing.amenities %}
+          <div style="color:#555;">{{ listing.amenities }}</div>
+        {% else %}
+          <div style="color:#777;">—</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <strong>Status:</strong>
+      {% if listing.is_active %}
+        <span style="color:#28a745; font-weight:700;">Active</span>
+      {% else %}
+        <span style="color:#dc3545; font-weight:700;">Inactive</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Message composer (only for non-owners who are logged in) -->
+  {% if request.user.is_authenticated and request.user.id != listing.user.id %}
+    <hr style="margin:22px 0;">
+    <h3>Message {{ listing.user.username }}</h3>
+    <form method="post" action="{% url 'messaging:start_thread' %}" style="margin-top:10px;">
+      {% csrf_token %}
+      <input type="hidden" name="listing_id" value="{{ listing.id }}">
+      <input type="hidden" name="recipient_id" value="{{ listing.user.id }}">
+      <textarea name="body" rows="3" class="form-control"
+                placeholder="Ask a question about this place…" required
+                style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+      <button class="btn" style="margin-top:8px; width:auto;">Send message</button>
+    </form>
+  {% elif not request.user.is_authenticated %}
+    <hr style="margin:22px 0;">
+    <a class="btn" style="width:auto;" href="{% url 'login' %}?next={{ request.path }}">Log in to message the host</a>
+  {% endif %}
+</div>
+{% endblock %}

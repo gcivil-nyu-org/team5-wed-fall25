@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block title %}{{ listing.title }} - CampusNest{% endblock %}
 
 {% block content %}
@@ -7,22 +6,22 @@
   <h2>
     {{ listing.title }}
     {% if listing.is_edited %}
-    <span style="background: #ffc107; color: #856404; padding: 5px 12px; border-radius: 4px; font-size: 14px; margin-left: 10px;">
-      EDITED
-    </span>
+      <span style="background: #ffc107; color: #856404; padding: 5px 12px; border-radius: 4px; font-size: 14px; margin-left: 10px;">
+        EDITED
+      </span>
     {% endif %}
   </h2>
-  
+
   <!-- Image Gallery -->
   <div style="margin: 20px 0;">
     {% if listing.images.all %}
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-      {% for img in listing.images.all %}
-      <img src="{{ img.image.url }}" 
-           alt="Photo {{ forloop.counter }}"
-           style="width: 100%; height: 250px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-      {% endfor %}
-    </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        {% for img in listing.images.all %}
+          <img src="{{ img.image.url }}"
+               alt="Photo {{ forloop.counter }}"
+               style="width: 100%; height: 250px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        {% endfor %}
+      </div>
     {% endif %}
   </div>
 
@@ -30,56 +29,91 @@
   <div style="background: #f9f9f9; padding: 25px; border-radius: 8px; margin-top: 20px;">
     <div style="margin-bottom: 20px;">
       <h3 style="color: #007bff; margin-bottom: 10px;">Details</h3>
-      
+
       <div style="margin-bottom: 15px;">
         <strong style="color: #555;">Address:</strong>
         <p style="margin: 5px 0;">{{ listing.address }}</p>
       </div>
-      
+
       <div style="margin-bottom: 15px;">
         <strong style="color: #555;">Monthly Rent:</strong>
         <p style="margin: 5px 0; font-size: 24px; color: #28a745; font-weight: bold;">${{ listing.rent }}</p>
       </div>
-      
+
       <div style="margin-bottom: 15px;">
         <strong style="color: #555;">Description:</strong>
         <p style="margin: 5px 0; line-height: 1.6;">{{ listing.description }}</p>
       </div>
-      
+
       <div style="margin-bottom: 15px;">
         <strong style="color: #555;">Availability:</strong>
-        <p style="margin: 5px 0;">{{ listing.availability_start|date:"F d, Y" }} to {{ listing.availability_end|date:"F d, Y" }}</p>
+        <p style="margin: 5px 0;">
+          {{ listing.availability_start|date:"F d, Y" }} to {{ listing.availability_end|date:"F d, Y" }}
+        </p>
       </div>
-      
+
       {% if listing.get_amenities_display %}
-      <div style="margin-bottom: 15px;">
-        <strong style="color: #555;">Amenities:</strong>
-        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
-          {% for amenity in listing.get_amenities_display %}
-          <span style="background: #007bff; color: white; padding: 5px 12px; border-radius: 15px; font-size: 13px;">
-            ✓ {{ amenity }}
-          </span>
-          {% endfor %}
+        <div style="margin-bottom: 15px;">
+          <strong style="color: #555;">Amenities:</strong>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+            {% for amenity in listing.get_amenities_display %}
+              <span style="background: #007bff; color: white; padding: 5px 12px; border-radius: 15px; font-size: 13px;">
+                ✓ {{ amenity }}
+              </span>
+            {% endfor %}
+          </div>
         </div>
-      </div>
       {% endif %}
-      
-      <div style="margin-bottom: 15px;">
+
+      <hr>
+
+      {# --- Messaging composer / link --- #}
+      {% if not user.is_authenticated %}
+        <p>
+          <a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to message
+          {{ listing.user.first_name|default:listing.user.username }}.
+        </p>
+      {% elif user.id == listing.user_id %}
+        <p><em>This is your listing. Others can message you from here.</em></p>
+      {% else %}
+        <h3>Message {{ listing.user.first_name|default:listing.user.username }}</h3>
+
+        {% if existing_thread_id %}
+          <p style="margin-bottom:10px;">
+            You already have a conversation with this host.
+            <a class="btn" href="{% url 'messaging:thread' existing_thread_id %}">Open conversation</a>
+          </p>
+          <p style="margin:8px 0;">Or send a new message:</p>
+        {% endif %}
+
+        <form method="post" action="{% url 'messaging:start_thread' %}">
+          {% csrf_token %}
+          <input type="hidden" name="listing_id" value="{{ listing.id }}">
+          <input type="hidden" name="recipient_id" value="{{ listing.user.id }}">
+          <div class="form-group">
+            <label for="msg_body">Your message</label>
+            <textarea id="msg_body" name="body" rows="3" placeholder="Hi! I’m interested in this place…" required></textarea>
+          </div>
+          <button type="submit" class="btn">Chat with poster</button>
+        </form>
+      {% endif %}
+
+      <div style="margin-top: 20px;">
         <strong style="color: #555;">Posted:</strong>
         <p style="margin: 5px 0;">{{ listing.created_at|date:"F d, Y" }}</p>
         {% if listing.is_edited %}
-        <strong style="color: #555;">Last Updated:</strong>
-        <p style="margin: 5px 0;">{{ listing.updated_at|date:"F d, Y" }}</p>
+          <strong style="color: #555;">Last Updated:</strong>
+          <p style="margin: 5px 0;">{{ listing.updated_at|date:"F d, Y" }}</p>
         {% endif %}
       </div>
-      
+
       <div style="margin-bottom: 15px;">
         <strong style="color: #555;">Status:</strong>
         <p style="margin: 5px 0;">
           {% if listing.is_active %}
-          <span style="color: #28a745; font-weight: bold;">✓ Active</span>
+            <span style="color: #28a745; font-weight: bold;">✓ Active</span>
           {% else %}
-          <span style="color: #dc3545; font-weight: bold;">✗ Inactive</span>
+            <span style="color: #dc3545; font-weight: bold;">✗ Inactive</span>
           {% endif %}
         </p>
       </div>
@@ -87,15 +121,15 @@
   </div>
 
   <div style="margin-top: 20px; text-align: center; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-    <a href="{% url 'edit_listing' listing.id %}" 
+    <a href="{% url 'edit_listing' listing.id %}"
        style="display: inline-block; padding: 12px 24px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px;">
       Edit Listing
     </a>
-    <a href="{% url 'delete_listing' listing.id %}" 
+    <a href="{% url 'delete_listing' listing.id %}"
        style="display: inline-block; padding: 12px 24px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px;">
       Delete Listing
     </a>
-    <a href="{% url 'my_listings' %}" 
+    <a href="{% url 'my_listings' %}"
        style="display: inline-block; padding: 12px 24px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px;">
       Back to My Listings
     </a>
@@ -104,18 +138,12 @@
 
 <style>
   @media (max-width: 768px) {
-    div[style*="grid-template-columns"] {
-      grid-template-columns: 1fr !important;
-    }
-    
+    div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
     div[style*="display: flex; gap: 15px; justify-content: center"] {
-      flex-direction: column;
-      align-items: center;
+      flex-direction: column; align-items: center;
     }
-    
     div[style*="display: flex; gap: 15px; justify-content: center"] a {
-      width: 100%;
-      max-width: 300px;
+      width: 100%; max-width: 300px;
     }
   }
 </style>

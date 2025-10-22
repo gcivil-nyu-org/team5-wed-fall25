@@ -1,0 +1,118 @@
+# messaging/views.py
+from django.contrib import messages as dj_messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.http import HttpResponseForbidden, HttpResponseNotAllowed
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.contrib import messages
+
+from listings.models import Listing
+from .models import Thread, Message
+
+User = get_user_model()
+
+@login_required
+def inbox(request):
+    threads = (
+        Thread.objects
+        .filter(Q(user_a=request.user) | Q(user_b=request.user))
+        .select_related('listing', 'user_a', 'user_b')
+        .prefetch_related('messages')
+    )
+    # Add derived fields for the template (avoid custom template tags)
+    prepared = []
+    for t in threads:
+        other = t.other_participant(request.user)
+        last = t.messages.last()
+        unread_count = t.messages.filter(is_read=False).exclude(sender=request.user).count()
+        prepared.append((t, other, last, unread_count))
+    # newest activity first
+    prepared.sort(key=lambda item: (item[2].created_at if item[2] else t.updated_at), reverse=True)
+
+    return render(request, 'messaging/inbox.html', {
+        'rows': prepared,  # each row = (thread, other_user, last_msg, unread_count)
+    })
+
+@login_required
+def thread_view(request, thread_id):
+    t = get_object_or_404(Thread, id=thread_id)
+    if request.user.id not in (t.user_a_id, t.user_b_id):
+        return HttpResponseForbidden("Not your conversation.")
+
+    msgs = t.messages.select_related('sender')
+
+    # mark incoming as read
+    msgs.filter(is_read=False).exclude(sender=request.user).update(is_read=True, read_at=timezone.now())
+
+    if request.method == 'POST':
+        body = (request.POST.get('body') or '').strip()
+        if not body:
+            dj_messages.error(request, "Message cannot be empty.")
+            return redirect('messaging:thread', thread_id=t.id)
+        Message.objects.create(thread=t, sender=request.user, body=body)
+        dj_messages.success(request, "Message sent.")
+        return redirect('messaging:thread', thread_id=t.id)
+
+    return render(request, 'messaging/thread.html', {
+    'thread': t,
+    'chat_messages': msgs,                   
+    'other': t.other_participant(request.user),
+})
+
+@login_required
+def start_thread(request):
+    """
+    Creates (or finds) a thread between request.user and the listing owner,
+    posts the initial message, and redirects to the thread page.
+    """
+    if request.method != "POST":
+        return redirect("listings:view_listing", listing_id=listing_id)
+
+    body = (request.POST.get("body") or "").strip()
+    listing_id = request.POST.get("listing_id")
+    recipient_id = request.POST.get("recipient_id")
+
+    if not body:
+        messages.error(request, "Message cannot be empty.")
+        return redirect("listings:view_listing", listing_id=listing_id)
+
+    listing = get_object_or_404(Listing, pk=listing_id)
+    if str(listing.user_id) != str(recipient_id):
+        messages.error(request, "Invalid recipient.")
+        return redirect("listings:view_listing", listing_id=listing_id)
+
+    if request.user.id == listing.user_id:
+        messages.error(request, "You cannot message yourself about your own listing.")
+        return redirect("listings:view_listing", listing_id=listing_id)
+
+    # find or create a canonical thread (user_a < user_b by id)
+    user_a, user_b = (request.user, listing.user)
+    if user_a.id > user_b.id:
+        user_a, user_b = user_b, user_a
+
+    thread, _created = Thread.objects.get_or_create(
+        listing=listing,
+        user_a=user_a,
+        user_b=user_b,
+    )
+
+    Message.objects.create(thread=thread, sender=request.user, body=body)
+    messages.success(request, "Message sent.")
+    return redirect("messaging:thread", thread_id=thread.id)
+
+@login_required
+def send_message(request, thread_id):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    t = get_object_or_404(Thread, id=thread_id)
+    if request.user.id not in (t.user_a_id, t.user_b_id):
+        return HttpResponseForbidden("Not your conversation.")
+    body = (request.POST.get('body') or '').strip()
+    if not body:
+        dj_messages.error(request, "Message cannot be empty.")
+        return redirect('messaging:thread', thread_id=thread_id)
+    Message.objects.create(thread=t, sender=request.user, body=body)
+    dj_messages.success(request, "Message sent.")
+    return redirect('messaging:thread', thread_id=thread_id)
