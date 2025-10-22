@@ -215,7 +215,7 @@ def password_reset_request(request):
     """
     if request.method == "POST":
         email = request.POST.get("email")
- Can’t automatically merg
+
         try:
             user = User.objects.get(email=email)
 
