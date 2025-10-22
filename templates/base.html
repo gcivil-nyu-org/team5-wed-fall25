@@ -75,9 +75,65 @@
 			text-decoration: none;
 			display: inline-block;
 		}
+		/* Dropdown Menu Styles */
+		.nav-dropdown {
+			position: relative;
+			display: inline-block;
+		}
 
-		.logout-btn:hover {
-			background-color: #c82333;
+		.dropdown-toggle {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			cursor: pointer;
+			padding: 8px 16px;
+			border-radius: 4px;
+			transition: background-color 0.3s;
+		}
+
+		.dropdown-toggle:hover {
+			background-color: rgba(255, 255, 255, 0.1);
+		}
+
+		.dropdown-menu {
+			display: none;
+			position: absolute;
+			top: calc(100% + 5px);
+			left: 0;
+			background-color: #1a237e;
+			min-width: 200px;
+			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+			padding: 8px 0;
+			border-radius: 4px;
+			z-index: 1000;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+			pointer-events: none;
+		}
+
+		.nav-dropdown:hover .dropdown-menu {
+			display: block;
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.dropdown-menu a {
+			color: white;
+			padding: 12px 20px;
+			text-decoration: none;
+			display: block;
+			transition: background-color 0.3s;
+		}
+
+		.dropdown-menu a:hover {
+			background-color: rgba(255, 255, 255, 0.2);
+		}
+
+		.dropdown-menu a:first-child {
+			border-radius: 4px 4px 0 0;
+		}
+		.dropdown-menu a:last-child {
+			border-radius: 0 0 4px 4px;
 		}
 
 		/* Main Content */
@@ -92,7 +148,6 @@
 			background: white;
 			padding: 30px;
 			border-radius: 8px;
-			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 		}
 
 		h1,
@@ -217,19 +272,26 @@
 	<!-- Navigation Bar -->
 	<nav>
 		<div class="nav-container">
-			<a href="/" class="nav-brand">🏠 CampusNest</a>
+			<a href="{% url 'home' %}" class="nav-brand">🏠 CampusNest</a>
 
 			<div class="nav-links">
 				{% if user.is_authenticated %}
 				<span class="nav-user">Hello, {{ user.first_name|default:user.username }}!</span>
 				<a href="{% url 'view_profile' %}">My Profile</a>
 				<a href="{% url 'my_listings' %}">My Listings</a>
+				<div class="nav-dropdown">
+					<a href="#" class="dropdown-toggle">Find Roommates ▼</a>
+					<div class="dropdown-menu">
+						<a href="{% url 'roommate_search' %}">Search Roommates</a>
+						<a href="{% url 'my_favorites' %}">My Favorites</a>
+						<a href="{% url 'connection_requests' %}">Connection Requests</a>
+					</div>
+				</div>
 				{% if user.is_staff %}
 				<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
 				{% endif %}
 				<a href="{% url 'logout' %}" class="logout-btn">Logout</a>
 				{% else %}
-				<a href="{% url 'login' %}">Login</a>
 				<a href="{% url 'register' %}">Register</a>
 				{% endif %}
 			</div>
@@ -258,6 +320,32 @@
 	<footer>
 		&copy; 2025 CampusNest - Connecting NYC Students
 	</footer>
+
+	<script>
+		// Dropdown menu delay handler
+		let dropdownTimeout;
+		const navDropdown = document.querySelector('.nav-dropdown');
+		const dropdownMenu = document.querySelector('.dropdown-menu');
+
+		if (navDropdown && dropdownMenu) {
+			navDropdown.addEventListener('mouseenter', function() {
+				clearTimeout(dropdownTimeout);
+				dropdownMenu.style.display = 'block';
+				dropdownMenu.style.opacity = '1';
+				dropdownMenu.style.pointerEvents = 'auto';
+			});
+
+			navDropdown.addEventListener('mouseleave', function() {
+				dropdownTimeout = setTimeout(function() {
+					dropdownMenu.style.opacity = '0';
+					dropdownMenu.style.pointerEvents = 'none';
+					setTimeout(function() {
+						dropdownMenu.style.display = 'none';
+					}, 300);
+				}, 150);
+			});
+		}
+	</script>
 </body>
 
 </html>
