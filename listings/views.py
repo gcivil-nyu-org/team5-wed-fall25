@@ -68,7 +68,7 @@ def create_listing(request):
 
 
 @login_required
-def edit_listing(request, listing_id):
+def edit_listing(request, listing_id):  # noqa: C901
     """Edit an existing listing"""
     listing = get_object_or_404(Listing, id=listing_id, user=request.user)
 
