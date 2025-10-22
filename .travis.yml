@@ -1,0 +1,35 @@
+language: python
+python:
+  - "3.13"
+
+before_install:
+  - pip install --upgrade pip
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - psql -c 'CREATE DATABASE test_campusnest;' -U postgres
+  - python manage.py migrate --noinput
+
+script:
+  - black --check .
+  - flake8 .
+  - coverage run --source='.' manage.py test
+  - coveralls
+
+deploy:
+  - provider: elasticbeanstalk
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket: elasticbeanstalk-us-east-1-386397332356
+    region: us-east-1
+    app: CampusNest
+    env: campusnest-env-v2
+    edge: true # opt in to dpl v2
+    on:
+      branch: develop
+  
+branches:
+  only:
+  - develop
