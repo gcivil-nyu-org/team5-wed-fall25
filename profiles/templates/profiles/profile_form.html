@@ -95,8 +95,90 @@
                 <small style="color: #666;">{{ form.drinking_preference.help_text }}</small>
             {% endif %}
         </div>
+
+        <div class="form-group">
+            <label for="{{ form.pet_preference.id_for_label }}">{{ form.pet_preference.label }}</label>
+            {{ form.pet_preference }}
+            {% if form.pet_preference.help_text %}
+                <small style="color: #666;">{{ form.pet_preference.help_text }}</small>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.cleanliness_preference.id_for_label }}">{{ form.cleanliness_preference.label }}</label>
+            {{ form.cleanliness_preference }}
+            {% if form.cleanliness_preference.help_text %}
+                <small style="color: #666;">{{ form.cleanliness_preference.help_text }}</small>
+            {% endif %}
+        </div>
     </div>
-    
+
+    <!-- Housing Preferences Section -->
+    <div style="background: #f0fff0; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h3 style="margin-bottom: 15px; color: #333;">🏘️ Housing Preferences</h3>
+        <p style="color: #666; margin-bottom: 15px;">Tell us about your housing needs</p>
+
+        <div class="form-group">
+            <label for="{{ form.budget_min.id_for_label }}">{{ form.budget_min.label }}</label>
+            {{ form.budget_min }}
+            {% if form.budget_min.errors %}
+                <ul class="errorlist">
+                    {% for error in form.budget_min.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if form.budget_min.help_text %}
+                <small style="color: #666;">{{ form.budget_min.help_text }}</small>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.budget_max.id_for_label }}">{{ form.budget_max.label }}</label>
+            {{ form.budget_max }}
+            {% if form.budget_max.errors %}
+                <ul class="errorlist">
+                    {% for error in form.budget_max.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if form.budget_max.help_text %}
+                <small style="color: #666;">{{ form.budget_max.help_text }}</small>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
+            {{ form.location }}
+            {% if form.location.errors %}
+                <ul class="errorlist">
+                    {% for error in form.location.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if form.location.help_text %}
+                <small style="color: #666;">{{ form.location.help_text }}</small>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.move_in_date.id_for_label }}">{{ form.move_in_date.label }}</label>
+            {{ form.move_in_date }}
+            {% if form.move_in_date.errors %}
+                <ul class="errorlist">
+                    {% for error in form.move_in_date.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if form.move_in_date.help_text %}
+                <small style="color: #666;">{{ form.move_in_date.help_text }}</small>
+            {% endif %}
+        </div>
+    </div>
+
     <!-- Privacy Settings -->
     <div class="form-group">
         <label for="{{ form.visibility.id_for_label }}">Profile Visibility</label>
