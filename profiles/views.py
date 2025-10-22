@@ -20,15 +20,15 @@ def home(request):
     # Get user statistics for the dashboard
     favorites_count = Favorite.objects.filter(user=request.user).count()
     pending_requests = ConnectionRequest.objects.filter(
-        to_user=request.user, status='pending'
+        to_user=request.user, status="pending"
     ).count()
 
     context = {
-        'favorites_count': favorites_count,
-        'pending_requests': pending_requests,
+        "favorites_count": favorites_count,
+        "pending_requests": pending_requests,
     }
 
-    return render(request, 'home.html', context)
+    return render(request, "home.html", context)
 
 
 @login_required
