@@ -18,8 +18,8 @@ LAST_NAMES = [
 
 UNIVERSITIES = ['nyu', 'columbia', 'cuny', 'pace']
 
-SMOKING_CHOICES = ['yes', 'no', 'sometimes']
-PET_CHOICES = ['yes', 'no', 'allergic']
+SMOKING_CHOICES = ['Non-Smoker', 'Smoker', 'Occasionally']
+PET_CHOICES = ['No Pets', 'Cats', 'Dogs', 'Other', 'No Preference']
 CLEANLINESS_CHOICES = ['very_clean', 'clean', 'moderate', 'relaxed']
 
 
