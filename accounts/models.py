@@ -5,6 +5,12 @@ import re
 
 
 def validation_edu_email(value):
+    """adrian test"""
+    _TEST_EMAIL_WHITELIST = {"adriandsouza2504@gmail.com"}
+    email = (value or "").strip().lower()
+    if email in _TEST_EMAIL_WHITELIST:
+        return
+
     """
     Stricter validation: ensures domain is exactly *.edu (not *.*.edu)
     """

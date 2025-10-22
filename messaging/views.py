@@ -81,7 +81,7 @@ def thread_view(request, thread_id):
         },
     )
 
-
+    
 @login_required
 def start_thread(request):
     """
