@@ -5,8 +5,7 @@ import re
 
 
 def validation_edu_email(value):
-
-    """ adrian test"""
+    """adrian test"""
     _TEST_EMAIL_WHITELIST = {"adriandsouza2504@gmail.com"}
     email = (value or "").strip().lower()
     if email in _TEST_EMAIL_WHITELIST:

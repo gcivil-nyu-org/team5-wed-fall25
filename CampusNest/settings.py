@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     "profiles",
     #    'storages',
     "listings",
-    'messaging',
+    "messaging",
 ]
 
 MIDDLEWARE = [

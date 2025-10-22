@@ -5,22 +5,34 @@ from django.db.models import F, Q
 from django.utils import timezone
 from listings.models import Listing
 
+
 class Thread(models.Model):
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='threads')
-    user_a = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='threads_a')
-    user_b = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='threads_b')
+    listing = models.ForeignKey(
+        Listing, on_delete=models.CASCADE, related_name="threads"
+    )
+    user_a = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="threads_a"
+    )
+    user_b = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="threads_b"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['listing', 'user_a', 'user_b'], name='unique_thread_per_listing_pair'),
-            models.CheckConstraint(check=~Q(user_a=F('user_b')), name='prevent_self_thread'),
+            models.UniqueConstraint(
+                fields=["listing", "user_a", "user_b"],
+                name="unique_thread_per_listing_pair",
+            ),
+            models.CheckConstraint(
+                check=~Q(user_a=F("user_b")), name="prevent_self_thread"
+            ),
         ]
         indexes = [
-            models.Index(fields=['listing', 'user_a']),
-            models.Index(fields=['listing', 'user_b']),
-            models.Index(fields=['updated_at']),
+            models.Index(fields=["listing", "user_a"]),
+            models.Index(fields=["listing", "user_b"]),
+            models.Index(fields=["updated_at"]),
         ]
 
     def save(self, *args, **kwargs):
@@ -34,27 +46,31 @@ class Thread(models.Model):
     def __str__(self):
         return f"Thread(listing={self.listing_id}, users=({self.user_a_id},{self.user_b_id}))"
 
+
 class Message(models.Model):
-    thread = models.ForeignKey(Thread, on_delete=models.CASCADE, related_name='messages')
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
+    thread = models.ForeignKey(
+        Thread, on_delete=models.CASCADE, related_name="messages"
+    )
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sent_messages"
+    )
     body = models.TextField(max_length=2000)
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
     read_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ['created_at']
+        ordering = ["created_at"]
         indexes = [
-            models.Index(fields=['thread', 'created_at']),
-            models.Index(fields=['thread', 'is_read']),
+            models.Index(fields=["thread", "created_at"]),
+            models.Index(fields=["thread", "is_read"]),
         ]
 
     def mark_read(self):
         if not self.is_read:
             self.is_read = True
             self.read_at = timezone.now()
-            self.save(update_fields=['is_read', 'read_at'])
+            self.save(update_fields=["is_read", "read_at"])
 
     def __str__(self):
         return f"Msg(thread={self.thread_id}, from={self.sender_id}, at={self.created_at:%Y-%m-%d %H:%M})"
-    

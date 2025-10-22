@@ -1,39 +1,48 @@
 # messaging/views.py
-from django.contrib import messages as dj_messages
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponseForbidden, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.contrib import messages
 
 from listings.models import Listing
 from .models import Thread, Message
 
 User = get_user_model()
 
+
 @login_required
 def inbox(request):
     threads = (
-        Thread.objects
-        .filter(Q(user_a=request.user) | Q(user_b=request.user))
-        .select_related('listing', 'user_a', 'user_b')
-        .prefetch_related('messages')
+        Thread.objects.filter(Q(user_a=request.user) | Q(user_b=request.user))
+        .select_related("listing", "user_a", "user_b")
+        .prefetch_related("messages")
     )
-    # Add derived fields for the template (avoid custom template tags)
+
+    # Build rows with derived fields so templates stay simple
     prepared = []
     for t in threads:
         other = t.other_participant(request.user)
         last = t.messages.last()
-        unread_count = t.messages.filter(is_read=False).exclude(sender=request.user).count()
+        unread_count = (
+            t.messages.filter(is_read=False).exclude(sender=request.user).count()
+        )
         prepared.append((t, other, last, unread_count))
-    # newest activity first
-    prepared.sort(key=lambda item: (item[2].created_at if item[2] else t.updated_at), reverse=True)
 
-    return render(request, 'messaging/inbox.html', {
-        'rows': prepared,  # each row = (thread, other_user, last_msg, unread_count)
-    })
+    # newest activity first (use item's own thread for fallback, not the loop var)
+    prepared.sort(
+        key=lambda item: (item[2].created_at if item[2] else item[0].updated_at),
+        reverse=True,
+    )
+
+    return render(
+        request,
+        "messaging/inbox.html",
+        {"rows": prepared},  # each row = (thread, other_user, last_msg, unread_count)
+    )
+
 
 @login_required
 def thread_view(request, thread_id):
@@ -41,26 +50,32 @@ def thread_view(request, thread_id):
     if request.user.id not in (t.user_a_id, t.user_b_id):
         return HttpResponseForbidden("Not your conversation.")
 
-    chat_messages = t.messages.select_related('sender').order_by('created_at')
+    chat_messages = t.messages.select_related("sender").order_by("created_at")
 
     # mark incoming as read
-    t.messages.filter(is_read=False).exclude(sender=request.user)\
-        .update(is_read=True, read_at=timezone.now())
+    t.messages.filter(is_read=False).exclude(sender=request.user).update(
+        is_read=True, read_at=timezone.now()
+    )
 
     if request.method == "POST":
         body = (request.POST.get("body") or "").strip()
         if not body:
-            dj_messages.error(request, "Message cannot be empty.")
+            messages.error(request, "Message cannot be empty.")
             return redirect("messaging:thread", thread_id=t.id)
         Message.objects.create(thread=t, sender=request.user, body=body)
-        dj_messages.success(request, "Message sent.")
+        messages.success(request, "Message sent.")
         return redirect("messaging:thread", thread_id=t.id)
 
-    return render(request, "messaging/thread.html", {
-        "thread": t,
-        "other": t.other_participant(request.user),
-        "chat_messages": chat_messages,      # <-- not 'messages'
-    })
+    return render(
+        request,
+        "messaging/thread.html",
+        {
+            "thread": t,
+            "other": t.other_participant(request.user),
+            "chat_messages": chat_messages,
+        },
+    )
+
 
 @login_required
 def start_thread(request):
@@ -68,18 +83,25 @@ def start_thread(request):
     Creates (or finds) a thread between request.user and the listing owner,
     posts the initial message, and redirects to the thread page.
     """
+    # Don't reference listing_id unless we actually have a POST payload
     if request.method != "POST":
-        return redirect("listings:view_listing", listing_id=listing_id)
+        return redirect("messaging:inbox")
 
     body = (request.POST.get("body") or "").strip()
     listing_id = request.POST.get("listing_id")
     recipient_id = request.POST.get("recipient_id")
+
+    # Basic input checks
+    if not listing_id or not recipient_id:
+        messages.error(request, "Invalid request.")
+        return redirect("listings:public_listings")
 
     if not body:
         messages.error(request, "Message cannot be empty.")
         return redirect("listings:view_listing", listing_id=listing_id)
 
     listing = get_object_or_404(Listing, pk=listing_id)
+
     if str(listing.user_id) != str(recipient_id):
         messages.error(request, "Invalid recipient.")
         return redirect("listings:view_listing", listing_id=listing_id)
@@ -103,17 +125,21 @@ def start_thread(request):
     messages.success(request, "Message sent.")
     return redirect("messaging:thread", thread_id=thread.id)
 
+
 @login_required
 def send_message(request, thread_id):
-    if request.method != 'POST':
-        return HttpResponseNotAllowed(['POST'])
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
     t = get_object_or_404(Thread, id=thread_id)
     if request.user.id not in (t.user_a_id, t.user_b_id):
         return HttpResponseForbidden("Not your conversation.")
-    body = (request.POST.get('body') or '').strip()
+
+    body = (request.POST.get("body") or "").strip()
     if not body:
-        dj_messages.error(request, "Message cannot be empty.")
-        return redirect('messaging:thread', thread_id=thread_id)
+        messages.error(request, "Message cannot be empty.")
+        return redirect("messaging:thread", thread_id=thread_id)
+
     Message.objects.create(thread=t, sender=request.user, body=body)
-    dj_messages.success(request, "Message sent.")
-    return redirect('messaging:thread', thread_id=thread_id)
+    messages.success(request, "Message sent.")
+    return redirect("messaging:thread", thread_id=thread_id)

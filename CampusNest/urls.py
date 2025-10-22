@@ -6,10 +6,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     # new: send "/" to the public listings page
-    path("", RedirectView.as_view(
-        pattern_name="listings:public_listings", permanent=False
-    )),
-
+    path(
+        "",
+        RedirectView.as_view(pattern_name="listings:public_listings", permanent=False),
+    ),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("profiles/", include("profiles.urls")),
