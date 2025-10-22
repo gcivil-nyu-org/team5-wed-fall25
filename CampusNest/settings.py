@@ -193,7 +193,7 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
-LOGIN_REDIRECT_URL = "view_profile"
+LOGIN_REDIRECT_URL = "home"
 PASSWORD_RESET_TIMEOUT = 3600
 
 
