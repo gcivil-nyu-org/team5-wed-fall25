@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
+{% load profile_extras %}
 
 {% block title %}Your Profile - CampusNest{% endblock %}
 
 {% block content %}
 {% if profile %}
     <h2>Your Profile</h2>
-    
+
     <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px;">
         <!-- Profile Photo Section -->
         <div style="text-align: center; margin-bottom: 20px;">
-            {% if profile.profile_photo %}
-                <img src="{{ profile.profile_photo.url }}" 
+            {% if profile.profile_photo and profile.profile_photo|file_exists %}
+                <img src="{{ profile.profile_photo.url }}"
                      alt="{{ profile.user.username }}'s photo"
                      style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #007bff;">
             {% else %}

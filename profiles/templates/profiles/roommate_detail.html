@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load profile_extras %}
 
 {% block title %}{{ profile.user.first_name }}'s Profile - CampusNest{% endblock %}
 
@@ -24,8 +25,8 @@
         <div style="display: grid; grid-template-columns: 200px 1fr; gap: 30px; margin-bottom: 30px; align-items: start;">
             <!-- Profile Photo -->
             <div style="text-align: center;">
-                {% if profile.profile_photo %}
-                    <img src="{{ profile.profile_photo.url }}" 
+                {% if profile.profile_photo and profile.profile_photo|file_exists %}
+                    <img src="{{ profile.profile_photo.url }}"
                          alt="{{ profile.user.first_name }}"
                          style="width: 180px; height: 180px; border-radius: 50%; object-fit: cover; border: 4px solid #007bff;">
                 {% else %}

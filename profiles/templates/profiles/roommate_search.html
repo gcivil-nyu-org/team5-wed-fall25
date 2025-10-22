@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load profile_extras %}
 
 {% block title %}Find Roommates - CampusNest{% endblock %}
 
@@ -118,8 +119,8 @@
                         <div style="padding: 20px; text-align: center;">
                             <!-- Profile Photo -->
                             <div style="margin-bottom: 15px;">
-                                {% if profile.profile_photo %}
-                                    <img src="{{ profile.profile_photo.url }}" 
+                                {% if profile.profile_photo and profile.profile_photo|file_exists %}
+                                    <img src="{{ profile.profile_photo.url }}"
                                          alt="{{ profile.user.first_name }}"
                                          style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #007bff;">
                                 {% else %}
