@@ -14,15 +14,12 @@ class ProfileForm(forms.ModelForm):
             "smoking_preference",
             "sharing_preference",
             "drinking_preference",
-<<<<<<< HEAD
-=======
             "pet_preference",
             "cleanliness_preference",
             "budget_min",
             "budget_max",
             "location",
             "move_in_date",
->>>>>>> origin/develop
             "visibility",
         ]
         widgets = {
@@ -63,8 +60,6 @@ class ProfileForm(forms.ModelForm):
                     "style": "width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
                 }
             ),
-<<<<<<< HEAD
-=======
             "pet_preference": forms.Select(
                 attrs={
                     "style": "width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
@@ -99,18 +94,12 @@ class ProfileForm(forms.ModelForm):
                     "style": "width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;",
                 }
             ),
->>>>>>> origin/develop
             "visibility": forms.CheckboxInput(
                 attrs={"style": "width: 20px; height: 20px;"}
             ),
         }
         labels = {
             "eating_habit": "🍽️ Eating Preference",
-<<<<<<< HEAD
-            "smoking_preference": "🚬 Smoking",
-            "sharing_preference": "🤝 Sharing Items",
-            "drinking_preference": "🍷 Drinking",
-=======
             "smoking_preference": "🚬Sm",
             "sharing_preference": "🤝 Sharing Items",
             "drinking_preference": "🍷 Drinking",
@@ -120,15 +109,10 @@ class ProfileForm(forms.ModelForm):
             "budget_max": "💰 Maximum Monthly Budget",
             "location": "📍 Preferred Location",
             "move_in_date": "📅 Preferred Move-In Date",
->>>>>>> origin/develop
         }
         help_texts = {
             "eating_habit": "Your dietary preferences",
             "smoking_preference": "Your smoking habits",
-<<<<<<< HEAD
-            "sharing_preference": "Are you comfortable with sharing ?",
-            "drinking_preference": "Your drinking preferences",
-=======
             "sharing_preference": "Are you comfortable with sharing?",
             "drinking_preference": "Your drinking preferences",
             "pet_preference": "Your pet preferences",
@@ -137,7 +121,6 @@ class ProfileForm(forms.ModelForm):
             "budget_max": "Maximum monthly rent budget",
             "location": "Where you prefer to live",
             "move_in_date": "When you plan to move in",
->>>>>>> origin/develop
         }
 
     def clean_bio(self):
@@ -158,10 +141,6 @@ class ProfileForm(forms.ModelForm):
             # Check file type
             if photo.content_type not in ["image/jpeg", "image/png", "image/webp"]:
                 raise forms.ValidationError("Only JPG, PNG, and WebP formats allowed.")
-<<<<<<< HEAD
-
-        return photo
-=======
 
         return photo
 
@@ -246,4 +225,3 @@ class RoommateSearchForm(forms.Form):
         widget=forms.CheckboxSelectMultiple(attrs={"style": "margin: 5px 0;"}),
         label="🎓 University",
     )
->>>>>>> origin/develop
