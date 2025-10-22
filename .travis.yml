@@ -9,7 +9,6 @@ install:
   - pip install -r requirements.txt
 
 before_script:
-  - psql -c 'CREATE DATABASE test_campusnest;' -U postgres
   - python manage.py migrate --noinput
 
 script:
