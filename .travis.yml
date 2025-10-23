@@ -2,6 +2,10 @@ language: python
 python:
   - "3.13"
 
+env:
+  global:
+    - SECRET_KEY="test-secret-key-for-travis-ci-only-not-for-production"
+
 before_install:
   - pip install --upgrade pip
 
