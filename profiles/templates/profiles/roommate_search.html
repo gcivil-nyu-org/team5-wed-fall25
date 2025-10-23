@@ -3,138 +3,138 @@
 {% block title %}Find Roommates - CampusNest{% endblock %}
 
 {% block content %}
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <h1 style="color: #333; margin-bottom: 30px;">🏠 Find Your Perfect Roommate</h1>
-    
+<div class="content-card" style="max-width: 1200px; margin: 0 auto;">
+    <h1 style="color: var(--color-text-primary); margin-bottom: 2rem; font-family: 'Space Grotesk', sans-serif;">🏠 Find Your Perfect Roommate</h1>
+
     <!-- Filter Section -->
-    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #dee2e6;">
-        <h2 style="color: #555; font-size: 18px; margin-bottom: 20px;">Filter Roommates</h2>
-        
+    <div style="background: var(--color-surface-elevated); padding: 1.75rem; border-radius: var(--radius-lg); margin-bottom: 2rem; border: 1px solid var(--color-border-light); box-shadow: var(--shadow-md);">
+        <h2 style="color: var(--color-text-primary); font-size: 1.125rem; margin-bottom: 1.5rem; font-family: 'Space Grotesk', sans-serif;">Filter Roommates</h2>
+
         <form method="get">
             <!-- Lifestyle Preferences Row -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; margin-bottom: 25px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.75rem; margin-bottom: 1.75rem;">
                 <!-- Smoking -->
                 <div>
-                    <h3 style="color: #666; font-size: 14px; font-weight: 600; margin-bottom: 12px;">🚬 Smoking</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <h3 style="color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.875rem;">🚬 Smoking</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
                         {% for value, label in form.smoking_preference.field.choices %}
-                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                                <input type="checkbox" name="smoking_preference" value="{{ value }}" 
-                                    {% if value in form.smoking_preference.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer;">
-                                <span style="font-size: 14px; color: #555;">{{ label }}</span>
+                            <label style="display: flex; align-items: center; gap: 0.625rem; cursor: pointer; margin: 0;">
+                                <input type="checkbox" name="smoking_preference" value="{{ value }}"
+                                    {% if value in form.smoking_preference.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
+                                <span style="font-size: 0.875rem; color: var(--color-text-secondary);">{{ label }}</span>
                             </label>
                         {% endfor %}
                     </div>
                 </div>
-                
+
                 <!-- Pets -->
                 <div>
-                    <h3 style="color: #666; font-size: 14px; font-weight: 600; margin-bottom: 12px;">🐾 Pets</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <h3 style="color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.875rem;">🐾 Pets</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
                         {% for value, label in form.pet_preference.field.choices %}
-                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                                <input type="checkbox" name="pet_preference" value="{{ value }}" 
-                                    {% if value in form.pet_preference.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer;">
-                                <span style="font-size: 14px; color: #555;">{{ label }}</span>
+                            <label style="display: flex; align-items: center; gap: 0.625rem; cursor: pointer; margin: 0;">
+                                <input type="checkbox" name="pet_preference" value="{{ value }}"
+                                    {% if value in form.pet_preference.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
+                                <span style="font-size: 0.875rem; color: var(--color-text-secondary);">{{ label }}</span>
                             </label>
                         {% endfor %}
                     </div>
                 </div>
-                
+
                 <!-- Cleanliness -->
                 <div>
-                    <h3 style="color: #666; font-size: 14px; font-weight: 600; margin-bottom: 12px;">✨ Cleanliness</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <h3 style="color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.875rem;">✨ Cleanliness</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
                         {% for value, label in form.cleanliness_preference.field.choices %}
-                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                                <input type="checkbox" name="cleanliness_preference" value="{{ value }}" 
-                                    {% if value in form.cleanliness_preference.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer;">
-                                <span style="font-size: 14px; color: #555;">{{ label }}</span>
+                            <label style="display: flex; align-items: center; gap: 0.625rem; cursor: pointer; margin: 0;">
+                                <input type="checkbox" name="cleanliness_preference" value="{{ value }}"
+                                    {% if value in form.cleanliness_preference.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
+                                <span style="font-size: 0.875rem; color: var(--color-text-secondary);">{{ label }}</span>
                             </label>
                         {% endfor %}
                     </div>
                 </div>
-                
+
                 <!-- University -->
                 <div>
-                    <h3 style="color: #666; font-size: 14px; font-weight: 600; margin-bottom: 12px;">🎓 University</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <h3 style="color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.875rem;">🎓 University</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
                         {% for value, label in form.university.field.choices %}
-                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                                <input type="checkbox" name="university" value="{{ value }}" 
-                                    {% if value in form.university.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer;">
-                                <span style="font-size: 14px; color: #555;">{{ label }}</span>
+                            <label style="display: flex; align-items: center; gap: 0.625rem; cursor: pointer; margin: 0;">
+                                <input type="checkbox" name="university" value="{{ value }}"
+                                    {% if value in form.university.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
+                                <span style="font-size: 0.875rem; color: var(--color-text-secondary);">{{ label }}</span>
                             </label>
                         {% endfor %}
                     </div>
                 </div>
             </div>
-            
+
             <!-- Housing Preferences Row -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; margin-bottom: 25px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.75rem; margin-bottom: 1.75rem;">
                 <!-- Min Budget -->
                 <div>
-                    <label style="display: block; color: #666; font-size: 14px; font-weight: 600; margin-bottom: 8px;">💰 Min Budget ($)</label>
-                    <input type="number" name="budget_min" value="{{ form.budget_min.value|default:'' }}" 
-                           placeholder="Min" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <label style="display: block; color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">💰 Min Budget ($)</label>
+                    <input type="number" name="budget_min" value="{{ form.budget_min.value|default:'' }}"
+                           placeholder="Min" style="width: 100%; padding: 0.625rem; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); font-size: 0.875rem; background-color: var(--color-surface); color: var(--color-text-primary);">
                 </div>
-                
+
                 <!-- Max Budget -->
                 <div>
-                    <label style="display: block; color: #666; font-size: 14px; font-weight: 600; margin-bottom: 8px;">💰 Max Budget ($)</label>
-                    <input type="number" name="budget_max" value="{{ form.budget_max.value|default:'' }}" 
-                           placeholder="Max" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <label style="display: block; color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">💰 Max Budget ($)</label>
+                    <input type="number" name="budget_max" value="{{ form.budget_max.value|default:'' }}"
+                           placeholder="Max" style="width: 100%; padding: 0.625rem; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); font-size: 0.875rem; background-color: var(--color-surface); color: var(--color-text-primary);">
                 </div>
-                
+
                 <!-- Location -->
                 <div>
-                    <label style="display: block; color: #666; font-size: 14px; font-weight: 600; margin-bottom: 8px;">📍 Location</label>
-                    <input type="text" name="location" value="{{ form.location.value|default:'' }}" 
-                           placeholder="e.g., Manhattan" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <label style="display: block; color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">📍 Location</label>
+                    <input type="text" name="location" value="{{ form.location.value|default:'' }}"
+                           placeholder="e.g., Manhattan" style="width: 100%; padding: 0.625rem; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); font-size: 0.875rem; background-color: var(--color-surface); color: var(--color-text-primary);">
                 </div>
             </div>
-            
+
             <!-- Submit Button -->
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" style="padding: 12px 24px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
+            <div style="display: flex; gap: 0.75rem;">
+                <button type="submit" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
                     🔍 Search
                 </button>
-                <a href="{% url 'roommate_search' %}" style="padding: 12px 24px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; cursor: pointer; font-weight: 600; display: inline-block; font-size: 14px;">
+                <a href="{% url 'roommate_search' %}" style="padding: 0.75rem 1.5rem; background: var(--color-surface-elevated); color: var(--color-text-primary); text-decoration: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: inline-block; font-size: 0.875rem; border: 1px solid var(--color-border-light); transition: all 0.2s;">
                     Clear Filters
                 </a>
             </div>
         </form>
     </div>
-    
+
     <!-- Results Section -->
     <div>
         {% if profiles %}
-            <h2 style="color: #555; margin-bottom: 20px;">Found {{ profiles.count }} Roommate{{ profiles.count|pluralize }}</h2>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+            <h2 style="color: var(--color-text-primary); margin-bottom: 1.5rem; font-size: 1.25rem;">Found {{ profiles.count }} Roommate{{ profiles.count|pluralize }}</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
                 {% for profile in profiles %}
-                    <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="background: var(--color-surface-elevated); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); transition: transform 0.2s, box-shadow 0.2s;">
                         <!-- Profile Card -->
-                        <div style="padding: 20px; text-align: center;">
+                        <div style="padding: 1.5rem; text-align: center;">
                             <!-- Profile Photo -->
-                            <div style="margin-bottom: 15px;">
+                            <div style="margin-bottom: 1rem;">
                                 {% if profile.profile_photo %}
-                                    <img src="{{ profile.profile_photo.url }}" 
+                                    <img src="{{ profile.profile_photo.url }}"
                                          alt="{{ profile.user.first_name }}"
-                                         style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #007bff;">
+                                         style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-primary); box-shadow: var(--shadow-md);">
                                 {% else %}
-                                    <div style="width: 120px; height: 120px; border-radius: 50%; background: #ddd; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: #666; border: 3px solid #007bff;">
+                                    <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--color-surface-hover); display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: var(--color-text-muted); border: 3px solid var(--color-primary); box-shadow: var(--shadow-md);">
                                         {{ profile.user.first_name.0 }}{{ profile.user.last_name.0 }}
                                     </div>
                                 {% endif %}
                             </div>
-                            
+
                             <!-- Name & University -->
-                            <h3 style="color: #333; margin: 10px 0; font-size: 18px;">{{ profile.user.first_name }} {{ profile.user.last_name }}</h3>
-                            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">{{ profile.get_university_display }}</p>
-                            
+                            <h3 style="color: var(--color-text-primary); margin: 0.625rem 0; font-size: 1.125rem; font-family: 'Space Grotesk', sans-serif;">{{ profile.user.first_name }} {{ profile.user.last_name }}</h3>
+                            <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 0.625rem;">{{ profile.get_university_display }}</p>
+
                             <!-- Key Preferences (Icons) -->
-                            <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
                                 <span title="{{ profile.get_smoking_preference_display }}" style="font-size: 20px; cursor: help;">
                                     {{ profile.get_preference_display_with_icon.smoking|default:"🚭" }}
                                 </span>
@@ -145,42 +145,42 @@
                                     {{ profile.get_preference_display_with_icon.cleanliness|default:"✨" }}
                                 </span>
                             </div>
-                            
+
                             <!-- Budget & Location -->
-                            <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
-                                <p style="margin: 5px 0; color: #555;">💰 ${{ profile.budget_min }} - ${{ profile.budget_max }}/mo</p>
+                            <div style="background: var(--color-surface); padding: 0.75rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.8125rem; border: 1px solid var(--color-border);">
+                                <p style="margin: 0.375rem 0; color: var(--color-text-secondary);">💰 ${{ profile.budget_min }} - ${{ profile.budget_max }}/mo</p>
                                 {% if profile.location %}
-                                    <p style="margin: 5px 0; color: #555;">📍 {{ profile.location }}</p>
+                                    <p style="margin: 0.375rem 0; color: var(--color-text-secondary);">📍 {{ profile.location }}</p>
                                 {% endif %}
                             </div>
-                            
+
                             <!-- Action Buttons -->
-                            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                                <a href="{% url 'roommate_detail' profile.user.id %}" 
-                                   style="flex: 1; padding: 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 600;">
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <a href="{% url 'roommate_detail' profile.user.id %}"
+                                   style="flex: 1; padding: 0.625rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);">
                                     View Profile
                                 </a>
-                                
+
                                 {% if profile.user.id in user_favorites %}
-                                    <button class="favorite-btn favorited" data-user-id="{{ profile.user.id }}" 
-                                            style="flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.3s;">
+                                    <button class="favorite-btn favorited" data-user-id="{{ profile.user.id }}"
+                                            style="flex: 1; padding: 0.625rem; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; background: linear-gradient(135deg, var(--color-warning) 0%, #f59e0b 100%); color: var(--color-text-primary); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);">
                                         ♥ Added to Favorites
                                     </button>
                                 {% else %}
-                                    <button class="favorite-btn" data-user-id="{{ profile.user.id }}" 
-                                            style="flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s;">
+                                    <button class="favorite-btn" data-user-id="{{ profile.user.id }}"
+                                            style="flex: 1; padding: 0.625rem; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); cursor: pointer; font-size: 1rem; transition: all 0.2s; background: var(--color-surface); color: var(--color-danger);">
                                         ❤️
                                     </button>
                                 {% endif %}
                             </div>
-                            
+
                             <!-- Connection Request Status -->
                             {% if profile.user.id in sent_requests %}
-                                <p style="color: #28a745; font-size: 13px; font-weight: 600;">✓ Request Sent</p>
+                                <p style="color: var(--color-success); font-size: 0.8125rem; font-weight: 600; margin: 0;">✓ Request Sent</p>
                             {% else %}
                                 <form method="post" action="{% url 'send_connection_request' profile.user.id %}" style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                    <button type="submit" style="width: 100%; padding: 0.625rem; background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);">
                                         Connect
                                     </button>
                                 </form>
@@ -190,39 +190,36 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div style="text-align: center; padding: 60px 20px; background: #f8f9fa; border-radius: 8px;">
-                <p style="font-size: 18px; color: #666; margin-bottom: 10px;">😔 No matches found</p>
-                <p style="color: #999; margin-bottom: 20px;">Try adjusting your filters to find more roommates.</p>
-                <a href="{% url 'roommate_search' %}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-weight: 600;">
+            <div style="text-align: center; padding: 3.75rem 1.5rem; background: var(--color-surface-elevated); border-radius: var(--radius-lg); border: 1px solid var(--color-border);">
+                <p style="font-size: 1.125rem; color: var(--color-text-secondary); margin-bottom: 0.625rem;">😔 No matches found</p>
+                <p style="color: var(--color-text-muted); margin-bottom: 1.25rem;">Try adjusting your filters to find more roommates.</p>
+                <a href="{% url 'roommate_search' %}" style="display: inline-block; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
                     Clear Filters
                 </a>
             </div>
         {% endif %}
     </div>
-    
+
     <!-- Navigation Links -->
-    <div style="margin-top: 30px; text-align: center; padding-top: 20px; border-top: 1px solid #dee2e6;">
-        <a href="{% url 'my_favorites' %}" style="margin-right: 15px; color: #007bff; text-decoration: none; font-weight: 600;">❤️ My Favorites</a>
-        <a href="{% url 'connection_requests' %}" style="color: #007bff; text-decoration: none; font-weight: 600;">📬 Connection Requests</a>
+    <div style="margin-top: 2rem; text-align: center; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+        <a href="{% url 'my_favorites' %}" style="margin-right: 1rem; color: var(--color-primary-light); text-decoration: none; font-weight: 600; transition: color 0.2s;">❤️ My Favorites</a>
+        <a href="{% url 'connection_requests' %}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; transition: color 0.2s;">📬 Connection Requests</a>
     </div>
 </div>
 
 <style>
-.favorite-btn {
-    background-color: #e9ecef !important;
-    color: #dc3545 !important;
-}
-
 .favorite-btn:hover {
-    background-color: #007bff !important;
+    transform: translateY(-2px);
+    filter: brightness(1.1);
 }
 
 .favorite-btn.favorited {
-    background-color: #e9ecef !important;
+    background: linear-gradient(135deg, var(--color-warning) 0%, #f59e0b 100%) !important;
+    color: var(--color-text-primary) !important;
 }
 
-.favorite-btn.favorited:hover {
-    background-color: #007bff !important;
+button:hover, a:hover {
+    transform: translateY(-2px);
 }
 </style>
 
@@ -231,7 +228,7 @@ document.querySelectorAll('.favorite-btn').forEach(btn => {
     btn.addEventListener('click', async function(e) {
         e.preventDefault();
         const userId = this.dataset.userId;
-        
+
         try {
             const response = await fetch(`/roommates/${userId}/favorite/`, {
                 method: 'POST',
@@ -240,16 +237,18 @@ document.querySelectorAll('.favorite-btn').forEach(btn => {
                     'Content-Type': 'application/json',
                 },
             });
-            
+
             const data = await response.json();
-            
+
             if (response.ok) {
                 if (data.favorited) {
                     this.textContent = '♥ Added to Favorites';
-                    this.style.fontSize = '14px';
+                    this.style.fontSize = '0.875rem';
+                    this.classList.add('favorited');
                 } else {
                     this.textContent = '❤️';
-                    this.style.fontSize = '16px';
+                    this.style.fontSize = '1rem';
+                    this.classList.remove('favorited');
                 }
             }
         } catch (error) {

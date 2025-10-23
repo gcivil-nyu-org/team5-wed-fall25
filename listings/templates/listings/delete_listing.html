@@ -3,88 +3,89 @@
 {% block title %}Delete Listing - CampusNest{% endblock %}
 
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto;">
-	<h2 style="color: #dc3545;">Delete Listing</h2>
+<div class="content-card" style="max-width: 700px; margin: 0 auto;">
+	<h2 style="color: var(--color-danger); margin-bottom: 1.5rem;">Delete Listing</h2>
 
-	<div
-		style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 4px; margin: 20px 0;">
-		<strong style="color: #856404;">Warning</strong>
-		<p style="margin: 10px 0 0 0; color: #856404;">
+	<div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--color-warning); padding: 1.25rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid rgba(245, 158, 11, 0.2);">
+		<strong style="color: #fcd34d; font-size: 1rem;">Warning</strong>
+		<p style="margin: 0.75rem 0 0 0; color: var(--color-text-secondary);">
 			This action cannot be undone. Are you sure you want to delete this listing?
 		</p>
 	</div>
 
 	<!-- Listing Preview -->
-	<div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-		<h3 style="margin-bottom: 15px;">{{ listing.title }}</h3>
+	<div style="background: var(--color-surface-elevated); padding: 1.5rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; border: 1px solid var(--color-border);">
+		<h3 style="margin-bottom: 1rem; color: var(--color-text-primary);">{{ listing.title }}</h3>
 
 		{% if listing.images.first %}
 		<img src="{{ listing.images.first.image.url }}"
-			style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">
+			style="width: 100%; max-height: 300px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 1rem; box-shadow: var(--shadow-md);">
 		{% endif %}
 
-		<div style="margin-bottom: 10px;">
-			<strong style="color: #555;">Address:</strong>
-			<span style="color: #666;">{{ listing.address }}</span>
+		<div style="margin-bottom: 0.875rem;">
+			<strong style="color: var(--color-text-primary);">Address:</strong>
+			<span style="color: var(--color-text-secondary); margin-left: 0.5rem;">{{ listing.address }}</span>
 		</div>
 
-		<div style="margin-bottom: 10px;">
-			<strong style="color: #555;">Rent:</strong>
-			<span style="color: #666;">${{ listing.rent }}/month</span>
+		<div style="margin-bottom: 0.875rem;">
+			<strong style="color: var(--color-text-primary);">Rent:</strong>
+			<span style="color: var(--color-text-secondary); margin-left: 0.5rem;">${{ listing.rent }}/month</span>
 		</div>
 
-		<div style="margin-bottom: 10px;">
-			<strong style="color: #555;">Available:</strong>
-			<span style="color: #666;">{{ listing.availability_start|date:"M. d, Y" }} to {{listing.availability_end|date:"M. d, Y" }}</span>
+		<div style="margin-bottom: 0.875rem;">
+			<strong style="color: var(--color-text-primary);">Available:</strong>
+			<span style="color: var(--color-text-secondary); margin-left: 0.5rem;">{{ listing.availability_start|date:"M. d, Y" }} to {{listing.availability_end|date:"M. d, Y" }}</span>
 		</div>
 
-		<div style="margin-bottom: 10px;">
-			<strong style="color: #555;">Posted:</strong>
-			<span style="color: #666;">{{ listing.created_at|date:"F d, Y" }}</span>
+		<div style="margin-bottom: 0;">
+			<strong style="color: var(--color-text-primary);">Posted:</strong>
+			<span style="color: var(--color-text-secondary); margin-left: 0.5rem;">{{ listing.created_at|date:"F d, Y" }}</span>
 		</div>
 	</div>
 
 	<!-- Deletion Info -->
-	<div
-		style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 20px; border-radius: 4px; margin: 20px 0;">
-		<strong style="color: #721c24;">What will be deleted:</strong>
-		<ul style="margin: 10px 0 0 20px; color: #721c24;">
+	<div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--color-danger); padding: 1.25rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(239, 68, 68, 0.2);">
+		<strong style="color: #fca5a5; font-size: 1rem;">What will be deleted:</strong>
+		<ul style="margin: 0.75rem 0 0 1.25rem; color: var(--color-text-secondary); line-height: 1.8;">
 			<li>All listing information</li>
-			<li>All uploaded photos ({{ listing.images.count }} image{{ listing.images.count|pluralize }})
-			</li>
+			<li>All uploaded photos ({{ listing.images.count }} image{{ listing.images.count|pluralize }})</li>
 			<li>All listing history</li>
 		</ul>
 	</div>
 
 	<!-- Confirmation Form -->
-	<form method="POST" style="margin-top: 30px;">
+	<form method="POST" style="margin-top: 2rem;">
 		{% csrf_token %}
 
-		<div style="display: flex; gap: 15px; justify-content: center;">
-			<button type="submit"
-				style="background-color: #dc3545; padding: 12px 30px; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; font-weight: bold;">
+		<div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+			<button type="submit" style="background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%); padding: 0.875rem 2rem; color: white; border: none; border-radius: var(--radius-md); font-size: 1rem; cursor: pointer; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); width: auto;">
 				Yes, Delete Listing
 			</button>
 
-			<a href="{% url 'view_listing' listing.id %}"
-				style="display: inline-block; padding: 12px 30px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 16px; text-align: center;">
+			<a href="{% url 'view_listing' listing.id %}" style="display: inline-block; padding: 0.875rem 2rem; background: var(--color-surface-elevated); color: var(--color-text-primary); text-decoration: none; border-radius: var(--radius-md); font-size: 1rem; text-align: center; font-weight: 600; transition: all 0.2s; border: 1px solid var(--color-border);">
 				Cancel
 			</a>
 		</div>
 	</form>
 
-	<p class="text-center" style="margin-top: 20px; color: #666;">
-		Changed your mind? <a href="{% url 'my_listings' %}">Go back to My Listings</a>
+	<p class="text-center" style="margin-top: 1.5rem; color: var(--color-text-secondary);">
+		Changed your mind? <a href="{% url 'my_listings' %}" style="color: var(--color-primary-light);">Go back to My Listings</a>
 	</p>
 </div>
 
 <style>
 	button[type="submit"]:hover {
-		background-color: #c82333;
+		transform: translateY(-2px);
+		box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+	}
+
+	a[style*="background: var(--color-surface-elevated)"]:hover {
+		background: var(--color-surface-hover) !important;
+		transform: translateY(-1px);
 	}
 
 	@media (max-width: 768px) {
-		div[style*="display: flex; gap: 15px"] {
+		div[style*="display: flex; gap: 1rem"] {
 			flex-direction: column;
 		}
 

@@ -2,12 +2,12 @@
 
 {% block title %}Login - CampusNest{% endblock %}
 
-{% block content %}
+{% block auth_content %}
 <h2>Login to CampusNest</h2>
 
 <form method="post">
     {% csrf_token %}
-    
+
     {% if form.non_field_errors %}
         <ul class="errorlist">
             {% for error in form.non_field_errors %}
@@ -15,7 +15,7 @@
             {% endfor %}
         </ul>
     {% endif %}
-    
+
     <div class="form-group">
         <label for="{{ form.username.id_for_label }}">Email</label>
         {{ form.username }}
@@ -27,7 +27,7 @@
             </ul>
         {% endif %}
     </div>
-    
+
     <div class="form-group">
         <label for="{{ form.password.id_for_label }}">Password</label>
         {{ form.password }}
@@ -39,7 +39,7 @@
             </ul>
         {% endif %}
     </div>
-    
+
     <button type="submit">Login</button>
 </form>
 

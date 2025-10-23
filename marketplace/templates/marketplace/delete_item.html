@@ -3,50 +3,50 @@
 {% block title %}Delete Item - CampusNest Marketplace{% endblock %}
 
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto;">
-  <h2 style="color: #dc3545;">Delete Item</h2>
+<div class="content-card" style="max-width: 600px; margin: 0 auto;">
+  <h2 style="color: var(--color-danger);">Delete Item</h2>
 
-  <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 4px; margin: 20px 0;">
-    <strong style="color: #856404;">Warning</strong>
-    <p style="margin: 10px 0 0 0; color: #856404;">
+  <div class="alert alert-warning" style="margin: 20px 0;">
+    <strong>Warning</strong>
+    <p style="margin: 10px 0 0 0;">
       This action cannot be undone. Are you sure you want to delete this item?
     </p>
   </div>
 
   <!-- Item Preview -->
-  <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-    <h3 style="margin-bottom: 15px;">{{ item.title }}</h3>
+  <div style="background: var(--color-surface-elevated); padding: 20px; border-radius: var(--radius-lg); margin: 20px 0; border: 1px solid var(--color-border);">
+    <h3 style="margin-bottom: 15px; color: var(--color-text-primary);">{{ item.title }}</h3>
 
     {% if item.images.first %}
     <img src="{{ item.images.first.image.url }}"
-      style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">
+      style="width: 100%; max-height: 250px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 15px; box-shadow: var(--shadow-md);">
     {% endif %}
 
     <div style="margin-bottom: 10px;">
-      <strong style="color: #555;">Price:</strong>
-      <span style="color: #666;">${{ item.price }}</span>
+      <strong style="color: var(--color-text-primary);">Price:</strong>
+      <span style="color: var(--color-text-secondary);">${{ item.price }}</span>
     </div>
 
     <div style="margin-bottom: 10px;">
-      <strong style="color: #555;">Condition:</strong>
-      <span style="color: #666;">{{ item.get_condition_display }}</span>
+      <strong style="color: var(--color-text-primary);">Condition:</strong>
+      <span style="color: var(--color-text-secondary);">{{ item.get_condition_display }}</span>
     </div>
 
     <div style="margin-bottom: 10px;">
-      <strong style="color: #555;">Pickup Location:</strong>
-      <span style="color: #666;">{{ item.pickup_location }}</span>
+      <strong style="color: var(--color-text-primary);">Pickup Location:</strong>
+      <span style="color: var(--color-text-secondary);">{{ item.pickup_location }}</span>
     </div>
 
     <div style="margin-bottom: 10px;">
-      <strong style="color: #555;">Posted:</strong>
-      <span style="color: #666;">{{ item.created_at|date:"F d, Y" }}</span>
+      <strong style="color: var(--color-text-primary);">Posted:</strong>
+      <span style="color: var(--color-text-secondary);">{{ item.created_at|date:"F d, Y" }}</span>
     </div>
   </div>
 
   <!-- Deletion Info -->
-  <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 20px; border-radius: 4px; margin: 20px 0;">
-    <strong style="color: #721c24;">What will be deleted:</strong>
-    <ul style="margin: 10px 0 0 20px; color: #721c24;">
+  <div class="alert alert-error" style="margin: 20px 0;">
+    <strong>What will be deleted:</strong>
+    <ul style="margin: 10px 0 0 20px;">
       <li>All item information</li>
       <li>All uploaded photos ({{ item.images.count }} image{{ item.images.count|pluralize }})</li>
       <li>All item history</li>
@@ -59,25 +59,26 @@
 
     <div style="display: flex; gap: 15px; justify-content: center;">
       <button type="submit"
-        style="background-color: #dc3545; padding: 12px 30px; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; font-weight: bold;">
+        style="width: auto; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 12px 30px; color: white; border: none; border-radius: var(--radius-md); font-size: 16px; cursor: pointer; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);">
         Yes, Delete Item
       </button>
 
       <a href="{% url 'view_item' item.id %}"
-        style="display: inline-block; padding: 12px 30px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 16px; text-align: center;">
+        style="display: inline-block; padding: 12px 30px; background: var(--color-surface-elevated); color: var(--color-text-primary); text-decoration: none; border-radius: var(--radius-md); font-size: 16px; text-align: center; border: 1px solid var(--color-border); transition: all 0.2s;">
         Cancel
       </a>
     </div>
   </form>
 
-  <p class="text-center" style="margin-top: 20px; color: #666;">
+  <p class="text-center" style="margin-top: 20px; color: var(--color-text-secondary);">
     Changed your mind? <a href="{% url 'my_items' %}">Go back to My Items</a>
   </p>
 </div>
 
 <style>
   button[type="submit"]:hover {
-    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.4) !important;
   }
 
   @media (max-width: 768px) {

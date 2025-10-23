@@ -3,8 +3,9 @@
 {% block title %}Edit Listing - CampusNest{% endblock %}
 
 {% block content %}
+<div class="content-card">
 <h2>Edit Housing Listing</h2>
-<p style="margin-bottom: 20px; color: #666;">
+<p style="margin-bottom: 1.5rem;">
 	Update your listing details. Fields marked with * are required.
 </p>
 
@@ -36,7 +37,7 @@
 	<div class="form-group">
 		<label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
 		{{ form.description }}
-		<small style="color: #666;">
+		<small>
 			<span id="charCount">{{ form.description.value|length|default:0 }}</span>/2000 characters
 			(minimum 20)
 		</small>
@@ -102,7 +103,7 @@
 		</div>
 	</div>
 
-	<!-- Amenities - FIXED VERSION -->
+	<!-- Amenities -->
 	<div class="form-group">
 		<label>{{ form.amenities.label }}</label>
 		<div class="amenities-grid">
@@ -126,7 +127,7 @@
 	<div class="form-group">
 		<label for="{{ form.custom_amenities.id_for_label }}">{{ form.custom_amenities.label }}</label>
 		{{ form.custom_amenities }}
-		<small style="color: #666;">{{ form.custom_amenities.help_text }}</small>
+		<small>{{ form.custom_amenities.help_text }}</small>
 		{% if form.custom_amenities.errors %}
 		<ul class="errorlist">
 			{% for error in form.custom_amenities.errors %}
@@ -142,7 +143,7 @@
 		<label>Current Images</label>
 		<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px;">
 			{% for img in listing.images.all %}
-			<img src="{{ img.image.url }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+			<img src="{{ img.image.url }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--shadow-md);">
 			{% endfor %}
 		</div>
 		<div style="margin-top: 10px;">
@@ -158,13 +159,13 @@
 	<div class="form-group">
 		<label for="id_images">Upload New Photos (optional, maximum 10)</label>
 		<input type="file" name="images" id="id_images" multiple accept="image/*">
-		<small style="color: #666;">Leave empty to keep current images. Accepted formats: JPG, PNG, WebP. Max 5MB per image.</small>
+		<small>Leave empty to keep current images. Accepted formats: JPG, PNG, WebP. Max 5MB per image.</small>
 
 		<!-- Image Preview -->
 		<div id="imagePreview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;">
 		</div>
 
-		<div id="imageCount" style="margin-top: 10px; color: #666; font-size: 14px;"></div>
+		<div id="imageCount" style="margin-top: 10px; color: var(--color-text-secondary); font-size: 14px;"></div>
 	</div>
 
 	<button type="submit" id="submitBtn">Update Listing</button>
@@ -173,31 +174,18 @@
 <p class="text-center" style="margin-top: 20px;">
 	<a href="{% url 'view_listing' listing.id %}">Cancel and go back</a>
 </p>
+</div>
 
 <style>
-	/* Form Controls */
-	.form-control {
-		width: 100%;
-		padding: 10px;
-		border: 1px solid #ddd;
-		border-radius: 4px;
-		font-size: 14px;
-	}
-
-	.form-control:focus {
-		outline: none;
-		border-color: #007bff;
-		box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-	}
-
-	/* Amenities Grid - FIXED TO MATCH CREATE PAGE */
+	/* Amenities Grid */
 	.amenities-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 		gap: 10px;
 		padding: 15px;
-		background: #f9f9f9;
-		border-radius: 4px;
+		background: var(--color-surface-elevated);
+		border-radius: var(--radius-md);
+		border: 1px solid var(--color-border);
 	}
 
 	.amenity-item {
@@ -206,12 +194,12 @@
 		gap: 8px;
 		cursor: pointer;
 		padding: 8px;
-		border-radius: 4px;
+		border-radius: var(--radius-sm);
 		transition: background-color 0.2s;
 	}
 
 	.amenity-item:hover {
-		background-color: #e9ecef;
+		background-color: var(--color-surface-hover);
 	}
 
 	.amenity-item input[type="checkbox"] {
@@ -227,14 +215,16 @@
 		font-weight: normal;
 		cursor: pointer;
 		user-select: none;
+		color: var(--color-text-secondary);
 	}
 
 	/* Image Preview Styles */
 	.image-preview-item {
 		position: relative;
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		overflow: hidden;
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+		box-shadow: var(--shadow-md);
+		background: var(--color-surface-elevated);
 	}
 
 	.image-preview-item img {
@@ -248,7 +238,7 @@
 		position: absolute;
 		top: 5px;
 		right: 5px;
-		background: rgba(220, 53, 69, 0.9);
+		background: rgba(239, 68, 68, 0.9);
 		color: white;
 		border: none;
 		border-radius: 50%;
@@ -258,18 +248,16 @@
 		font-size: 16px;
 		line-height: 1;
 		padding: 0;
+		transition: all 0.2s;
 	}
 
 	.image-preview-item .remove-btn:hover {
-		background: rgba(200, 35, 51, 1);
+		background: var(--color-danger);
+		transform: scale(1.1);
 	}
 
 	/* Responsive Design */
 	@media (max-width: 768px) {
-		.container {
-			padding: 15px;
-		}
-
 		div[style*="grid-template-columns: 1fr 1fr"] {
 			grid-template-columns: 1fr !important;
 		}
@@ -288,18 +276,14 @@
 	// Update initial count
 	charCount.textContent = descriptionField.value.length;
 	if (descriptionField.value.length < 20) {
-		charCount.style.color = '#dc3545';
+		charCount.style.color = '#fca5a5';
 	} else {
-		charCount.style.color = '#28a745';
+		charCount.style.color = '#6ee7b7';
 	}
 
 	descriptionField.addEventListener('input', function () {
 		charCount.textContent = this.value.length;
-		if (this.value.length < 20) {
-			charCount.style.color = '#dc3545';
-		} else {
-			charCount.style.color = '#28a745';
-		}
+		charCount.style.color = this.value.length < 20 ? '#fca5a5' : '#6ee7b7';
 	});
 
 	// Set minimum date for date inputs (today)
@@ -343,7 +327,7 @@
 
 		if (files.length > 0) {
 			imageCountDiv.textContent = `${files.length} new image(s) selected`;
-			imageCountDiv.style.color = '#28a745';
+			imageCountDiv.style.color = '#6ee7b7';
 		} else {
 			imageCountDiv.textContent = '';
 		}

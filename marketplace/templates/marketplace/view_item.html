@@ -3,85 +3,85 @@
 {% block title %}{{ item.title }} - CampusNest Marketplace{% endblock %}
 
 {% block content %}
-<div style="max-width: 900px; margin: 0 auto;">
-  <h2>
+<div class="content-card" style="max-width: 900px; margin: 0 auto;">
+  <h2 style="color: var(--color-text-primary);">
     {{ item.title }}
     {% if item.is_edited %}
-    <span style="background: #ffc107; color: #856404; padding: 5px 12px; border-radius: 4px; font-size: 14px; margin-left: 10px;">
+    <span style="background: rgba(245, 158, 11, 0.2); color: #fcd34d; padding: 5px 12px; border-radius: var(--radius-sm); font-size: 14px; margin-left: 10px; border: 1px solid rgba(245, 158, 11, 0.3);">
       EDITED
     </span>
     {% endif %}
     {% if item.is_sold %}
-    <span style="background: #dc3545; color: white; padding: 5px 12px; border-radius: 4px; font-size: 14px; margin-left: 10px;">
+    <span style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 5px 12px; border-radius: var(--radius-sm); font-size: 14px; margin-left: 10px; border: 1px solid rgba(239, 68, 68, 0.3);">
       SOLD
     </span>
     {% endif %}
   </h2>
-  
+
   <!-- Image Gallery -->
   <div style="margin: 20px 0;">
     {% if item.images.all %}
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
       {% for img in item.images.all %}
-      <img src="{{ img.image.url }}" 
+      <img src="{{ img.image.url }}"
            alt="Photo {{ forloop.counter }}"
-           style="width: 100%; height: 250px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+           style="width: 100%; height: 250px; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--color-border);">
       {% endfor %}
     </div>
     {% endif %}
   </div>
 
   <!-- Item Details -->
-  <div style="background: #f9f9f9; padding: 25px; border-radius: 8px; margin-top: 20px;">
+  <div style="background: var(--color-surface-elevated); padding: 25px; border-radius: var(--radius-lg); margin-top: 20px; border: 1px solid var(--color-border); box-shadow: var(--shadow-md);">
     <div style="margin-bottom: 20px;">
-      <h3 style="color: #28a745; margin-bottom: 10px;">Details</h3>
-      
+      <h3 style="color: var(--color-success); margin-bottom: 10px;">Details</h3>
+
       <div style="margin-bottom: 15px;">
-        <strong style="color: #555;">Price:</strong>
-        <p style="margin: 5px 0; font-size: 24px; color: #28a745; font-weight: bold;">${{ item.price }}</p>
+        <strong style="color: var(--color-text-primary);">Price:</strong>
+        <p style="margin: 5px 0; font-size: 24px; color: var(--color-success); font-weight: bold;">${{ item.price }}</p>
       </div>
-      
+
       <div style="margin-bottom: 15px;">
-        <strong style="color: #555;">Condition:</strong>
-        <p style="margin: 5px 0;">{{ item.get_condition_display }}</p>
+        <strong style="color: var(--color-text-primary);">Condition:</strong>
+        <p style="margin: 5px 0; color: var(--color-text-secondary);">{{ item.get_condition_display }}</p>
       </div>
-      
+
       <div style="margin-bottom: 15px;">
-        <strong style="color: #555;">Description:</strong>
-        <p style="margin: 5px 0; line-height: 1.6;">{{ item.description }}</p>
+        <strong style="color: var(--color-text-primary);">Description:</strong>
+        <p style="margin: 5px 0; line-height: 1.6; color: var(--color-text-secondary);">{{ item.description }}</p>
       </div>
-      
+
       <div style="margin-bottom: 15px;">
-        <strong style="color: #555;">Pickup Location:</strong>
-        <p style="margin: 5px 0;">{{ item.pickup_location }}</p>
+        <strong style="color: var(--color-text-primary);">Pickup Location:</strong>
+        <p style="margin: 5px 0; color: var(--color-text-secondary);">{{ item.pickup_location }}</p>
       </div>
-      
+
       <div style="margin-bottom: 15px;">
-        <strong style="color: #555;">Seller:</strong>
-        <p style="margin: 5px 0;">{{ item.owner_name }}</p>
+        <strong style="color: var(--color-text-primary);">Seller:</strong>
+        <p style="margin: 5px 0; color: var(--color-text-secondary);">{{ item.owner_name }}</p>
       </div>
-      
+
       <div style="margin-bottom: 15px;">
-        <strong style="color: #555;">Contact:</strong>
-        <p style="margin: 5px 0;">{{ item.contact_details }}</p>
+        <strong style="color: var(--color-text-primary);">Contact:</strong>
+        <p style="margin: 5px 0; color: var(--color-text-secondary);">{{ item.contact_details }}</p>
       </div>
-      
+
       <div style="margin-bottom: 15px;">
-        <strong style="color: #555;">Posted:</strong>
-        <p style="margin: 5px 0;">{{ item.created_at|date:"F d, Y" }}</p>
+        <strong style="color: var(--color-text-primary);">Posted:</strong>
+        <p style="margin: 5px 0; color: var(--color-text-secondary);">{{ item.created_at|date:"F d, Y" }}</p>
         {% if item.is_edited %}
-        <strong style="color: #555;">Last Updated:</strong>
-        <p style="margin: 5px 0;">{{ item.updated_at|date:"F d, Y" }}</p>
+        <strong style="color: var(--color-text-primary);">Last Updated:</strong>
+        <p style="margin: 5px 0; color: var(--color-text-secondary);">{{ item.updated_at|date:"F d, Y" }}</p>
         {% endif %}
       </div>
-      
+
       <div style="margin-bottom: 15px;">
-        <strong style="color: #555;">Status:</strong>
+        <strong style="color: var(--color-text-primary);">Status:</strong>
         <p style="margin: 5px 0;">
           {% if item.is_sold %}
-          <span style="color: #dc3545; font-weight: bold;">✗ Sold</span>
+          <span style="color: #fca5a5; font-weight: bold;">✗ Sold</span>
           {% else %}
-          <span style="color: #28a745; font-weight: bold;">✓ Available</span>
+          <span style="color: #6ee7b7; font-weight: bold;">✓ Available</span>
           {% endif %}
         </p>
       </div>
@@ -90,24 +90,24 @@
 
   <div style="margin-top: 20px; text-align: center; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
     {% if not item.is_sold %}
-    <a href="{% url 'edit_item' item.id %}" 
-       style="display: inline-block; padding: 12px 24px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px;">
+    <a href="{% url 'edit_item' item.id %}"
+       style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);">
       Edit Item
     </a>
     <form method="POST" action="{% url 'mark_as_sold' item.id %}" style="display: inline;">
       {% csrf_token %}
       <button type="submit"
-          style="padding: 12px 24px; background-color: #ffc107; color: #856404; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold;">
+          style="padding: 12px 24px; background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);">
           Mark as Sold
       </button>
     </form>
     {% endif %}
-    <a href="{% url 'delete_item' item.id %}" 
-       style="display: inline-block; padding: 12px 24px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px;">
+    <a href="{% url 'delete_item' item.id %}"
+       style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);">
       Delete Item
     </a>
-    <a href="{% url 'my_items' %}" 
-       style="display: inline-block; padding: 12px 24px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px;">
+    <a href="{% url 'my_items' %}"
+       style="display: inline-block; padding: 12px 24px; background: var(--color-surface-elevated); color: var(--color-text-primary); text-decoration: none; border-radius: var(--radius-md); font-weight: 600; border: 1px solid var(--color-border); transition: all 0.2s;">
       Back to My Items
     </a>
   </div>
@@ -118,17 +118,28 @@
     div[style*="grid-template-columns"] {
       grid-template-columns: 1fr !important;
     }
-    
+
     div[style*="display: flex; gap: 15px; justify-content: center"] {
       flex-direction: column;
       align-items: center;
     }
-    
+
     div[style*="display: flex; gap: 15px; justify-content: center"] a,
     div[style*="display: flex; gap: 15px; justify-content: center"] button {
       width: 100%;
       max-width: 300px;
     }
+  }
+
+  a[style*="background: linear-gradient"]:hover,
+  button[style*="background: linear-gradient"]:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+
+  a[style*="background: var(--color-surface-elevated)"]:hover {
+    background: var(--color-surface-hover) !important;
+    transform: translateY(-2px);
   }
 </style>
 {% endblock %}
