@@ -50,7 +50,9 @@ class Command(BaseCommand):
         # Confirm unless --no-confirm flag is used
         if not no_confirm:
             self.stdout.write(
-                self.style.WARNING("\nThis will delete the files/directories listed above.")
+                self.style.WARNING(
+                    "\nThis will delete the files/directories listed above."
+                )
             )
             confirm = input("Are you sure you want to continue? [y/N]: ")
             if confirm.lower() != "y":
@@ -65,9 +67,7 @@ class Command(BaseCommand):
         if clean_pyc:
             self._clean_python_cache()
 
-        self.stdout.write(
-            self.style.SUCCESS("\n✓ Cleanup completed successfully!\n")
-        )
+        self.stdout.write(self.style.SUCCESS("\n✓ Cleanup completed successfully!\n"))
 
     def _clean_static_files(self):
         """Remove the staticfiles directory"""
@@ -77,7 +77,9 @@ class Command(BaseCommand):
             try:
                 shutil.rmtree(static_root)
                 self.stdout.write(
-                    self.style.SUCCESS(f"✓ Removed staticfiles directory: {static_root}")
+                    self.style.SUCCESS(
+                        f"✓ Removed staticfiles directory: {static_root}"
+                    )
                 )
             except Exception as e:
                 self.stdout.write(
@@ -85,8 +87,43 @@ class Command(BaseCommand):
                 )
         else:
             self.stdout.write(
-                self.style.WARNING(f"⚠ Staticfiles directory does not exist: {static_root}")
+                self.style.WARNING(
+                    f"⚠ Staticfiles directory does not exist: {static_root}"
+                )
             )
+
+    def _should_skip_directory(self, root):
+        """Check if directory should be skipped during cleanup"""
+        return ".venv" in root or "node_modules" in root
+
+    def _remove_pyc_files(self, root, files):
+        """Remove .pyc files in the given directory"""
+        count = 0
+        for file in files:
+            if file.endswith(".pyc"):
+                file_path = os.path.join(root, file)
+                try:
+                    os.remove(file_path)
+                    count += 1
+                except Exception as e:
+                    self.stdout.write(
+                        self.style.ERROR(f"✗ Error removing {file_path}: {e}")
+                    )
+        return count
+
+    def _remove_pycache_dirs(self, root, dirs):
+        """Remove __pycache__ directories in the given directory"""
+        count = 0
+        if "__pycache__" in dirs:
+            pycache_path = os.path.join(root, "__pycache__")
+            try:
+                shutil.rmtree(pycache_path)
+                count += 1
+            except Exception as e:
+                self.stdout.write(
+                    self.style.ERROR(f"✗ Error removing {pycache_path}: {e}")
+                )
+        return count
 
     def _clean_python_cache(self):
         """Remove .pyc files and __pycache__ directories"""
@@ -96,33 +133,13 @@ class Command(BaseCommand):
 
         # Walk through the project directory
         for root, dirs, files in os.walk(base_dir):
-            # Skip virtual environment and node_modules
-            if ".venv" in root or "node_modules" in root:
+            if self._should_skip_directory(root):
                 continue
 
-            # Remove .pyc files
-            for file in files:
-                if file.endswith(".pyc"):
-                    file_path = os.path.join(root, file)
-                    try:
-                        os.remove(file_path)
-                        pyc_count += 1
-                    except Exception as e:
-                        self.stdout.write(
-                            self.style.ERROR(f"✗ Error removing {file_path}: {e}")
-                        )
+            pyc_count += self._remove_pyc_files(root, files)
+            pycache_count += self._remove_pycache_dirs(root, dirs)
 
-            # Remove __pycache__ directories
-            if "__pycache__" in dirs:
-                pycache_path = os.path.join(root, "__pycache__")
-                try:
-                    shutil.rmtree(pycache_path)
-                    pycache_count += 1
-                except Exception as e:
-                    self.stdout.write(
-                        self.style.ERROR(f"✗ Error removing {pycache_path}: {e}")
-                    )
-
+        # Display results
         if pyc_count > 0 or pycache_count > 0:
             self.stdout.write(
                 self.style.SUCCESS(
