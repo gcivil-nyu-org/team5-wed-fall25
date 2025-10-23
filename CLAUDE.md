@@ -219,10 +219,11 @@ python manage.py findstatic css/base.css
 # Collect static files for production
 python manage.py collectstatic --noinput
 
-# Clean up compiled Python and static files
-find . -type f -name "*.pyc" -delete && \
-find . -type d -name "__pycache__" -delete && \
-rm -rf staticfiles/
+# Clean static files (custom management command)
+python manage.py cleanstatic                    # Clean staticfiles/ directory (with confirmation)
+python manage.py cleanstatic --no-confirm       # Clean without confirmation
+python manage.py cleanstatic --all              # Clean staticfiles/ + .pyc + __pycache__
+python manage.py cleanstatic --pyc-only         # Only clean .pyc files and __pycache__
 ```
 
 ## Media Files
@@ -267,7 +268,37 @@ python manage.py showmigrations
 ### Installed Apps Order
 Order matters for template/static file discovery:
 1. Django contrib apps (admin, auth, contenttypes, sessions, messages, staticfiles)
-2. Project apps (accounts, profiles, listings, marketplace)
+2. CampusNest (project app - for custom management commands)
+3. Project apps (accounts, profiles, listings, marketplace)
+
+## Custom Management Commands
+
+### Available Commands
+```bash
+# Create test users with random preferences (profiles app)
+python manage.py create_test_users --count 10
+
+# Clean static files and Python cache (CampusNest app)
+python manage.py cleanstatic                    # Clean staticfiles/ with confirmation
+python manage.py cleanstatic --no-confirm       # Clean without confirmation
+python manage.py cleanstatic --all              # Clean staticfiles/ + .pyc + __pycache__
+python manage.py cleanstatic --pyc-only         # Only clean Python cache files
+```
+
+### Creating Custom Management Commands
+Custom commands are located in:
+- **Project-level:** `CampusNest/management/commands/` (for general utilities)
+- **App-level:** `<app>/management/commands/` (for app-specific tasks)
+
+Structure:
+```
+<app>/
+├── management/
+│   ├── __init__.py
+│   └── commands/
+│       ├── __init__.py
+│       └── command_name.py
+```
 
 ## Common Development Patterns
 
