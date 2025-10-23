@@ -1,0 +1,29 @@
+/* View Item Styles */
+
+@media (max-width: 768px) {
+    div[style*="grid-template-columns"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    div[style*="display: flex; gap: 15px; justify-content: center"] {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    div[style*="display: flex; gap: 15px; justify-content: center"] a,
+    div[style*="display: flex; gap: 15px; justify-content: center"] button {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+
+  a[style*="background: linear-gradient"]:hover,
+  button[style*="background: linear-gradient"]:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+
+  a[style*="background: var(--color-surface-elevated)"]:hover {
+    background: var(--color-surface-hover) !important;
+    transform: translateY(-2px);
+  }

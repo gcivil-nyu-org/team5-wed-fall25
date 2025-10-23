@@ -1,0 +1,12 @@
+/* My Items Styles */
+
+div[style*="border-left: 4px solid var(--color-success)"]:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg) !important;
+    }
+
+    a[style*="background: linear-gradient"]:hover,
+    button[style*="background: linear-gradient"]:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+    }

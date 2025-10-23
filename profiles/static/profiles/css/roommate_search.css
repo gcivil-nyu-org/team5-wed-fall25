@@ -1,0 +1,15 @@
+/* roommate search Styles */
+
+.favorite-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.favorite-btn.favorited {
+    background: linear-gradient(135deg, var(--color-warning) 0%, #f59e0b 100%) !important;
+    color: var(--color-text-primary) !important;
+}
+
+button:hover, a:hover {
+    transform: translateY(-2px);
+}

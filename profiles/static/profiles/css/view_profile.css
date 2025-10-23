@@ -1,0 +1,6 @@
+/* View Profile Styles */
+
+a:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+    }

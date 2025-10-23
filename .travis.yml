@@ -10,6 +10,7 @@ install:
 
 before_script:
   - python manage.py migrate --noinput
+  - python manage.py collectstatic --noinput
 
 script:
   - black --check .

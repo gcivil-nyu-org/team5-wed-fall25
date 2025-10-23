@@ -1,0 +1,33 @@
+/* My Listings Styles */
+
+a[style*="linear-gradient"]:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+}
+
+a[style*="var(--color-success)"]:hover {
+	box-shadow: 0 0 25px rgba(16, 185, 129, 0.4) !important;
+}
+
+a[style*="var(--color-danger)"]:hover {
+	box-shadow: 0 0 25px rgba(239, 68, 68, 0.4) !important;
+}
+
+@media (max-width: 768px) {
+	div[style*="display: flex; gap: 1.5rem; align-items: start"] {
+		flex-direction: column;
+	}
+
+	div[style*="display: flex; gap: 0.75rem; flex-wrap: wrap"] a {
+		flex: 1;
+		text-align: center;
+		min-width: 120px;
+	}
+
+	img[style*="width: 180px"],
+	div[style*="width: 180px"] {
+		width: 100% !important;
+		max-width: 300px;
+		margin: 0 auto;
+	}
+}

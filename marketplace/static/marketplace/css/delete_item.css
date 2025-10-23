@@ -1,0 +1,17 @@
+/* Delete Item Styles */
+
+button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.4) !important;
+  }
+
+  @media (max-width: 768px) {
+    div[style*="display: flex; gap: 15px"] {
+      flex-direction: column;
+    }
+
+    button[type="submit"],
+    a[style*="display: inline-block"] {
+      width: 100%;
+    }
+  }
