@@ -3,52 +3,52 @@
 {% block title %}My Favorites - CampusNest{% endblock %}
 
 {% block content %}
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <h1 style="color: #333; margin-bottom: 30px;">❤️ My Favorite Roommates</h1>
-    
-    <a href="{% url 'roommate_search' %}" style="color: #007bff; text-decoration: none; font-weight: 600; margin-bottom: 20px; display: inline-block;">
+<div class="content-card" style="max-width: 1200px; margin: 0 auto;">
+    <h1 style="color: var(--color-text-primary); margin-bottom: 2rem; font-family: 'Space Grotesk', sans-serif;">❤️ My Favorite Roommates</h1>
+
+    <a href="{% url 'roommate_search' %}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; margin-bottom: 1.5rem; display: inline-block; transition: color 0.2s;">
         ← Back to Search
     </a>
-    
+
     {% if favorites %}
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1.5rem;">
             {% for favorite in favorites %}
-                <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div style="padding: 20px; text-align: center;">
+                <div style="background: var(--color-surface-elevated); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="padding: 1.5rem; text-align: center;">
                         <!-- Profile Photo -->
-                        <div style="margin-bottom: 15px;">
+                        <div style="margin-bottom: 1rem;">
                             {% if favorite.favorite_profile.profile_photo %}
-                                <img src="{{ favorite.favorite_profile.profile_photo.url }}" 
+                                <img src="{{ favorite.favorite_profile.profile_photo.url }}"
                                      alt="{{ favorite.favorite_profile.user.first_name }}"
-                                     style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #ffc107;">
+                                     style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-warning); box-shadow: var(--shadow-md);">
                             {% else %}
-                                <div style="width: 120px; height: 120px; border-radius: 50%; background: #ddd; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: #666; border: 3px solid #ffc107;">
+                                <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--color-surface-hover); display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: var(--color-text-muted); border: 3px solid var(--color-warning); box-shadow: var(--shadow-md);">
                                     {{ favorite.favorite_profile.user.first_name.0 }}{{ favorite.favorite_profile.user.last_name.0 }}
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <!-- Name & University -->
-                        <h3 style="color: #333; margin: 10px 0; font-size: 18px;">{{ favorite.favorite_profile.user.first_name }} {{ favorite.favorite_profile.user.last_name }}</h3>
-                        <p style="color: #666; font-size: 14px; margin-bottom: 10px;">{{ favorite.favorite_profile.get_university_display }}</p>
-                        
+                        <h3 style="color: var(--color-text-primary); margin: 0.625rem 0; font-size: 1.125rem; font-family: 'Space Grotesk', sans-serif;">{{ favorite.favorite_profile.user.first_name }} {{ favorite.favorite_profile.user.last_name }}</h3>
+                        <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 0.625rem;">{{ favorite.favorite_profile.get_university_display }}</p>
+
                         <!-- Budget & Location -->
-                        <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
-                            <p style="margin: 5px 0; color: #555;">💰 ${{ favorite.favorite_profile.budget_min }} - ${{ favorite.favorite_profile.budget_max }}/mo</p>
+                        <div style="background: var(--color-surface); padding: 0.75rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.8125rem; border: 1px solid var(--color-border);">
+                            <p style="margin: 0.375rem 0; color: var(--color-text-secondary);">💰 ${{ favorite.favorite_profile.budget_min }} - ${{ favorite.favorite_profile.budget_max }}/mo</p>
                             {% if favorite.favorite_profile.location %}
-                                <p style="margin: 5px 0; color: #555;">📍 {{ favorite.favorite_profile.location }}</p>
+                                <p style="margin: 0.375rem 0; color: var(--color-text-secondary);">📍 {{ favorite.favorite_profile.location }}</p>
                             {% endif %}
                         </div>
-                        
+
                         <!-- Action Buttons -->
-                        <div style="display: flex; gap: 8px;">
-                            <a href="{% url 'roommate_detail' favorite.favorite_profile.user.id %}" 
-                               style="flex: 1; padding: 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 600;">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'roommate_detail' favorite.favorite_profile.user.id %}"
+                               style="flex: 1; padding: 0.625rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);">
                                 View Profile
                             </a>
-                            
-                            <button class="remove-favorite-btn" data-user-id="{{ favorite.favorite_profile.user.id }}" 
-                                    style="padding: 10px 15px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600;">
+
+                            <button class="remove-favorite-btn" data-user-id="{{ favorite.favorite_profile.user.id }}"
+                                    style="padding: 0.625rem 1rem; background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);">
                                 Remove
                             </button>
                         </div>
@@ -57,22 +57,29 @@
             {% endfor %}
         </div>
     {% else %}
-        <div style="text-align: center; padding: 60px 20px; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
-            <p style="font-size: 18px; color: #666; margin-bottom: 10px;">😔 No favorites yet</p>
-            <p style="color: #999; margin-bottom: 20px;">Start exploring and add your favorite roommates!</p>
-            <a href="{% url 'roommate_search' %}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-weight: 600;">
+        <div style="text-align: center; padding: 3.75rem 1.5rem; background: var(--color-surface-elevated); border-radius: var(--radius-lg); margin-top: 1.5rem; border: 1px solid var(--color-border);">
+            <p style="font-size: 1.125rem; color: var(--color-text-secondary); margin-bottom: 0.625rem;">😔 No favorites yet</p>
+            <p style="color: var(--color-text-muted); margin-bottom: 1.25rem;">Start exploring and add your favorite roommates!</p>
+            <a href="{% url 'roommate_search' %}" style="display: inline-block; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
                 Find Roommates
             </a>
         </div>
     {% endif %}
 </div>
 
+<style>
+    .remove-favorite-btn:hover, a:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+    }
+</style>
+
 <script>
 document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
     btn.addEventListener('click', async function(e) {
         e.preventDefault();
         const userId = this.dataset.userId;
-        
+
         try {
             const response = await fetch(`/roommates/${userId}/favorite/`, {
                 method: 'POST',
@@ -81,7 +88,7 @@ document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
                     'Content-Type': 'application/json',
                 },
             });
-            
+
             if (response.ok) {
                 // Reload page to update favorites list
                 location.reload();

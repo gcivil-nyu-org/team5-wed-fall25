@@ -3,8 +3,9 @@
 {% block title %}Edit Item - CampusNest Marketplace{% endblock %}
 
 {% block content %}
+<div class="content-card">
 <h2>Edit Your Item</h2>
-<p style="margin-bottom: 20px; color: #666;">
+<p style="margin-bottom: 20px;">
   Update your item details. Fields marked with * are required.
 </p>
 
@@ -36,7 +37,7 @@
   <div class="form-group">
     <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
     {{ form.description }}
-    <small style="color: #666;">
+    <small>
       <span id="charCount">{{ form.description.value|length|default:0 }}</span>/2000 characters (minimum 20)
     </small>
     {% if form.description.errors %}
@@ -121,15 +122,15 @@
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px;">
         {% for img in item.images.all %}
         <div class="current-image-item" data-image-id="{{ img.id }}">
-            <img src="{{ img.image.url }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <img src="{{ img.image.url }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--shadow-md);">
             <button type="button" class="remove-current-btn" onclick="removeCurrentImage('{{ img.id }}')" title="Remove image">×</button>
         </div>
         {% endfor %}
     </div>
     <!-- Hidden input to track removed images -->
     <input type="hidden" name="removed_images" id="removed_images" value="">
-    
-    <div id="current-images-message" style="margin-top: 10px; color: #dc3545; display: none;">
+
+    <div id="current-images-message" style="margin-top: 10px; color: #fca5a5; display: none;">
         <strong>Note:</strong> <span id="removed-count">0</span> image(s) will be removed when you save.
     </div>
   </div>
@@ -139,10 +140,10 @@
   <div class="form-group">
     <label for="id_images">Upload New Photos (optional, maximum 10)</label>
     <input type="file" name="images" id="id_images" multiple accept="image/*">
-    <small style="color: #666;">Leave empty to keep current images. Accepted formats: JPG, PNG, WebP. Max 5MB per image.</small>
+    <small>Leave empty to keep current images. Accepted formats: JPG, PNG, WebP. Max 5MB per image.</small>
 
     <div id="imagePreview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;"></div>
-    <div id="imageCount" style="margin-top: 10px; color: #666; font-size: 14px;"></div>
+    <div id="imageCount" style="margin-top: 10px; color: var(--color-text-secondary); font-size: 14px;"></div>
   </div>
 
   <button type="submit" id="submitBtn">Update & Save Item</button>
@@ -151,21 +152,15 @@
 <p class="text-center" style="margin-top: 20px;">
   <a href="{% url 'view_item' item.id %}">Cancel and go back</a>
 </p>
+</div>
 
 <style>
-  .form-control {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-
   .image-preview-item {
     position: relative;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
+    background: var(--color-surface-elevated);
   }
 
   .image-preview-item img {
@@ -179,7 +174,7 @@
     position: absolute;
     top: 5px;
     right: 5px;
-    background: rgba(220, 53, 69, 0.9);
+    background: rgba(239, 68, 68, 0.9);
     color: white;
     border: none;
     border-radius: 50%;
@@ -189,6 +184,12 @@
     font-size: 16px;
     line-height: 1;
     padding: 0;
+    transition: all 0.2s;
+  }
+
+  .image-preview-item .remove-btn:hover {
+    background: var(--color-danger);
+    transform: scale(1.1);
   }
 
   @media (max-width: 768px) {
@@ -199,23 +200,24 @@
 
   .current-image-item {
     position: relative;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
+    box-shadow: var(--shadow-md);
+    background: var(--color-surface-elevated);
+  }
 
-    .current-image-item img {
+  .current-image-item img {
     width: 100%;
     height: 150px;
     object-fit: cover;
     display: block;
-    }
+  }
 
-    .remove-current-btn {
+  .remove-current-btn {
     position: absolute;
     top: 5px;
     right: 5px;
-    background: rgba(220, 53, 69, 0.9);
+    background: rgba(239, 68, 68, 0.9);
     color: white;
     border: none;
     border-radius: 50%;
@@ -226,30 +228,32 @@
     line-height: 1;
     padding: 0;
     z-index: 10;
-    }
+    transition: all 0.2s;
+  }
 
-    .remove-current-btn:hover {
-    background: rgba(200, 35, 51, 1);
-    }
+  .remove-current-btn:hover {
+    background: var(--color-danger);
+    transform: scale(1.1);
+  }
 
-    .current-image-item.marked-for-removal {
+  .current-image-item.marked-for-removal {
     opacity: 0.4;
     position: relative;
-    }
+  }
 
-    .current-image-item.marked-for-removal::after {
+  .current-image-item.marked-for-removal::after {
     content: "Will be removed";
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(220, 53, 69, 0.9);
+    background: rgba(239, 68, 68, 0.9);
     color: white;
     padding: 5px 10px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 12px;
     font-weight: bold;
-    }
+  }
 </style>
 
 <script>
@@ -257,11 +261,11 @@
   const charCount = document.getElementById('charCount');
 
   charCount.textContent = descriptionField.value.length;
-  charCount.style.color = descriptionField.value.length < 20 ? '#dc3545' : '#28a745';
+  charCount.style.color = descriptionField.value.length < 20 ? '#fca5a5' : '#6ee7b7';
 
   descriptionField.addEventListener('input', function() {
     charCount.textContent = this.value.length;
-    charCount.style.color = this.value.length < 20 ? '#dc3545' : '#28a745';
+    charCount.style.color = this.value.length < 20 ? '#fca5a5' : '#6ee7b7';
   });
 
   const imageInput = document.getElementById('id_images');
@@ -294,7 +298,7 @@
     selectedFiles = files;
     if (files.length > 0) {
       imageCountDiv.textContent = `${files.length} new image(s) selected`;
-      imageCountDiv.style.color = '#28a745';
+      imageCountDiv.style.color = '#6ee7b7';
     } else {
       imageCountDiv.textContent = '';
     }
@@ -342,11 +346,11 @@
   });
 
   // Track removed images
-    let removedImages = [];
+  let removedImages = [];
 
-    function removeCurrentImage(imageId) {
+  function removeCurrentImage(imageId) {
     const imageItem = document.querySelector(`.current-image-item[data-image-id="${imageId}"]`);
-    
+
     if (imageItem.classList.contains('marked-for-removal')) {
         // Unmark for removal
         imageItem.classList.remove('marked-for-removal');
@@ -356,25 +360,25 @@
         imageItem.classList.add('marked-for-removal');
         removedImages.push(imageId);
     }
-    
+
     // Update hidden input
     document.getElementById('removed_images').value = removedImages.join(',');
-    
+
     // Update message
     const messageDiv = document.getElementById('current-images-message');
     const countSpan = document.getElementById('removed-count');
-    
+
     if (removedImages.length > 0) {
         countSpan.textContent = removedImages.length;
         messageDiv.style.display = 'block';
     } else {
         messageDiv.style.display = 'none';
     }
-    }
+  }
 
-    // Clear the "keep existing images" checkbox behavior since we now handle individual removals
-    if (keepExistingCheckbox) {
+  // Clear the "keep existing images" checkbox behavior since we now handle individual removals
+  if (keepExistingCheckbox) {
     keepExistingCheckbox.parentElement.style.display = 'none';
-    }
+  }
 </script>
 {% endblock %}

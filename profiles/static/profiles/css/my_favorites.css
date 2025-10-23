@@ -1,0 +1,6 @@
+/* my favorites Styles */
+
+    .remove-favorite-btn:hover, a:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+    }

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,278 +6,26 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{% block title %}CampusNest{% endblock %}</title>
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
-
-		body {
-			font-family: Arial, sans-serif;
-			background-color: #f5f5f5;
-			min-height: 100vh;
-			display: flex;
-			flex-direction: column;
-		}
-
-		/* Navbar Styles */
-		nav {
-			background-color: #283593;
-			padding: 15px 30px;
-			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-		}
-
-		.nav-container {
-			max-width: 1200px;
-			margin: 0 auto;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-		}
-
-		.nav-brand {
-			color: white;
-			font-size: 24px;
-			font-weight: bold;
-			text-decoration: none;
-		}
-
-		.nav-links {
-			display: flex;
-			gap: 20px;
-			align-items: center;
-		}
-
-		.nav-links a {
-			color: white;
-			text-decoration: none;
-			padding: 8px 16px;
-			border-radius: 4px;
-			transition: background-color 0.3s;
-		}
-
-		.nav-links a:hover {
-			background-color: rgba(255, 255, 255, 0.1);
-		}
-
-		.nav-user {
-			color: white;
-			margin-right: 10px;
-		}
-
-		.logout-btn {
-			background-color: #dc3545;
-			color: white;
-			border: none;
-			padding: 8px 16px;
-			border-radius: 4px;
-			cursor: pointer;
-			text-decoration: none;
-			display: inline-block;
-		}
-		/* Dropdown Menu Styles */
-		.nav-dropdown {
-			position: relative;
-			display: inline-block;
-		}
-
-		.dropdown-toggle {
-			display: flex;
-			align-items: center;
-			gap: 5px;
-			cursor: pointer;
-			padding: 8px 16px;
-			border-radius: 4px;
-			transition: background-color 0.3s;
-		}
-
-		.dropdown-toggle:hover {
-			background-color: rgba(255, 255, 255, 0.1);
-		}
-
-		.dropdown-menu {
-			display: none;
-			position: absolute;
-			top: calc(100% + 5px);
-			left: 0;
-			background-color: #1a237e;
-			min-width: 200px;
-			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-			padding: 8px 0;
-			border-radius: 4px;
-			z-index: 1000;
-			opacity: 0;
-			transition: opacity 0.3s ease;
-			pointer-events: none;
-		}
-
-		.nav-dropdown:hover .dropdown-menu {
-			display: block;
-			opacity: 1;
-			pointer-events: auto;
-		}
-
-		.dropdown-menu a {
-			color: white;
-			padding: 12px 20px;
-			text-decoration: none;
-			display: block;
-			transition: background-color 0.3s;
-		}
-
-		.dropdown-menu a:hover {
-			background-color: rgba(255, 255, 255, 0.2);
-		}
-
-		.dropdown-menu a:first-child {
-			border-radius: 4px 4px 0 0;
-		}
-		.dropdown-menu a:last-child {
-			border-radius: 0 0 4px 4px;
-		}
-
-		/* Main Content */
-		main {
-			flex: 1;
-			padding: 30px 20px;
-		}
-
-		.container {
-			max-width: 800px;
-			margin: 0 auto;
-			background: white;
-			padding: 30px;
-			border-radius: 8px;
-		}
-
-		h1,
-		h2 {
-			color: #333;
-			margin-bottom: 20px;
-		}
-
-		.form-group {
-			margin-bottom: 15px;
-		}
-
-		label {
-			display: block;
-			margin-bottom: 5px;
-			color: #555;
-			font-weight: bold;
-		}
-
-		input[type="text"],
-		input[type="email"],
-		input[type="password"],
-		input[type="file"],
-		select,
-		textarea,
-		input {
-			width: 100%;
-			padding: 10px;
-			border: 1px solid #ddd;
-			border-radius: 4px;
-			font-size: 14px;
-		}
-
-		.form-group input,
-		.form-group select,
-		.form-group textarea {
-			width: 100%;
-			padding: 10px;
-			border: 1px solid #ddd;
-			border-radius: 4px;
-			font-size: 14px;
-		}
-
-		button,
-		.btn {
-			width: 100%;
-			padding: 12px;
-			background-color: #007bff;
-			color: white;
-			border: none;
-			border-radius: 4px;
-			font-size: 16px;
-			cursor: pointer;
-			text-decoration: none;
-			display: inline-block;
-			text-align: center;
-		}
-
-		button:hover,
-		.btn:hover {
-			background-color: #0056b3;
-		}
-
-		.errorlist {
-			list-style: none;
-			color: red;
-			font-size: 14px;
-			margin-bottom: 10px;
-		}
-
-		.messages {
-			margin-bottom: 20px;
-		}
-
-		.alert {
-			padding: 10px;
-			border-radius: 4px;
-			margin-bottom: 10px;
-		}
-
-		.alert-success {
-			background-color: #d4edda;
-			color: #155724;
-		}
-
-		.alert-error {
-			background-color: #f8d7da;
-			color: #721c24;
-		}
-
-		.text-center {
-			text-align: center;
-		}
-
-		a {
-			color: #007bff;
-			text-decoration: none;
-		}
-
-		a:hover {
-			text-decoration: underline;
-		}
-
-		small {
-			display: block;
-			margin-top: 5px;
-			font-size: 12px;
-		}
-
-		/* Footer */
-		footer {
-			background-color: #283593;
-			color: white;
-			text-align: center;
-			padding: 15px;
-			margin-top: auto;
-		}
-	</style>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
 
 <body>
 	<!-- Navigation Bar -->
 	<nav>
 		<div class="nav-container">
-			<a href="{% url 'home' %}" class="nav-brand">🏠 CampusNest</a>
+			<a href="{% url 'home' %}" class="nav-brand">
+				<span class="nav-brand-icon">🏠</span>
+				<span>CampusNest</span>
+			</a>
 
-			<div class="nav-links">
+			<button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+
+			<div class="nav-links" id="navLinks">
 				{% if user.is_authenticated %}
-				<span class="nav-user">Hello, {{ user.first_name|default:user.username }}!</span>
+				<span class="nav-user">👋 {{ user.first_name|default:user.username }}</span>
 				<a href="{% url 'view_profile' %}">My Profile</a>
 				<a href="{% url 'my_listings' %}">My Listings</a>
 				<a href="{% url 'my_items' %}">My Items</a>
@@ -293,6 +42,7 @@
 				{% endif %}
 				<a href="{% url 'logout' %}" class="logout-btn">Logout</a>
 				{% else %}
+				<a href="{% url 'login' %}">Login</a>
 				<a href="{% url 'register' %}">Register</a>
 				{% endif %}
 			</div>
@@ -319,34 +69,13 @@
 
 	<!-- Footer -->
 	<footer>
-		&copy; 2025 CampusNest - Connecting NYC Students
+		<div class="footer-content">
+			<p class="footer-text">&copy; 2025 CampusNest - Secure Housing for NYC Students</p>
+		</div>
 	</footer>
 
-	<script>
-		// Dropdown menu delay handler
-		let dropdownTimeout;
-		const navDropdown = document.querySelector('.nav-dropdown');
-		const dropdownMenu = document.querySelector('.dropdown-menu');
-
-		if (navDropdown && dropdownMenu) {
-			navDropdown.addEventListener('mouseenter', function() {
-				clearTimeout(dropdownTimeout);
-				dropdownMenu.style.display = 'block';
-				dropdownMenu.style.opacity = '1';
-				dropdownMenu.style.pointerEvents = 'auto';
-			});
-
-			navDropdown.addEventListener('mouseleave', function() {
-				dropdownTimeout = setTimeout(function() {
-					dropdownMenu.style.opacity = '0';
-					dropdownMenu.style.pointerEvents = 'none';
-					setTimeout(function() {
-						dropdownMenu.style.display = 'none';
-					}, 300);
-				}, 150);
-			});
-		}
-	</script>
+	<script src="{% static 'js/base.js' %}"></script>
 </body>
 
 </html>
+

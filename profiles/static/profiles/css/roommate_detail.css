@@ -1,0 +1,16 @@
+/* roommate detail Styles */
+
+    .favorite-btn.favorited {
+        background: linear-gradient(135deg, var(--color-warning) 0%, #f59e0b 100%) !important;
+        color: var(--color-text-primary) !important;
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+    }
+    .favorite-btn.not-favorited {
+        background: var(--color-surface-elevated);
+        color: var(--color-text-secondary);
+        border: 1px solid var(--color-border-light);
+    }
+    .favorite-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+    }

@@ -1,0 +1,48 @@
+/* Home Styles */
+
+/* Dark theme hover effects and animations */
+    div[style*="linear-gradient(135deg, rgba(59, 130, 246"]:hover,
+    div[style*="linear-gradient(135deg, rgba(6, 182, 212"]:hover,
+    div[style*="linear-gradient(135deg, rgba(16, 185, 129"]:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    div[style*="background: var(--color-surface-elevated)"]:hover {
+        background: var(--color-surface-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    a[style*="display: flex"]:hover {
+        background: var(--color-surface-hover) !important;
+        transform: translateX(6px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    a[style*="display: inline-flex"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.5) !important;
+    }
+
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 2.25rem !important;
+        }
+
+        p {
+            font-size: 1rem !important;
+        }
+
+        div[style*="grid-template-columns"] {
+            grid-template-columns: 1fr !important;
+        }
+
+        div[style*="padding: 2rem"] {
+            padding: 1.5rem !important;
+        }
+
+        div[style*="padding: 2.5rem"] {
+            padding: 1.75rem !important;
+        }
+    }

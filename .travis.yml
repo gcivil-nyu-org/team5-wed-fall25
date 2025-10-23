@@ -5,6 +5,7 @@ python:
 env:
   global:
     - SECRET_KEY="test-secret-key-for-travis-ci-only-not-for-production"
+
 before_install:
   - pip install --upgrade pip
 
@@ -13,6 +14,7 @@ install:
 
 before_script:
   - python manage.py migrate --noinput
+  - python manage.py collectstatic --noinput
 
 script:
   - black --check .

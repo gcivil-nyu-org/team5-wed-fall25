@@ -2,13 +2,13 @@
 
 {% block title %}Register - CampusNest{% endblock %}
 
-{% block content %}
+{% block auth_content %}
 <h2>Create Your CampusNest Account</h2>
-<p style="margin-bottom: 20px; color: #666;">Join the exclusive NYC student housing community</p>
+<p style="margin-bottom: 20px;">Join the exclusive NYC student housing community</p>
 
 <form method="post">
     {% csrf_token %}
-    
+
     {% if form.non_field_errors %}
         <ul class="errorlist">
             {% for error in form.non_field_errors %}
@@ -16,7 +16,7 @@
             {% endfor %}
         </ul>
     {% endif %}
-    
+
     <div class="form-group">
         <label for="{{ form.email.id_for_label }}">Email (.edu required)</label>
         {{ form.email }}
@@ -28,7 +28,7 @@
             </ul>
         {% endif %}
     </div>
-    
+
     <div class="form-group">
         <label for="{{ form.username.id_for_label }}">Username</label>
         {{ form.username }}
@@ -40,7 +40,7 @@
             </ul>
         {% endif %}
     </div>
-    
+
     <div class="form-group">
         <label for="{{ form.first_name.id_for_label }}">First Name</label>
         {{ form.first_name }}
@@ -52,7 +52,7 @@
             </ul>
         {% endif %}
     </div>
-    
+
     <div class="form-group">
         <label for="{{ form.last_name.id_for_label }}">Last Name</label>
         {{ form.last_name }}
@@ -64,7 +64,7 @@
             </ul>
         {% endif %}
     </div>
-    
+
     <div class="form-group">
         <label for="{{ form.password1.id_for_label }}">Password</label>
         {{ form.password1 }}
@@ -76,7 +76,7 @@
             </ul>
         {% endif %}
     </div>
-    
+
     <div class="form-group">
         <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
         {{ form.password2 }}
@@ -88,12 +88,12 @@
             </ul>
         {% endif %}
     </div>
-    
+
     <button type="submit">Register</button>
 </form>
 
 <p class="text-center" style="margin-top: 20px;">
-    Already have an account? <a href="{% url 'login' %}">Login</a>  <!-- Change # to {% url 'login' %} -->
+    Already have an account? <a href="{% url 'login' %}">Login</a>
 </p>
 <p class="text-center" style="margin-top: 10px;">
     Need to resend verification? <a href="{% url 'resend_verification' %}">Click here</a>

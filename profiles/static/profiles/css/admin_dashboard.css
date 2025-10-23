@@ -1,0 +1,5 @@
+/* Admin Dashboard Styles */
+
+table tbody tr:hover {
+        background-color: var(--color-surface-hover);
+    }

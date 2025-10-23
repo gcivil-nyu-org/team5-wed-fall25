@@ -1,21 +1,50 @@
 {% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - CampusNest{% endblock %}
+
 {% block content %}
-<h2 style="text-align:center;">All Student Profiles</h2>
-<table class="table table-striped" style="width:80%;margin:auto;">
-  <thead>
-    <tr><th>User</th><th>University</th><th>Visibility</th><th>Created</th></tr>
-  </thead>
-  <tbody>
-  {% for p in profiles %}
-    <tr>
-      <td>{{ p.user.username }}</td>
-      <td>{{ p.university }}</td>
-      <td>{{ p.visibility|yesno:"Public,Private" }}</td>
-      <td>{{ p.created_at|date:"Y-m-d H:i" }}</td>
-    </tr>
-  {% empty %}
-    <tr><td colspan="4" class="text-center">No profiles yet.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+<div class="content-card">
+    <h2 style="text-align:center; color: var(--color-text-primary);">All Student Profiles</h2>
+
+    {% if profiles %}
+        <div style="overflow-x: auto; margin-top: 2rem;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: var(--color-surface-elevated); border-bottom: 2px solid var(--color-border-light);">
+                        <th style="padding: 1rem; text-align: left; color: var(--color-text-primary); font-weight: 600;">User</th>
+                        <th style="padding: 1rem; text-align: left; color: var(--color-text-primary); font-weight: 600;">University</th>
+                        <th style="padding: 1rem; text-align: left; color: var(--color-text-primary); font-weight: 600;">Visibility</th>
+                        <th style="padding: 1rem; text-align: left; color: var(--color-text-primary); font-weight: 600;">Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in profiles %}
+                    <tr style="border-bottom: 1px solid var(--color-border); transition: background-color 0.2s;">
+                        <td style="padding: 1rem; color: var(--color-text-secondary);">{{ p.user.username }}</td>
+                        <td style="padding: 1rem; color: var(--color-text-secondary);">{{ p.university }}</td>
+                        <td style="padding: 1rem;">
+                            {% if p.visibility %}
+                                <span style="padding: 0.375rem 0.75rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%); color: var(--color-success); border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);">Public</span>
+                            {% else %}
+                                <span style="padding: 0.375rem 0.75rem; background: linear-gradient(135deg, rgba(100, 116, 139, 0.15) 0%, rgba(100, 116, 139, 0.1) 100%); color: var(--color-text-muted); border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; border: 1px solid var(--color-border-light);">Private</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem; color: var(--color-text-secondary);">{{ p.created_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem 1.5rem; background-color: var(--color-surface-elevated); border-radius: var(--radius-lg); margin-top: 2rem; border: 1px solid var(--color-border);">
+            <p style="font-size: 1.125rem; color: var(--color-text-secondary); margin: 0;">No profiles yet.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    table tbody tr:hover {
+        background-color: var(--color-surface-hover);
+    }
+</style>
 {% endblock %}

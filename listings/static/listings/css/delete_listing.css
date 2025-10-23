@@ -1,0 +1,22 @@
+/* Delete Listing Styles */
+
+button[type="submit"]:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+}
+
+a[style*="background: var(--color-surface-elevated)"]:hover {
+	background: var(--color-surface-hover) !important;
+	transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+	div[style*="display: flex; gap: 1rem"] {
+		flex-direction: column;
+	}
+
+	button[type="submit"],
+	a[style*="display: inline-block"] {
+		width: 100%;
+	}
+}
