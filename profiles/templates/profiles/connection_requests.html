@@ -1,28 +1,33 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Connection Requests - CampusNest{% endblock %}
 
-{% block content %}
-<div class="content-card" style="max-width: 1000px; margin: 0 auto;">
-    <h1 style="color: var(--color-text-primary); margin-bottom: 2rem; font-family: 'Space Grotesk', sans-serif;">📬 Connection Requests</h1>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'profiles/css/connection_requests.css' %}">
+{% endblock %}
 
-    <a href="{% url 'roommate_search' %}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; margin-bottom: 1.5rem; display: inline-block; transition: color 0.2s;">
+{% block content %}
+<div class="content-card connection-requests-container">
+    <h1 class="connection-requests-title">📬 Connection Requests</h1>
+
+    <a href="{% url 'roommate_search' %}" class="connection-requests-back-link">
         ← Back to Search
     </a>
 
     {% if received_requests %}
-        <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem;">
+        <div class="connection-requests-list">
             {% for request in received_requests %}
-                <div style="background: var(--color-surface-elevated); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-md);">
-                    <div style="display: grid; grid-template-columns: 120px 1fr auto; gap: 1.5rem; align-items: start;">
+                <div class="connection-request-card">
+                    <div class="connection-request-grid">
                         <!-- Profile Photo -->
-                        <div style="text-align: center;">
+                        <div class="connection-request-photo-container">
                             {% if request.from_user.profile.profile_photo %}
                                 <img src="{{ request.from_user.profile.profile_photo.url }}"
                                      alt="{{ request.from_user.first_name }}"
-                                     style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-primary); box-shadow: var(--shadow-md);">
+                                     class="connection-request-photo">
                             {% else %}
-                                <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--color-surface-hover); display: inline-flex; align-items: center; justify-content: center; font-size: 36px; color: var(--color-text-muted); border: 3px solid var(--color-primary); box-shadow: var(--shadow-md);">
+                                <div class="connection-request-photo-placeholder">
                                     {{ request.from_user.first_name.0 }}{{ request.from_user.last_name.0 }}
                                 </div>
                             {% endif %}
@@ -30,43 +35,43 @@
 
                         <!-- Request Details -->
                         <div>
-                            <h3 style="color: var(--color-text-primary); margin: 0 0 0.625rem 0; font-size: 1.25rem; font-family: 'Space Grotesk', sans-serif;">{{ request.from_user.first_name }} {{ request.from_user.last_name }}</h3>
-                            <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin: 0.375rem 0;">{{ request.from_user.profile.get_university_display }}</p>
+                            <h3 class="connection-request-name">{{ request.from_user.first_name }} {{ request.from_user.last_name }}</h3>
+                            <p class="connection-request-university">{{ request.from_user.profile.get_university_display }}</p>
 
                             {% if request.message %}
-                                <div style="background: var(--color-surface); padding: 0.75rem; border-radius: var(--radius-md); margin: 1rem 0; border: 1px solid var(--color-border);">
-                                    <p style="color: var(--color-text-muted); font-size: 0.875rem; margin: 0; font-style: italic;">💬 "{{ request.message }}"</p>
+                                <div class="connection-request-message">
+                                    <p>💬 "{{ request.message }}"</p>
                                 </div>
                             {% endif %}
 
-                            <p style="color: var(--color-text-muted); font-size: 0.75rem; margin: 0.625rem 0 0 0;">Sent {{ request.created_at|timesince }} ago</p>
+                            <p class="connection-request-timestamp">Sent {{ request.created_at|timesince }} ago</p>
 
                             <!-- Status Badge -->
                             {% if request.status == 'pending' %}
-                                <p style="margin: 0.625rem 0 0 0;"><span style="padding: 0.375rem 0.75rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%); color: var(--color-warning); border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.3);">⏳ Pending</span></p>
+                                <p class="connection-request-status"><span class="status-badge status-badge-pending">⏳ Pending</span></p>
                             {% elif request.status == 'accepted' %}
-                                <p style="margin: 0.625rem 0 0 0;"><span style="padding: 0.375rem 0.75rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%); color: var(--color-success); border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);">✓ Accepted</span></p>
+                                <p class="connection-request-status"><span class="status-badge status-badge-accepted">✓ Accepted</span></p>
                             {% else %}
-                                <p style="margin: 0.625rem 0 0 0;"><span style="padding: 0.375rem 0.75rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.1) 100%); color: var(--color-danger); border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.3);">✗ Rejected</span></p>
+                                <p class="connection-request-status"><span class="status-badge status-badge-rejected">✗ Rejected</span></p>
                             {% endif %}
                         </div>
 
                         <!-- Action Buttons -->
-                        <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                        <div class="connection-request-actions">
                             <a href="{% url 'roommate_detail' request.from_user.id %}"
-                               style="padding: 0.625rem 1rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; text-align: center; transition: all 0.2s; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);">
+                               class="connection-request-view-profile">
                                 View Profile
                             </a>
 
                             {% if request.status == 'pending' %}
-                                <form method="post" action="{% url 'respond_to_request' request.id %}" style="display: flex; gap: 0.5rem;">
+                                <form method="post" action="{% url 'respond_to_request' request.id %}" class="connection-request-response-form">
                                     {% csrf_token %}
                                     <button type="submit" name="action" value="accept"
-                                            style="flex: 1; padding: 0.625rem 0.75rem; background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);">
+                                            class="connection-request-accept-btn">
                                         ✓ Accept
                                     </button>
                                     <button type="submit" name="action" value="reject"
-                                            style="flex: 1; padding: 0.625rem 0.75rem; background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);">
+                                            class="connection-request-reject-btn">
                                         ✗ Reject
                                     </button>
                                 </form>
@@ -77,20 +82,13 @@
             {% endfor %}
         </div>
     {% else %}
-        <div style="text-align: center; padding: 3.75rem 1.5rem; background: var(--color-surface-elevated); border-radius: var(--radius-lg); margin-top: 1.5rem; border: 1px solid var(--color-border);">
-            <p style="font-size: 1.125rem; color: var(--color-text-secondary); margin-bottom: 0.625rem;">😊 No connection requests</p>
-            <p style="color: var(--color-text-muted); margin-bottom: 1.25rem;">When someone sends you a connection request, it will appear here.</p>
-            <a href="{% url 'roommate_search' %}" style="display: inline-block; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
+        <div class="connection-requests-empty">
+            <p class="connection-requests-empty-title">😊 No connection requests</p>
+            <p class="connection-requests-empty-description">When someone sends you a connection request, it will appear here.</p>
+            <a href="{% url 'roommate_search' %}" class="connection-requests-find-link">
                 Find Roommates
             </a>
         </div>
     {% endif %}
 </div>
-
-<style>
-    button:hover, a[href*="roommate"]:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.1);
-    }
-</style>
 {% endblock %}

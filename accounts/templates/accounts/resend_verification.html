@@ -1,10 +1,15 @@
 {% extends 'accounts/base.html' %}
+{% load static %}
 
 {% block title %}Resend Verification - CampusNest{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/css/resend_verification.css' %}">
+{% endblock %}
+
 {% block auth_content %}
 <h2>Resend Verification Email</h2>
-<p style="margin-bottom: 20px;">
+<p class="resend-verification-intro">
 	Didn't receive the verification email? Enter your email below to get a new one.
 </p>
 
@@ -20,11 +25,11 @@
 	<button type="submit">Send Verification Email</button>
 </form>
 
-<p class="text-center" style="margin-top: 20px;">
+<p class="text-center resend-verification-login-link">
 	Already verified? <a href="{% url 'login' %}">Login</a>
 </p>
 
-<p class="text-center" style="margin-top: 10px;">
+<p class="text-center resend-verification-register-link">
 	Need to register? <a href="{% url 'register' %}">Create an account</a>
 </p>
 {% endblock %}

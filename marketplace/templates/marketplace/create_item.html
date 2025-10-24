@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Post Item - CampusNest Marketplace{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'marketplace/css/create_item.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="content-card">
 <h2>Post an Item for Sale</h2>
-<p style="margin-bottom: 20px;">
+<p class="create-item-intro">
   Fill out the form below to list your item. Fields marked with * are required.
 </p>
 
@@ -37,7 +42,7 @@
   <div class="form-group">
     <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
     {{ form.description }}
-    <small style="color: #666;">
+    <small class="char-counter">
       <span id="charCount">0</span>/2000 characters (minimum 20)
     </small>
     {% if form.description.errors %}
@@ -50,8 +55,8 @@
   </div>
 
   <!-- Condition and Price -->
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-    <div class="form-group" style="margin-bottom: 0;">
+  <div class="create-item-grid">
+    <div class="form-group">
       <label for="{{ form.condition.id_for_label }}">{{ form.condition.label }}</label>
       {{ form.condition }}
       {% if form.condition.errors %}
@@ -63,7 +68,7 @@
       {% endif %}
     </div>
 
-    <div class="form-group" style="margin-bottom: 0;">
+    <div class="form-group">
       <label for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
       {{ form.price }}
       {% if form.price.errors %}
@@ -106,7 +111,7 @@
   <div class="form-group">
     <label for="{{ form.contact_details.id_for_label }}">{{ form.contact_details.label }}</label>
     {{ form.contact_details }}
-    <small style="color: #666;">Provide your phone number or email so buyers can reach you</small>
+    <small class="form-helper-text">Provide your phone number or email so buyers can reach you</small>
     {% if form.contact_details.errors %}
     <ul class="errorlist">
       {% for error in form.contact_details.errors %}
@@ -123,146 +128,21 @@
     <small>Accepted formats: JPG, PNG, WebP. Max 5MB per image.</small>
 
     <!-- Image Preview -->
-    <div id="imagePreview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;">
+    <div id="imagePreview" class="image-preview-container">
     </div>
 
-    <div id="imageCount" style="margin-top: 10px; color: var(--color-text-secondary); font-size: 14px;"></div>
+    <div id="imageCount" class="image-count-display"></div>
   </div>
 
   <button type="submit" id="submitBtn">Post Item</button>
 </form>
 
-<p class="text-center" style="margin-top: 20px;">
+<p class="text-center cancel-link-container">
   <a href="{% url 'my_items' %}">Cancel and go back</a>
 </p>
 </div>
+{% endblock %}
 
-<style>
-
-  .image-preview-item {
-    position: relative;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-    background: var(--color-surface-elevated);
-  }
-
-  .image-preview-item img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    display: block;
-  }
-
-  .image-preview-item .remove-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 1;
-    padding: 0;
-    transition: all 0.2s;
-  }
-
-  .image-preview-item .remove-btn:hover {
-    background: var(--color-danger);
-    transform: scale(1.1);
-  }
-
-  @media (max-width: 768px) {
-    div[style*="grid-template-columns: 1fr 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-  }
-</style>
-
-<script>
-  // Character counter
-  const descriptionField = document.getElementById('{{ form.description.id_for_label }}');
-  const charCount = document.getElementById('charCount');
-
-  descriptionField.addEventListener('input', function() {
-    charCount.textContent = this.value.length;
-    charCount.style.color = this.value.length < 20 ? '#fca5a5' : '#6ee7b7';
-  });
-
-  // Image preview
-  const imageInput = document.getElementById('id_images');
-  const imagePreview = document.getElementById('imagePreview');
-  const imageCountDiv = document.getElementById('imageCount');
-  let selectedFiles = [];
-
-  imageInput.addEventListener('change', function(e) {
-    const files = Array.from(e.target.files);
-    
-    if (files.length < 1) {
-      alert('Please select at least 1 image.');
-      return;
-    }
-    if (files.length > 10) {
-      alert('You can only upload a maximum of 10 images.');
-      e.target.value = '';
-      return;
-    }
-    
-    selectedFiles = files;
-    imageCountDiv.textContent = `${files.length} image(s) selected`;
-    imageCountDiv.style.color = '#6ee7b7';
-    imagePreview.innerHTML = '';
-    
-    files.forEach((file, index) => {
-      if (!file.type.startsWith('image/')) {
-        alert(`${file.name} is not a valid image file.`);
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name} exceeds 5MB size limit.`);
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const previewItem = document.createElement('div');
-        previewItem.className = 'image-preview-item';
-        previewItem.innerHTML = `
-          <img src="${e.target.result}" alt="Preview ${index + 1}">
-          <button type="button" class="remove-btn" onclick="removeImage(${index})" title="Remove image">×</button>
-        `;
-        imagePreview.appendChild(previewItem);
-      };
-      reader.readAsDataURL(file);
-    });
-  });
-
-  function removeImage(index) {
-    selectedFiles.splice(index, 1);
-    const dataTransfer = new DataTransfer();
-    selectedFiles.forEach(file => dataTransfer.items.add(file));
-    imageInput.files = dataTransfer.files;
-    imageInput.dispatchEvent(new Event('change'));
-  }
-
-  document.getElementById('itemForm').addEventListener('submit', function(e) {
-    const files = imageInput.files;
-    if (files.length < 1) {
-      e.preventDefault();
-      alert('Please upload at least 1 image.');
-      return false;
-    }
-    if (files.length > 10) {
-      e.preventDefault();
-      alert('You can only upload a maximum of 10 images.');
-      return false;
-    }
-    document.getElementById('submitBtn').disabled = true;
-    document.getElementById('submitBtn').textContent = 'Posting...';
-  });
-</script>
+{% block extra_js %}
+<script src="{% static 'marketplace/js/create_item.js' %}"></script>
 {% endblock %}

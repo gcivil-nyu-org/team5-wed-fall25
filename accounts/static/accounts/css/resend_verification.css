@@ -1,0 +1,16 @@
+/* Resend Verification Styles */
+
+/* Intro Text */
+.resend-verification-intro {
+    margin-bottom: 20px;
+}
+
+/* Login Link */
+.resend-verification-login-link {
+    margin-top: 20px;
+}
+
+/* Register Link */
+.resend-verification-register-link {
+    margin-top: 10px;
+}
