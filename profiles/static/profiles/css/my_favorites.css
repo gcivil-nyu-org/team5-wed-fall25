@@ -1,6 +1,197 @@
-/* my favorites Styles */
+/* My Favorites Page Specific Styles */
 
-    .remove-favorite-btn:hover, a:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.1);
-    }
+/* Page container */
+.favorites-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Page heading */
+.favorites-heading {
+    color: var(--color-text-primary);
+    margin-bottom: 2rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Back to search link */
+.back-link {
+    color: var(--color-primary-light);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* Favorites grid */
+.favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+/* Favorite card */
+.favorite-card {
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Card content */
+.favorite-card-content {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+/* Profile photo container */
+.profile-photo-container {
+    margin-bottom: 1rem;
+}
+
+/* Profile photo image */
+.profile-photo-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-warning);
+    box-shadow: var(--shadow-md);
+}
+
+/* Profile photo placeholder */
+.profile-photo-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--color-surface-hover);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: var(--color-text-muted);
+    border: 3px solid var(--color-warning);
+    box-shadow: var(--shadow-md);
+}
+
+/* Profile name */
+.profile-name {
+    color: var(--color-text-primary);
+    margin: 0.625rem 0;
+    font-size: 1.125rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Profile university */
+.profile-university {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 0.625rem;
+}
+
+/* Profile info box */
+.profile-info-box {
+    background: var(--color-surface);
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    font-size: 0.8125rem;
+    border: 1px solid var(--color-border);
+}
+
+.profile-info-box p {
+    margin: 0.375rem 0;
+    color: var(--color-text-secondary);
+}
+
+/* Action buttons container */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* View profile button */
+.btn-view-profile {
+    flex: 1;
+    padding: 0.625rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    display: inline-block;
+}
+
+.btn-view-profile:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* Remove favorite button */
+.remove-favorite-btn {
+    padding: 0.625rem 1rem;
+    background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
+
+.remove-favorite-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3.75rem 1.5rem;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-lg);
+    margin-top: 1.5rem;
+    border: 1px solid var(--color-border);
+}
+
+.empty-state-title {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.625rem;
+}
+
+.empty-state-text {
+    color: var(--color-text-muted);
+    margin-bottom: 1.25rem;
+}
+
+/* Find roommates button */
+.btn-find-roommates {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.btn-find-roommates:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
