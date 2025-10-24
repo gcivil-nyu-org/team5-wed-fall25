@@ -1,75 +1,75 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}My Listings - CampusNest{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'listings/css/my_listings.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="content-card">
-<h2 style="margin-bottom: 1.5rem;">My Listings</h2>
+<h2 class="listings-heading">My Listings</h2>
 
-<div style="margin-bottom: 2rem;">
-	<a href="{% url 'create_listing' %}" style="width: auto; display: inline-block; padding: 0.875rem 1.75rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; border: none; border-radius: var(--radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; transition: all 0.2s; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
+<div class="create-listing-container">
+	<a href="{% url 'create_listing' %}" class="btn-create-listing">
 		+ Create New Listing
 	</a>
 </div>
 
 {% if listings %}
-<div style="display: grid; gap: 1.5rem;">
+<div class="listings-grid">
 	{% for listing in listings %}
-	<div style="background: var(--color-surface-elevated); padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-md); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-border-light)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-lg)'" onmouseout="this.style.borderColor='var(--color-border)'; this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
-		<div style="display: flex; gap: 1.5rem; align-items: start;">
+	<div class="listing-card">
+		<div class="listing-card-content">
 			{% if listing.images.first %}
-			<img src="{{ listing.images.first.image.url }}"
-				style="width: 180px; height: 180px; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--shadow-md); flex-shrink: 0;">
+			<img src="{{ listing.images.first.image.url }}" alt="{{ listing.title }}" class="listing-image">
 			{% else %}
-			<div
-				style="width: 180px; height: 180px; background: var(--color-surface); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); border: 1px solid var(--color-border); flex-shrink: 0;">
+			<div class="listing-no-image">
 				No Image
 			</div>
 			{% endif %}
 
-			<div style="flex: 1; min-width: 0;">
-				<h3 style="margin-bottom: 0.75rem; color: var(--color-text-primary); display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+			<div class="listing-details">
+				<h3 class="listing-title">
 					<span>{{ listing.title }}</span>
 					{% if listing.is_edited %}
-					<span style="background: rgba(245, 158, 11, 0.15); color: #fcd34d; padding: 0.25rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.3);">
+					<span class="badge-edited">
 						EDITED
 					</span>
 					{% endif %}
 				</h3>
-				<p style="color: var(--color-text-secondary); margin-bottom: 0.5rem; font-size: 0.9375rem;">
-					<strong style="color: var(--color-text-primary);">Address:</strong> {{ listing.address }}
+				<p class="listing-info">
+					<strong>Address:</strong> {{ listing.address }}
 				</p>
-				<p style="color: var(--color-text-secondary); margin-bottom: 0.5rem; font-size: 0.9375rem;">
-					<strong style="color: var(--color-text-primary);">Rent:</strong> <span style="color: var(--color-success); font-weight: 600;">${{ listing.rent }}/month</span>
+				<p class="listing-info">
+					<strong>Rent:</strong> <span class="listing-rent">${{ listing.rent }}/month</span>
 				</p>
-				<p style="color: var(--color-text-secondary); margin-bottom: 0.5rem; font-size: 0.9375rem;">
-					<strong style="color: var(--color-text-primary);">Available:</strong> {{ listing.availability_start|date:"M. d, Y" }} to {{ listing.availability_end|date:"M. d, Y" }}
+				<p class="listing-info">
+					<strong>Available:</strong> {{ listing.availability_start|date:"M. d, Y" }} to {{ listing.availability_end|date:"M. d, Y" }}
 				</p>
-				<p style="color: var(--color-text-secondary); margin-bottom: 0.5rem; font-size: 0.9375rem;">
-					<strong style="color: var(--color-text-primary);">Posted:</strong> {{ listing.created_at|date:"F d, Y" }}
+				<p class="listing-info">
+					<strong>Posted:</strong> {{ listing.created_at|date:"F d, Y" }}
 					{% if listing.is_edited %}
-					<br><strong style="color: var(--color-text-primary);">Last Updated:</strong> {{ listing.updated_at|date:"F d, Y" }}
+					<br><strong>Last Updated:</strong> {{ listing.updated_at|date:"F d, Y" }}
 					{% endif %}
 				</p>
-				<p style="color: var(--color-text-secondary); margin-bottom: 1rem; font-size: 0.9375rem;">
-					<strong style="color: var(--color-text-primary);">Status:</strong>
+				<p class="listing-info">
+					<strong>Status:</strong>
 					{% if listing.is_active %}
-					<span style="color: var(--color-success); font-weight: 600;">✓ Active</span>
+					<span class="status-active">✓ Active</span>
 					{% else %}
-					<span style="color: var(--color-danger); font-weight: 600;">✗ Inactive</span>
+					<span class="status-inactive">✗ Inactive</span>
 					{% endif %}
 				</p>
-				<div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-					<a href="{% url 'view_listing' listing.id %}"
-						style="display: inline-block; padding: 0.625rem 1.25rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-size: 0.9375rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);">
+				<div class="listing-actions">
+					<a href="{% url 'view_listing' listing.id %}" class="btn-listing btn-view">
 						View Details
 					</a>
-					<a href="{% url 'edit_listing' listing.id %}"
-						style="display: inline-block; padding: 0.625rem 1.25rem; background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-size: 0.9375rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);">
+					<a href="{% url 'edit_listing' listing.id %}" class="btn-listing btn-edit">
 						Edit
 					</a>
-					<a href="{% url 'delete_listing' listing.id %}"
-						style="display: inline-block; padding: 0.625rem 1.25rem; background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-size: 0.9375rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);">
+					<a href="{% url 'delete_listing' listing.id %}" class="btn-listing btn-delete">
 						Delete
 					</a>
 				</div>
@@ -79,49 +79,14 @@
 	{% endfor %}
 </div>
 {% else %}
-<div style="text-align: center; padding: 3rem 2rem; background: var(--color-surface-elevated); border-radius: var(--radius-lg); border: 1px solid var(--color-border);">
-	<p style="color: var(--color-text-secondary); font-size: 1.125rem; margin-bottom: 1.5rem;">
+<div class="empty-state">
+	<p class="empty-state-text">
 		You haven't created any listings yet.
 	</p>
-	<a href="{% url 'create_listing' %}"
-		style="display: inline-block; padding: 0.875rem 1.75rem; background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); font-size: 1rem;">
+	<a href="{% url 'create_listing' %}" class="btn-create-first">
 		Create Your First Listing
 	</a>
 </div>
 {% endif %}
 </div>
-
-<style>
-	a[style*="linear-gradient"]:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
-	}
-
-	a[style*="var(--color-success)"]:hover {
-		box-shadow: 0 0 25px rgba(16, 185, 129, 0.4) !important;
-	}
-
-	a[style*="var(--color-danger)"]:hover {
-		box-shadow: 0 0 25px rgba(239, 68, 68, 0.4) !important;
-	}
-
-	@media (max-width: 768px) {
-		div[style*="display: flex; gap: 1.5rem; align-items: start"] {
-			flex-direction: column;
-		}
-
-		div[style*="display: flex; gap: 0.75rem; flex-wrap: wrap"] a {
-			flex: 1;
-			text-align: center;
-			min-width: 120px;
-		}
-
-		img[style*="width: 180px"],
-		div[style*="width: 180px"] {
-			width: 100% !important;
-			max-width: 300px;
-			margin: 0 auto;
-		}
-	}
-</style>
 {% endblock %}
