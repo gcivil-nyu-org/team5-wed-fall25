@@ -1,64 +1,67 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{{ listing.title }} - CampusNest{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'listings/css/view_listing.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="content-card" style="max-width: 1000px; margin: 0 auto;">
-  <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-    <h2 style="margin: 0;">{{ listing.title }}</h2>
+<div class="content-card view-listing-container">
+  <div class="listing-header">
+    <h2 class="listing-title">{{ listing.title }}</h2>
     {% if listing.is_edited %}
-    <span style="background: rgba(245, 158, 11, 0.15); color: #fcd34d; padding: 0.375rem 0.875rem; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.3);">
+    <span class="edited-badge">
       EDITED
     </span>
     {% endif %}
   </div>
 
   <!-- Image Gallery -->
-  <div style="margin-bottom: 2rem;">
+  <div class="image-gallery">
     {% if listing.images.all %}
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+    <div class="image-grid">
       {% for img in listing.images.all %}
       <img src="{{ img.image.url }}"
            alt="Photo {{ forloop.counter }}"
-           style="width: 100%; height: 280px; object-fit: cover; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); cursor: pointer; transition: all 0.2s;"
-           onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='var(--shadow-lg)'"
-           onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='var(--shadow-md)'">
+           class="gallery-image">
       {% endfor %}
     </div>
     {% endif %}
   </div>
 
   <!-- Listing Details -->
-  <div style="background: var(--color-surface-elevated); padding: 2rem; border-radius: var(--radius-lg); margin-bottom: 2rem; border: 1px solid var(--color-border);">
-    <h3 style="color: var(--color-primary-light); margin-bottom: 1.5rem; font-size: 1.5rem;">Details</h3>
+  <div class="listing-details-card">
+    <h3 class="details-section-title">Details</h3>
 
-    <div style="display: grid; gap: 1.25rem;">
+    <div class="details-grid">
       <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Address:</strong>
-        <p style="margin: 0; color: var(--color-text-secondary); font-size: 1rem;">{{ listing.address }}</p>
+        <strong class="detail-field-label">Address:</strong>
+        <p class="detail-field-value">{{ listing.address }}</p>
       </div>
 
       <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Monthly Rent:</strong>
-        <p style="margin: 0; font-size: 2rem; color: var(--color-success); font-weight: 700; line-height: 1;">${{ listing.rent }}</p>
+        <strong class="detail-field-label">Monthly Rent:</strong>
+        <p class="rent-amount">${{ listing.rent }}</p>
       </div>
 
       <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Description:</strong>
-        <p style="margin: 0; color: var(--color-text-secondary); line-height: 1.7; font-size: 1rem;">{{ listing.description }}</p>
+        <strong class="detail-field-label">Description:</strong>
+        <p class="detail-field-value-description">{{ listing.description }}</p>
       </div>
 
       <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Availability:</strong>
-        <p style="margin: 0; color: var(--color-text-secondary); font-size: 1rem;">{{ listing.availability_start|date:"F d, Y" }} to {{ listing.availability_end|date:"F d, Y" }}</p>
+        <strong class="detail-field-label">Availability:</strong>
+        <p class="detail-field-value">{{ listing.availability_start|date:"F d, Y" }} to {{ listing.availability_end|date:"F d, Y" }}</p>
       </div>
 
       {% if listing.get_amenities_display %}
       <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.75rem; font-size: 0.9375rem;">Amenities:</strong>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.625rem;">
+        <strong class="detail-field-label" style="margin-bottom: 0.75rem;">Amenities:</strong>
+        <div class="amenities-container">
           {% for amenity in listing.get_amenities_display %}
-          <span style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; padding: 0.5rem 1rem; border-radius: var(--radius-lg); font-size: 0.875rem; font-weight: 500; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);">
+          <span class="amenity-badge">
             ✓ {{ amenity }}
           </span>
           {% endfor %}
@@ -66,26 +69,26 @@
       </div>
       {% endif %}
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--color-border);">
+      <div class="metadata-grid">
         <div>
-          <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Posted:</strong>
-          <p style="margin: 0; color: var(--color-text-secondary); font-size: 1rem;">{{ listing.created_at|date:"F d, Y" }}</p>
+          <strong class="detail-field-label">Posted:</strong>
+          <p class="detail-field-value">{{ listing.created_at|date:"F d, Y" }}</p>
         </div>
         {% if listing.is_edited %}
         <div>
-          <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Last Updated:</strong>
-          <p style="margin: 0; color: var(--color-text-secondary); font-size: 1rem;">{{ listing.updated_at|date:"F d, Y" }}</p>
+          <strong class="detail-field-label">Last Updated:</strong>
+          <p class="detail-field-value">{{ listing.updated_at|date:"F d, Y" }}</p>
         </div>
         {% endif %}
       </div>
 
       <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Status:</strong>
-        <p style="margin: 0; font-size: 1rem;">
+        <strong class="detail-field-label">Status:</strong>
+        <p class="detail-field-value">
           {% if listing.is_active %}
-          <span style="color: var(--color-success); font-weight: 700;">✓ Active</span>
+          <span class="status-active">✓ Active</span>
           {% else %}
-          <span style="color: var(--color-danger); font-weight: 700;">✗ Inactive</span>
+          <span class="status-inactive">✗ Inactive</span>
           {% endif %}
         </p>
       </div>
@@ -93,66 +96,16 @@
   </div>
 
   <!-- Action Buttons -->
-  <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-    <a href="{% url 'edit_listing' listing.id %}"
-       style="display: inline-block; padding: 0.875rem 2rem; background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); font-size: 1rem;">
+  <div class="action-buttons-container">
+    <a href="{% url 'edit_listing' listing.id %}" class="btn-edit">
       Edit Listing
     </a>
-    <a href="{% url 'delete_listing' listing.id %}"
-       style="display: inline-block; padding: 0.875rem 2rem; background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); font-size: 1rem;">
+    <a href="{% url 'delete_listing' listing.id %}" class="btn-delete">
       Delete Listing
     </a>
-    <a href="{% url 'my_listings' %}"
-       style="display: inline-block; padding: 0.875rem 2rem; background: var(--color-surface-elevated); color: var(--color-text-primary); text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; border: 1px solid var(--color-border); font-size: 1rem;">
+    <a href="{% url 'my_listings' %}" class="btn-back">
       Back to My Listings
     </a>
   </div>
 </div>
-
-<style>
-  a[style*="linear-gradient"]:hover {
-    transform: translateY(-2px);
-  }
-
-  a[style*="var(--color-success)"]:hover {
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.4) !important;
-  }
-
-  a[style*="var(--color-danger)"]:hover {
-    box-shadow: 0 0 30px rgba(239, 68, 68, 0.4) !important;
-  }
-
-  a[style*="var(--color-surface-elevated)"]:hover {
-    background: var(--color-surface-hover) !important;
-    transform: translateY(-1px);
-  }
-
-  @media (max-width: 768px) {
-    div[style*="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    div[style*="display: flex; gap: 1rem; justify-content: center"] {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    div[style*="display: flex; gap: 1rem; justify-content: center"] a {
-      width: 100%;
-      text-align: center;
-    }
-
-    div[style*="grid-template-columns: 1fr 1fr; gap: 1.25rem"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    h2 {
-      font-size: 1.75rem;
-    }
-
-    p[style*="font-size: 2rem"] {
-      font-size: 1.75rem !important;
-    }
-  }
-</style>
 {% endblock %}

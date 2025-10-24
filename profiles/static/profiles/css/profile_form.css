@@ -1,0 +1,68 @@
+/* Profile Form Styles */
+
+/* ========================================
+   Container and Layout
+   ======================================== */
+
+.profile-form-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.profile-form-title {
+    color: var(--color-text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    margin-bottom: 1rem;
+}
+
+.profile-form-subtitle {
+    margin-bottom: 2rem;
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   Form Field Helpers
+   ======================================== */
+
+.form-field-help {
+    color: var(--color-text-muted);
+}
+
+/* ========================================
+   Photo Preview
+   ======================================== */
+
+.photo-preview-container {
+    margin-top: 1rem;
+}
+
+.photo-preview {
+    max-width: 150px;
+    border-radius: var(--radius-md);
+    display: none;
+    border: 2px solid var(--color-primary);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   Section Cards
+   ======================================== */
+
+.profile-section-card {
+    background: var(--color-surface-elevated);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-border-light);
+}
+
+.profile-section-title {
+    margin-bottom: 1rem;
+    color: var(--color-text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.profile-section-description {
+    color: var(--color-text-secondary);
+    margin-bottom: 1.25rem;
+}

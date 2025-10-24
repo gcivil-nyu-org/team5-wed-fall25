@@ -1,6 +1,189 @@
 /* View Profile Styles */
 
-a:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.1);
-    }
+/* ========================================
+   Container and Layout
+   ======================================== */
+
+.view-profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.view-profile-title {
+    color: var(--color-text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    margin-bottom: 2rem;
+}
+
+.profile-card {
+    background: var(--color-surface-elevated);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-light);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   Profile Photo Section
+   ======================================== */
+
+.profile-photo-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-primary);
+    box-shadow: var(--shadow-lg);
+}
+
+.profile-photo-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: var(--color-surface-hover);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: var(--color-text-muted);
+    border: 3px solid var(--color-primary);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ========================================
+   Profile Information Fields
+   ======================================== */
+
+.profile-field {
+    margin-bottom: 1.5rem;
+}
+
+.profile-field-label {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+.profile-field-value {
+    margin: 0.5rem 0;
+    color: var(--color-text-secondary);
+}
+
+.profile-field-value-bio {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   Section Dividers and Headers
+   ======================================== */
+
+.profile-section {
+    border-top: 1px solid var(--color-border);
+    padding-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-section-title {
+    color: var(--color-text-primary);
+    margin-bottom: 1.25rem;
+    font-size: 1.25rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* ========================================
+   Preference Grid
+   ======================================== */
+
+.preference-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.preference-card {
+    background: var(--color-surface);
+    padding: 0.875rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+
+.preference-label {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+.preference-value {
+    margin: 0.5rem 0;
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   Visibility Badge
+   ======================================== */
+
+.visibility-badge-public {
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+    color: var(--color-success);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.visibility-badge-private {
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.1) 100%);
+    color: var(--color-danger);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* ========================================
+   Action Buttons
+   ======================================== */
+
+.action-button-container {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.profile-action-button {
+    display: inline-block;
+    padding: 0.875rem 1.75rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.profile-action-button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* ========================================
+   No Profile State
+   ======================================== */
+
+.no-profile-title {
+    color: var(--color-text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    margin-bottom: 1.5rem;
+}
+
+.no-profile-message {
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+}

@@ -1,107 +1,112 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Your Profile - CampusNest{% endblock %}
 
-{% block content %}
-<div class="content-card" style="max-width: 900px; margin: 0 auto;">
-    {% if profile %}
-        <h2 style="color: var(--color-text-primary); font-family: 'Space Grotesk', sans-serif; margin-bottom: 2rem;">Your Profile</h2>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'profiles/css/view_profile.css' %}">
+{% endblock %}
 
-        <div style="background: var(--color-surface-elevated); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border-light); box-shadow: var(--shadow-md);">
+{% block content %}
+<div class="content-card view-profile-container">
+    {% if profile %}
+        <h2 class="view-profile-title">Your Profile</h2>
+
+        <div class="profile-card">
             <!-- Profile Photo Section -->
-            <div style="text-align: center; margin-bottom: 2rem;">
+            <div class="profile-photo-section">
                 {% if profile.profile_photo %}
                     <img src="{{ profile.profile_photo.url }}"
                          alt="{{ profile.user.username }}'s photo"
-                         style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-primary); box-shadow: var(--shadow-lg);">
+                         class="profile-photo">
                 {% else %}
-                    <div style="width: 150px; height: 150px; border-radius: 50%; background: var(--color-surface-hover); display: inline-flex; align-items: center; justify-content: center; font-size: 48px; color: var(--color-text-muted); border: 3px solid var(--color-primary); box-shadow: var(--shadow-lg);">
+                    <div class="profile-photo-placeholder">
                         {{ profile.user.first_name.0 }}{{ profile.user.last_name.0 }}
                     </div>
                 {% endif %}
             </div>
 
             <!-- Basic Information -->
-            <div style="margin-bottom: 1.5rem;">
-                <strong style="color: var(--color-text-primary); font-weight: 600;">Name:</strong>
-                <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+            <div class="profile-field">
+                <strong class="profile-field-label">Name:</strong>
+                <p class="profile-field-value">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
             </div>
 
-            <div style="margin-bottom: 1.5rem;">
-                <strong style="color: var(--color-text-primary); font-weight: 600;">Username:</strong>
-                <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.user.username }}</p>
+            <div class="profile-field">
+                <strong class="profile-field-label">Username:</strong>
+                <p class="profile-field-value">{{ profile.user.username }}</p>
             </div>
 
-            <div style="margin-bottom: 1.5rem;">
-                <strong style="color: var(--color-text-primary); font-weight: 600;">Email:</strong>
-                <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.user.email }}</p>
+            <div class="profile-field">
+                <strong class="profile-field-label">Email:</strong>
+                <p class="profile-field-value">{{ profile.user.email }}</p>
             </div>
 
-            <div style="margin-bottom: 1.5rem;">
-                <strong style="color: var(--color-text-primary); font-weight: 600;">University:</strong>
-                <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.get_university_display }}</p>
+            <div class="profile-field">
+                <strong class="profile-field-label">University:</strong>
+                <p class="profile-field-value">{{ profile.get_university_display }}</p>
             </div>
 
-            <div style="margin-bottom: 1.5rem;">
-                <strong style="color: var(--color-text-primary); font-weight: 600;">Bio:</strong>
-                <p style="margin: 0.5rem 0; line-height: 1.6; color: var(--color-text-secondary);">{{ profile.bio }}</p>
+            <div class="profile-field">
+                <strong class="profile-field-label">Bio:</strong>
+                <p class="profile-field-value-bio">{{ profile.bio }}</p>
             </div>
 
             <!-- Lifestyle Preferences -->
-            <div style="border-top: 1px solid var(--color-border); padding-top: 1.5rem; margin-bottom: 1.5rem;">
-                <h3 style="color: var(--color-text-primary); margin-bottom: 1.25rem; font-size: 1.25rem; font-family: 'Space Grotesk', sans-serif;">🏠 Lifestyle Preferences</h3>
+            <div class="profile-section">
+                <h3 class="profile-section-title">🏠 Lifestyle Preferences</h3>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div style="background: var(--color-surface); padding: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                        <strong style="color: var(--color-text-primary); font-weight: 600;">🍽️ Eating:</strong>
-                        <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.get_preference_display_with_icon.eating|default:profile.get_eating_habit_display }}</p>
+                <div class="preference-grid">
+                    <div class="preference-card">
+                        <strong class="preference-label">🍽️ Eating:</strong>
+                        <p class="preference-value">{{ profile.get_preference_display_with_icon.eating|default:profile.get_eating_habit_display }}</p>
                     </div>
 
-                    <div style="background: var(--color-surface); padding: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                        <strong style="color: var(--color-text-primary); font-weight: 600;">🚬 Smoking:</strong>
-                        <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.get_preference_display_with_icon.smoking|default:profile.get_smoking_preference_display }}</p>
+                    <div class="preference-card">
+                        <strong class="preference-label">🚬 Smoking:</strong>
+                        <p class="preference-value">{{ profile.get_preference_display_with_icon.smoking|default:profile.get_smoking_preference_display }}</p>
                     </div>
 
-                    <div style="background: var(--color-surface); padding: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                        <strong style="color: var(--color-text-primary); font-weight: 600;">🤝 Sharing:</strong>
-                        <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.get_preference_display_with_icon.sharing|default:profile.get_sharing_preference_display }}</p>
+                    <div class="preference-card">
+                        <strong class="preference-label">🤝 Sharing:</strong>
+                        <p class="preference-value">{{ profile.get_preference_display_with_icon.sharing|default:profile.get_sharing_preference_display }}</p>
                     </div>
 
-                    <div style="background: var(--color-surface); padding: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                        <strong style="color: var(--color-text-primary); font-weight: 600;">🍷 Drinking:</strong>
-                        <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.get_preference_display_with_icon.drinking|default:profile.get_drinking_preference_display }}</p>
+                    <div class="preference-card">
+                        <strong class="preference-label">🍷 Drinking:</strong>
+                        <p class="preference-value">{{ profile.get_preference_display_with_icon.drinking|default:profile.get_drinking_preference_display }}</p>
                     </div>
 
-                    <div style="background: var(--color-surface); padding: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                        <strong style="color: var(--color-text-primary); font-weight: 600;">🐾 Pets:</strong>
-                        <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.get_preference_display_with_icon.pets|default:profile.get_pet_preference_display }}</p>
+                    <div class="preference-card">
+                        <strong class="preference-label">🐾 Pets:</strong>
+                        <p class="preference-value">{{ profile.get_preference_display_with_icon.pets|default:profile.get_pet_preference_display }}</p>
                     </div>
 
-                    <div style="background: var(--color-surface); padding: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                        <strong style="color: var(--color-text-primary); font-weight: 600;">✨ Cleanliness:</strong>
-                        <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.get_preference_display_with_icon.cleanliness|default:profile.get_cleanliness_preference_display }}</p>
+                    <div class="preference-card">
+                        <strong class="preference-label">✨ Cleanliness:</strong>
+                        <p class="preference-value">{{ profile.get_preference_display_with_icon.cleanliness|default:profile.get_cleanliness_preference_display }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Housing Preferences -->
-            <div style="border-top: 1px solid var(--color-border); padding-top: 1.5rem; margin-bottom: 1.5rem;">
-                <h3 style="color: var(--color-text-primary); margin-bottom: 1.25rem; font-size: 1.25rem; font-family: 'Space Grotesk', sans-serif;">🏘️ Housing Preferences</h3>
+            <div class="profile-section">
+                <h3 class="profile-section-title">🏘️ Housing Preferences</h3>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div style="background: var(--color-surface); padding: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                        <strong style="color: var(--color-text-primary); font-weight: 600;">💰 Budget Range:</strong>
-                        <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">${{ profile.budget_min }} - ${{ profile.budget_max }} per month</p>
+                <div class="preference-grid">
+                    <div class="preference-card">
+                        <strong class="preference-label">💰 Budget Range:</strong>
+                        <p class="preference-value">${{ profile.budget_min }} - ${{ profile.budget_max }} per month</p>
                     </div>
 
-                    <div style="background: var(--color-surface); padding: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                        <strong style="color: var(--color-text-primary); font-weight: 600;">📍 Preferred Location:</strong>
-                        <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.location|default:"Not specified" }}</p>
+                    <div class="preference-card">
+                        <strong class="preference-label">📍 Preferred Location:</strong>
+                        <p class="preference-value">{{ profile.location|default:"Not specified" }}</p>
                     </div>
 
-                    <div style="background: var(--color-surface); padding: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                        <strong style="color: var(--color-text-primary); font-weight: 600;">📅 Move-In Date:</strong>
-                        <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">
+                    <div class="preference-card">
+                        <strong class="preference-label">📅 Move-In Date:</strong>
+                        <p class="preference-value">
                             {% if profile.move_in_date %}
                                 {{ profile.move_in_date|date:"F d, Y" }}
                             {% else %}
@@ -113,48 +118,39 @@
             </div>
 
             <!-- Account Details -->
-            <div style="border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
-                <h3 style="color: var(--color-text-primary); margin-bottom: 1.25rem; font-size: 1.25rem; font-family: 'Space Grotesk', sans-serif;">⚙️ Account Details</h3>
+            <div class="profile-section">
+                <h3 class="profile-section-title">⚙️ Account Details</h3>
 
-                <div style="margin-bottom: 1rem;">
-                    <strong style="color: var(--color-text-primary); font-weight: 600;">Profile Visibility:</strong>
-                    <p style="margin: 0.5rem 0;">
+                <div class="profile-field">
+                    <strong class="profile-field-label">Profile Visibility:</strong>
+                    <p class="profile-field-value">
                         {% if profile.visibility %}
-                            <span style="padding: 0.375rem 0.75rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%); color: var(--color-success); border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);">✓ Public - Visible to other students</span>
+                            <span class="visibility-badge-public">✓ Public - Visible to other students</span>
                         {% else %}
-                            <span style="padding: 0.375rem 0.75rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.1) 100%); color: var(--color-danger); border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.3);">✗ Private - Hidden from searches</span>
+                            <span class="visibility-badge-private">✗ Private - Hidden from searches</span>
                         {% endif %}
                     </p>
                 </div>
 
-                <div style="margin-bottom: 1rem;">
-                    <strong style="color: var(--color-text-primary); font-weight: 600;">Member Since:</strong>
-                    <p style="margin: 0.5rem 0; color: var(--color-text-secondary);">{{ profile.created_at|date:"F d, Y" }}</p>
+                <div class="profile-field">
+                    <strong class="profile-field-label">Member Since:</strong>
+                    <p class="profile-field-value">{{ profile.created_at|date:"F d, Y" }}</p>
                 </div>
             </div>
         </div>
 
-        <div style="margin-top: 2rem; text-align: center;">
-            <a href="{% url 'edit_profile' %}"
-               style="display: inline-block; padding: 0.875rem 1.75rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
+        <div class="action-button-container">
+            <a href="{% url 'edit_profile' %}" class="profile-action-button">
                 Edit Profile
             </a>
         </div>
 
     {% else %}
-        <h2 style="color: var(--color-text-primary); font-family: 'Space Grotesk', sans-serif; margin-bottom: 1.5rem;">No Profile Found</h2>
-        <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">You haven't created a profile yet.</p>
-        <a href="{% url 'create_profile' %}"
-           style="display: inline-block; padding: 0.875rem 1.75rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
+        <h2 class="no-profile-title">No Profile Found</h2>
+        <p class="no-profile-message">You haven't created a profile yet.</p>
+        <a href="{% url 'create_profile' %}" class="profile-action-button">
             Create Profile
         </a>
     {% endif %}
 </div>
-
-<style>
-    a:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.1);
-    }
-</style>
 {% endblock %}
