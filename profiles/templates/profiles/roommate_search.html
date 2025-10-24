@@ -1,27 +1,36 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Find Roommates - CampusNest{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'profiles/css/roommate_search.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'profiles/js/roommate_search.js' %}"></script>
+{% endblock %}
+
 {% block content %}
-<div class="content-card" style="max-width: 1200px; margin: 0 auto;">
-    <h1 style="color: var(--color-text-primary); margin-bottom: 2rem; font-family: 'Space Grotesk', sans-serif;">🏠 Find Your Perfect Roommate</h1>
+<div class="content-card roommate-search-container">
+    <h1 class="roommate-search-title">🏠 Find Your Perfect Roommate</h1>
 
     <!-- Filter Section -->
-    <div style="background: var(--color-surface-elevated); padding: 1.75rem; border-radius: var(--radius-lg); margin-bottom: 2rem; border: 1px solid var(--color-border-light); box-shadow: var(--shadow-md);">
-        <h2 style="color: var(--color-text-primary); font-size: 1.125rem; margin-bottom: 1.5rem; font-family: 'Space Grotesk', sans-serif;">Filter Roommates</h2>
+    <div class="filter-section">
+        <h2 class="filter-section-title">Filter Roommates</h2>
 
         <form method="get">
             <!-- Lifestyle Preferences Row -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.75rem; margin-bottom: 1.75rem;">
+            <div class="filter-grid">
                 <!-- Smoking -->
                 <div>
-                    <h3 style="color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.875rem;">🚬 Smoking</h3>
-                    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                    <h3 class="filter-group-title">🚬 Smoking</h3>
+                    <div class="filter-checkboxes">
                         {% for value, label in form.smoking_preference.field.choices %}
-                            <label style="display: flex; align-items: center; gap: 0.625rem; cursor: pointer; margin: 0;">
+                            <label class="filter-checkbox-label">
                                 <input type="checkbox" name="smoking_preference" value="{{ value }}"
-                                    {% if value in form.smoking_preference.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-                                <span style="font-size: 0.875rem; color: var(--color-text-secondary);">{{ label }}</span>
+                                    {% if value in form.smoking_preference.value %}checked{% endif %} class="filter-checkbox">
+                                <span class="filter-checkbox-text">{{ label }}</span>
                             </label>
                         {% endfor %}
                     </div>
@@ -29,13 +38,13 @@
 
                 <!-- Pets -->
                 <div>
-                    <h3 style="color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.875rem;">🐾 Pets</h3>
-                    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                    <h3 class="filter-group-title">🐾 Pets</h3>
+                    <div class="filter-checkboxes">
                         {% for value, label in form.pet_preference.field.choices %}
-                            <label style="display: flex; align-items: center; gap: 0.625rem; cursor: pointer; margin: 0;">
+                            <label class="filter-checkbox-label">
                                 <input type="checkbox" name="pet_preference" value="{{ value }}"
-                                    {% if value in form.pet_preference.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-                                <span style="font-size: 0.875rem; color: var(--color-text-secondary);">{{ label }}</span>
+                                    {% if value in form.pet_preference.value %}checked{% endif %} class="filter-checkbox">
+                                <span class="filter-checkbox-text">{{ label }}</span>
                             </label>
                         {% endfor %}
                     </div>
@@ -43,13 +52,13 @@
 
                 <!-- Cleanliness -->
                 <div>
-                    <h3 style="color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.875rem;">✨ Cleanliness</h3>
-                    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                    <h3 class="filter-group-title">✨ Cleanliness</h3>
+                    <div class="filter-checkboxes">
                         {% for value, label in form.cleanliness_preference.field.choices %}
-                            <label style="display: flex; align-items: center; gap: 0.625rem; cursor: pointer; margin: 0;">
+                            <label class="filter-checkbox-label">
                                 <input type="checkbox" name="cleanliness_preference" value="{{ value }}"
-                                    {% if value in form.cleanliness_preference.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-                                <span style="font-size: 0.875rem; color: var(--color-text-secondary);">{{ label }}</span>
+                                    {% if value in form.cleanliness_preference.value %}checked{% endif %} class="filter-checkbox">
+                                <span class="filter-checkbox-text">{{ label }}</span>
                             </label>
                         {% endfor %}
                     </div>
@@ -57,13 +66,13 @@
 
                 <!-- University -->
                 <div>
-                    <h3 style="color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.875rem;">🎓 University</h3>
-                    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                    <h3 class="filter-group-title">🎓 University</h3>
+                    <div class="filter-checkboxes">
                         {% for value, label in form.university.field.choices %}
-                            <label style="display: flex; align-items: center; gap: 0.625rem; cursor: pointer; margin: 0;">
+                            <label class="filter-checkbox-label">
                                 <input type="checkbox" name="university" value="{{ value }}"
-                                    {% if value in form.university.value %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-                                <span style="font-size: 0.875rem; color: var(--color-text-secondary);">{{ label }}</span>
+                                    {% if value in form.university.value %}checked{% endif %} class="filter-checkbox">
+                                <span class="filter-checkbox-text">{{ label }}</span>
                             </label>
                         {% endfor %}
                     </div>
@@ -71,35 +80,35 @@
             </div>
 
             <!-- Housing Preferences Row -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.75rem; margin-bottom: 1.75rem;">
+            <div class="filter-grid">
                 <!-- Min Budget -->
                 <div>
-                    <label style="display: block; color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">💰 Min Budget ($)</label>
+                    <label class="filter-input-label">💰 Min Budget ($)</label>
                     <input type="number" name="budget_min" value="{{ form.budget_min.value|default:'' }}"
-                           placeholder="Min" style="width: 100%; padding: 0.625rem; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); font-size: 0.875rem; background-color: var(--color-surface); color: var(--color-text-primary);">
+                           placeholder="Min" class="filter-input">
                 </div>
 
                 <!-- Max Budget -->
                 <div>
-                    <label style="display: block; color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">💰 Max Budget ($)</label>
+                    <label class="filter-input-label">💰 Max Budget ($)</label>
                     <input type="number" name="budget_max" value="{{ form.budget_max.value|default:'' }}"
-                           placeholder="Max" style="width: 100%; padding: 0.625rem; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); font-size: 0.875rem; background-color: var(--color-surface); color: var(--color-text-primary);">
+                           placeholder="Max" class="filter-input">
                 </div>
 
                 <!-- Location -->
                 <div>
-                    <label style="display: block; color: var(--color-text-primary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">📍 Location</label>
+                    <label class="filter-input-label">📍 Location</label>
                     <input type="text" name="location" value="{{ form.location.value|default:'' }}"
-                           placeholder="e.g., Manhattan" style="width: 100%; padding: 0.625rem; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); font-size: 0.875rem; background-color: var(--color-surface); color: var(--color-text-primary);">
+                           placeholder="e.g., Manhattan" class="filter-input">
                 </div>
             </div>
 
             <!-- Submit Button -->
-            <div style="display: flex; gap: 0.75rem;">
-                <button type="submit" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
+            <div class="filter-buttons">
+                <button type="submit" class="btn-search">
                     🔍 Search
                 </button>
-                <a href="{% url 'roommate_search' %}" style="padding: 0.75rem 1.5rem; background: var(--color-surface-elevated); color: var(--color-text-primary); text-decoration: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: inline-block; font-size: 0.875rem; border: 1px solid var(--color-border-light); transition: all 0.2s;">
+                <a href="{% url 'roommate_search' %}" class="btn-clear-filters">
                     Clear Filters
                 </a>
             </div>
@@ -109,66 +118,61 @@
     <!-- Results Section -->
     <div>
         {% if profiles %}
-            <h2 style="color: var(--color-text-primary); margin-bottom: 1.5rem; font-size: 1.25rem;">Found {{ profiles.count }} Roommate{{ profiles.count|pluralize }}</h2>
+            <h2 class="results-header">Found {{ profiles.count }} Roommate{{ profiles.count|pluralize }}</h2>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+            <div class="results-grid">
                 {% for profile in profiles %}
-                    <div style="background: var(--color-surface-elevated); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); transition: transform 0.2s, box-shadow 0.2s;">
+                    <div class="profile-card">
                         <!-- Profile Card -->
-                        <div style="padding: 1.5rem; text-align: center;">
+                        <div class="profile-card-content">
                             <!-- Profile Photo -->
-                            <div style="margin-bottom: 1rem;">
+                            <div class="profile-photo-container">
                                 {% if profile.profile_photo %}
-                                    <img src="{{ profile.profile_photo.url }}"
-                                         alt="{{ profile.user.first_name }}"
-                                         style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-primary); box-shadow: var(--shadow-md);">
+                                    <img src="{{ profile.profile_photo.url }}" alt="{{ profile.user.first_name }}" class="profile-photo">
                                 {% else %}
-                                    <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--color-surface-hover); display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: var(--color-text-muted); border: 3px solid var(--color-primary); box-shadow: var(--shadow-md);">
+                                    <div class="profile-photo-placeholder">
                                         {{ profile.user.first_name.0 }}{{ profile.user.last_name.0 }}
                                     </div>
                                 {% endif %}
                             </div>
 
                             <!-- Name & University -->
-                            <h3 style="color: var(--color-text-primary); margin: 0.625rem 0; font-size: 1.125rem; font-family: 'Space Grotesk', sans-serif;">{{ profile.user.first_name }} {{ profile.user.last_name }}</h3>
-                            <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 0.625rem;">{{ profile.get_university_display }}</p>
+                            <h3 class="profile-name">{{ profile.user.first_name }} {{ profile.user.last_name }}</h3>
+                            <p class="profile-university">{{ profile.get_university_display }}</p>
 
                             <!-- Key Preferences (Icons) -->
-                            <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                                <span title="{{ profile.get_smoking_preference_display }}" style="font-size: 20px; cursor: help;">
+                            <div class="preference-icons">
+                                <span title="{{ profile.get_smoking_preference_display }}" class="preference-icon">
                                     {{ profile.get_preference_display_with_icon.smoking|default:"🚭" }}
                                 </span>
-                                <span title="{{ profile.get_pet_preference_display }}" style="font-size: 20px; cursor: help;">
+                                <span title="{{ profile.get_pet_preference_display }}" class="preference-icon">
                                     {{ profile.get_preference_display_with_icon.pets|default:"🐾" }}
                                 </span>
-                                <span title="{{ profile.get_cleanliness_preference_display }}" style="font-size: 20px; cursor: help;">
+                                <span title="{{ profile.get_cleanliness_preference_display }}" class="preference-icon">
                                     {{ profile.get_preference_display_with_icon.cleanliness|default:"✨" }}
                                 </span>
                             </div>
 
                             <!-- Budget & Location -->
-                            <div style="background: var(--color-surface); padding: 0.75rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.8125rem; border: 1px solid var(--color-border);">
-                                <p style="margin: 0.375rem 0; color: var(--color-text-secondary);">💰 ${{ profile.budget_min }} - ${{ profile.budget_max }}/mo</p>
+                            <div class="profile-details-box">
+                                <p class="profile-detail-item">💰 ${{ profile.budget_min }} - ${{ profile.budget_max }}/mo</p>
                                 {% if profile.location %}
-                                    <p style="margin: 0.375rem 0; color: var(--color-text-secondary);">📍 {{ profile.location }}</p>
+                                    <p class="profile-detail-item">📍 {{ profile.location }}</p>
                                 {% endif %}
                             </div>
 
                             <!-- Action Buttons -->
-                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
-                                <a href="{% url 'roommate_detail' profile.user.id %}"
-                                   style="flex: 1; padding: 0.625rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);">
+                            <div class="profile-actions">
+                                <a href="{% url 'roommate_detail' profile.user.id %}" class="btn-view-profile">
                                     View Profile
                                 </a>
 
                                 {% if profile.user.id in user_favorites %}
-                                    <button class="favorite-btn favorited" data-user-id="{{ profile.user.id }}"
-                                            style="flex: 1; padding: 0.625rem; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; background: linear-gradient(135deg, var(--color-warning) 0%, #f59e0b 100%); color: var(--color-text-primary); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);">
+                                    <button class="favorite-btn favorited" data-user-id="{{ profile.user.id }}">
                                         ♥ Added to Favorites
                                     </button>
                                 {% else %}
-                                    <button class="favorite-btn" data-user-id="{{ profile.user.id }}"
-                                            style="flex: 1; padding: 0.625rem; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); cursor: pointer; font-size: 1rem; transition: all 0.2s; background: var(--color-surface); color: var(--color-danger);">
+                                    <button class="favorite-btn" data-user-id="{{ profile.user.id }}">
                                         ❤️
                                     </button>
                                 {% endif %}
@@ -176,11 +180,11 @@
 
                             <!-- Connection Request Status -->
                             {% if profile.user.id in sent_requests %}
-                                <p style="color: var(--color-success); font-size: 0.8125rem; font-weight: 600; margin: 0;">✓ Request Sent</p>
+                                <p class="connection-status">✓ Request Sent</p>
                             {% else %}
-                                <form method="post" action="{% url 'send_connection_request' profile.user.id %}" style="display: inline;">
+                                <form method="post" action="{% url 'send_connection_request' profile.user.id %}" class="connection-form">
                                     {% csrf_token %}
-                                    <button type="submit" style="width: 100%; padding: 0.625rem; background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);">
+                                    <button type="submit" class="btn-connect">
                                         Connect
                                     </button>
                                 </form>
@@ -190,10 +194,10 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div style="text-align: center; padding: 3.75rem 1.5rem; background: var(--color-surface-elevated); border-radius: var(--radius-lg); border: 1px solid var(--color-border);">
-                <p style="font-size: 1.125rem; color: var(--color-text-secondary); margin-bottom: 0.625rem;">😔 No matches found</p>
-                <p style="color: var(--color-text-muted); margin-bottom: 1.25rem;">Try adjusting your filters to find more roommates.</p>
-                <a href="{% url 'roommate_search' %}" style="display: inline-block; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
+            <div class="empty-state">
+                <p class="empty-state-title">😔 No matches found</p>
+                <p class="empty-state-text">Try adjusting your filters to find more roommates.</p>
+                <a href="{% url 'roommate_search' %}" class="btn-empty-state">
                     Clear Filters
                 </a>
             </div>
@@ -201,60 +205,9 @@
     </div>
 
     <!-- Navigation Links -->
-    <div style="margin-top: 2rem; text-align: center; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
-        <a href="{% url 'my_favorites' %}" style="margin-right: 1rem; color: var(--color-primary-light); text-decoration: none; font-weight: 600; transition: color 0.2s;">❤️ My Favorites</a>
-        <a href="{% url 'connection_requests' %}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; transition: color 0.2s;">📬 Connection Requests</a>
+    <div class="navigation-links">
+        <a href="{% url 'my_favorites' %}" class="nav-link">❤️ My Favorites</a>
+        <a href="{% url 'connection_requests' %}" class="nav-link">📬 Connection Requests</a>
     </div>
 </div>
-
-<style>
-.favorite-btn:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.1);
-}
-
-.favorite-btn.favorited {
-    background: linear-gradient(135deg, var(--color-warning) 0%, #f59e0b 100%) !important;
-    color: var(--color-text-primary) !important;
-}
-
-button:hover, a:hover {
-    transform: translateY(-2px);
-}
-</style>
-
-<script>
-document.querySelectorAll('.favorite-btn').forEach(btn => {
-    btn.addEventListener('click', async function(e) {
-        e.preventDefault();
-        const userId = this.dataset.userId;
-
-        try {
-            const response = await fetch(`/roommates/${userId}/favorite/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                if (data.favorited) {
-                    this.textContent = '♥ Added to Favorites';
-                    this.style.fontSize = '0.875rem';
-                    this.classList.add('favorited');
-                } else {
-                    this.textContent = '❤️';
-                    this.style.fontSize = '1rem';
-                    this.classList.remove('favorited');
-                }
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
-});
-</script>
 {% endblock %}

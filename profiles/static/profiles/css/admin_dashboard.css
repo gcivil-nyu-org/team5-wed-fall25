@@ -1,5 +1,97 @@
 /* Admin Dashboard Styles */
 
-table tbody tr:hover {
-        background-color: var(--color-surface-hover);
-    }
+/* ========================================
+   Dashboard Title
+   ======================================== */
+
+.admin-dashboard-title {
+    text-align: center;
+    color: var(--color-text-primary);
+}
+
+/* ========================================
+   Table Container
+   ======================================== */
+
+.admin-table-container {
+    overflow-x: auto;
+    margin-top: 2rem;
+}
+
+/* ========================================
+   Profiles Table
+   ======================================== */
+
+.admin-profiles-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-profiles-table thead tr {
+    background-color: var(--color-surface-elevated);
+    border-bottom: 2px solid var(--color-border-light);
+}
+
+.admin-table-header {
+    padding: 1rem;
+    text-align: left;
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+.admin-profiles-table tbody tr {
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color 0.2s;
+}
+
+.admin-profiles-table tbody tr:hover {
+    background-color: var(--color-surface-hover);
+}
+
+.admin-table-cell {
+    padding: 1rem;
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   Visibility Badges
+   ======================================== */
+
+.visibility-badge-public {
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+    color: var(--color-success);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.visibility-badge-private {
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.15) 0%, rgba(100, 116, 139, 0.1) 100%);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid var(--color-border-light);
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.admin-empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background-color: var(--color-surface-elevated);
+    border-radius: var(--radius-lg);
+    margin-top: 2rem;
+    border: 1px solid var(--color-border);
+}
+
+.admin-empty-text {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
