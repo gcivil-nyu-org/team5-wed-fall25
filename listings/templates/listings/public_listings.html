@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Browse Listings — CampusNest{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 12px;">Browse Listings</h2>
+
+<form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search title, address, description"
+         style="flex:2; min-width:240px; padding:10px; border:1px solid #ddd; border-radius:4px;">
+  <input type="number" name="min" value="{{ min_rent }}" placeholder="Min rent"
+         style="width:140px; padding:10px; border:1px solid #ddd; border-radius:4px;">
+  <input type="number" name="max" value="{{ max_rent }}" placeholder="Max rent"
+         style="width:140px; padding:10px; border:1px solid #ddd; border-radius:4px;">
+  <button type="submit" class="btn" style="width:auto;">Filter</button>
+  <a href="{% url 'listings:public_listings' %}" class="btn" style="width:auto; background:#6c757d;">Reset</a>
+</form>
+
+{% if page_obj.object_list %}
+<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px;">
+  {% for listing in page_obj.object_list %}
+    <div style="background:#fff; border:1px solid #eee; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.06);">
+      <div style="height:160px; background:#f2f2f2; display:flex; align-items:center; justify-content:center;">
+        {% with first=listing.images.all|first %}
+          {% if first %}
+            <img src="{{ first.image.url }}" alt="{{ listing.title }}" style="width:100%; height:160px; object-fit:cover;">
+          {% else %}
+            <div style="color:#777;">No Photo</div>
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <div style="padding:12px 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <h3 style="font-size:16px; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            {{ listing.title }}
+          </h3>
+          <div style="color:#28a745; font-weight:700;">${{ listing.rent }}</div>
+        </div>
+
+        <div style="color:#666; font-size:13px; margin-top:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          {{ listing.address }}
+        </div>
+
+        <p style="color:#555; font-size:13px; line-height:1.4; margin-top:8px; height:3.6em; overflow:hidden;">
+          {{ listing.description|truncatechars:140 }}
+        </p>
+
+        <a href="{% url 'listings:view_listing' listing.id %}" class="btn" style="width:100%;">View</a>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Pagination -->
+<div style="display:flex; justify-content:center; gap:10px; margin-top:18px; flex-wrap:wrap;">
+  {% if page_obj.has_previous %}
+    <a class="btn" style="width:auto; background:#6c757d;"
+       href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if min_rent %}&min={{ min_rent }}{% endif %}{% if max_rent %}&max={{ max_rent }}{% endif %}">
+      ‹ Prev
+    </a>
+  {% endif %}
+
+  <span style="align-self:center; color:#555;">
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  </span>
+
+  {% if page_obj.has_next %}
+    <a class="btn" style="width:auto;"
+       href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if min_rent %}&min={{ min_rent }}{% endif %}{% if max_rent %}&max={{ max_rent }}{% endif %}">
+      Next ›
+    </a>
+  {% endif %}
+</div>
+{% else %}
+  <p class="text-muted">No listings match your filters yet.</p>
+{% endif %}
+{% endblock %}

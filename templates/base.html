@@ -1,81 +1,122 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>{% block title %}CampusNest{% endblock %}</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}CampusNest{% endblock %}</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: Arial, sans-serif; background:#f5f5f5; min-height:100vh; display:flex; flex-direction:column; }
+    nav { background:#283593; padding:15px 30px; box-shadow:0 2px 5px rgba(0,0,0,.1); }
+    .nav-container { max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
+    .nav-brand { color:#fff; font-size:24px; font-weight:bold; text-decoration:none; }
+    .nav-links { display:flex; gap:20px; align-items:center; }
+    .nav-links a { color:#fff; text-decoration:none; padding:8px 16px; border-radius:4px; transition:background-color .3s; }
+    .nav-links a:hover { background:rgba(255,255,255,.1); }
+    .nav-user { color:#fff; margin-right:10px; }
+    .logout-btn { background:#dc3545; color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; text-decoration:none; display:inline-block; }
+    .logout-btn:hover { background:#c82333; }
+    /* simple dropdown */
+    .nav-dropdown { position:relative; }
+    .dropdown-toggle { color:#fff; cursor:pointer; }
+    .dropdown-menu {
+      position:absolute; top:100%; left:0; min-width:220px;
+      background:#fff; color:#333; border-radius:8px; box-shadow:0 6px 16px rgba(0,0,0,.15);
+      display:none; padding:8px; z-index:10;
+    }
+    .dropdown-menu a { color:#333; display:block; padding:8px 10px; border-radius:6px; }
+    .dropdown-menu a:hover { background:#f2f2f2; }
+    .nav-dropdown:hover .dropdown-menu { display:block; }
+    main { flex:1; padding:30px 20px; }
+    .container { max-width:800px; margin:0 auto; background:#fff; padding:30px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.1); }
+    h1, h2 { color:#333; margin-bottom:20px; }
+    .form-group { margin-bottom:15px; }
+    label { display:block; margin-bottom:5px; color:#555; font-weight:bold; }
+    input[type="text"], input[type="email"], input[type="password"], input[type="file"], select, textarea, input {
+      width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; font-size:14px;
+    }
+    button, .btn { width:100%; padding:12px; background:#007bff; color:#fff; border:none; border-radius:4px; font-size:16px; cursor:pointer; text-decoration:none; display:inline-block; text-align:center; }
+    button:hover, .btn:hover { background:#0056b3; }
+    .errorlist { list-style:none; color:red; font-size:14px; margin-bottom:10px; }
+    .messages { margin-bottom:20px; }
+    .alert { padding:10px; border-radius:4px; margin-bottom:10px; }
+    .alert-success { background:#d4edda; color:#155724; }
+    .alert-error { background:#f8d7da; color:#721c24; }
+    .text-center { text-align:center; }
+    a { color:#007bff; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    small { display:block; margin-top:5px; font-size:12px; }
+    footer { background:#283593; color:#fff; text-align:center; padding:15px; margin-top:auto; }
+  </style>
 </head>
-
 <body>
-	<!-- Navigation Bar -->
-	<nav>
-		<div class="nav-container">
-			<a href="{% url 'home' %}" class="nav-brand">
-				<span class="nav-brand-icon">🏠</span>
-				<span>CampusNest</span>
-			</a>
 
-			<button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="nav-container">
+      <!-- brand → public listings -->
+      <a href="{% url 'listings:public_listings' %}" class="nav-brand">CampusNest</a>
 
-			<div class="nav-links" id="navLinks">
-				{% if user.is_authenticated %}
-				<span class="nav-user">👋 {{ user.first_name|default:user.username }}</span>
-				<a href="{% url 'view_profile' %}">My Profile</a>
-				<a href="{% url 'my_listings' %}">My Listings</a>
-				<a href="{% url 'my_items' %}">My Items</a>
-				<div class="nav-dropdown">
-					<a href="#" class="dropdown-toggle">Find Roommates ▼</a>
-					<div class="dropdown-menu">
-						<a href="{% url 'roommate_search' %}">Search Roommates</a>
-						<a href="{% url 'my_favorites' %}">My Favorites</a>
-						<a href="{% url 'connection_requests' %}">Connection Requests</a>
-					</div>
-				</div>
-				{% if user.is_staff %}
-				<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
-				{% endif %}
-				<a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-				{% else %}
-				<a href="{% url 'login' %}">Login</a>
-				<a href="{% url 'register' %}">Register</a>
-				{% endif %}
-			</div>
-		</div>
-	</nav>
+      <div class="nav-links">
+        {% if user.is_authenticated %}
+          <span class="nav-user">Hello, {{ user.first_name|default:user.username }}!</span>
 
-	<!-- Main Content -->
-	<main>
-		<div class="container">
-			{% if messages %}
-			<div class="messages">
-				{% for message in messages %}
-				<div class="alert alert-{{ message.tags }}">
-					{{ message }}
-				</div>
-				{% endfor %}
-			</div>
-			{% endif %}
+          <!-- core nav -->
+          <a href="{% url 'listings:public_listings' %}">Listings</a>
+          <a href="{% url 'listings:my_listings' %}">My Listings</a>
+          <a href="{% url 'listings:create_listing' %}">Post a Listing</a>
 
-			{% block content %}
-			{% endblock %}
-		</div>
-	</main>
+          <!-- marketplace -->
+          <a href="{% url 'marketplace:my_items' %}">My Items</a>
 
-	<!-- Footer -->
-	<footer>
-		<div class="footer-content">
-			<p class="footer-text">&copy; 2025 CampusNest - Secure Housing for NYC Students</p>
-		</div>
-	</footer>
+          <!-- roommates (profiles app) -->
+          <div class="nav-dropdown">
+            <a href="#" class="dropdown-toggle">Find Roommates ▼</a>
+            <div class="dropdown-menu">
+              <a href="{% url 'profiles:roommate_search' %}">Search Roommates</a>
+              <a href="{% url 'profiles:my_favorites' %}">My Favorites</a>
+              <a href="{% url 'profiles:connection_requests' %}">Connection Requests</a>
+            </div>
+          </div>
 
-	<script src="{% static 'js/base.js' %}"></script>
+          <!-- messaging -->
+          <a href="{% url 'messaging:inbox' %}">Messages</a>
+
+          <!-- profile & admin -->
+          <a href="{% url 'view_profile' %}">My Profile</a>
+          {% if user.is_staff %}
+            <a href="{% url 'admin:index' %}">Admin</a>
+          {% endif %}
+
+          <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        {% else %}
+          <a href="{% url 'listings:public_listings' %}">Listings</a>
+          <a href="{% url 'login' %}">Login</a>
+          <a href="{% url 'register' %}">Register</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <div class="container">
+      {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 CampusNest - Connecting NYC Students
+  </footer>
 </body>
-
 </html>
-
