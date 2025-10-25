@@ -5,6 +5,9 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'listings/css/view_listing.css' %}">
+{% if not is_owner %}
+<link rel="stylesheet" href="{% static 'listings/css/message_modal.css' %}">
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -97,6 +100,7 @@
 
   <!-- Action Buttons -->
   <div class="action-buttons-container">
+    {% if is_owner %}
     <a href="{% url 'edit_listing' listing.id %}" class="btn-edit">
       Edit Listing
     </a>
@@ -106,6 +110,42 @@
     <a href="{% url 'my_listings' %}" class="btn-back">
       Back to My Listings
     </a>
+    {% else %}
+    <button onclick="showMessageForm()" class="btn-edit message-modal-trigger">
+      Contact Seller
+    </button>
+    <a href="{% url 'public_listings' %}" class="btn-back">
+      Back to Browse
+    </a>
+    {% endif %}
   </div>
 </div>
+
+<!-- Message Form Modal (for non-owners) -->
+{% if not is_owner %}
+<div id="messageModal" class="message-modal-overlay">
+  <div class="message-modal-container">
+    <h3 class="message-modal-heading">Send Message to {{ listing.user.first_name|default:listing.user.username }}</h3>
+    <form method="post" action="{% url 'messaging:start_thread' %}" class="message-modal-form">
+      {% csrf_token %}
+      <input type="hidden" name="listing_id" value="{{ listing.id }}">
+      <input type="hidden" name="recipient_id" value="{{ listing.user.id }}">
+      <div class="form-group">
+        <label for="message_body">Your message:</label>
+        <textarea id="message_body" name="body" rows="4" required placeholder="Hi, I'm interested in your listing..."></textarea>
+      </div>
+      <div class="message-modal-actions">
+        <button type="submit" class="btn-edit message-modal-submit">Send Message</button>
+        <button type="button" onclick="hideMessageForm()" class="btn-back message-modal-cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if not is_owner %}
+<script src="{% static 'listings/js/message_modal.js' %}"></script>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,95 @@
+/* messaging/static/messaging/css/inbox.css */
+/* Inbox page styles for messaging app */
+
+/* ===== Page Header ===== */
+.inbox-heading {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+}
+
+/* ===== Conversation List ===== */
+.inbox-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.inbox-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 8px;
+    border-bottom: 1px solid var(--border-color, #eee);
+    transition: background-color 0.2s ease;
+}
+
+.inbox-item:hover {
+    background-color: var(--hover-bg, rgba(255, 255, 255, 0.05));
+}
+
+/* ===== Conversation Details ===== */
+.inbox-item-content {
+    flex: 1;
+}
+
+.inbox-item-header {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.inbox-item-listing {
+    color: var(--text-secondary, #666);
+    font-weight: 400;
+}
+
+.inbox-item-preview {
+    font-size: 12px;
+    color: var(--text-secondary, #666);
+    margin-top: 2px;
+}
+
+/* ===== Action Area ===== */
+.inbox-item-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.inbox-unread-badge {
+    background: #0d6efd;
+    color: #fff;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.inbox-open-btn {
+    width: auto;
+    padding: 8px 12px;
+}
+
+/* ===== Empty State ===== */
+.inbox-empty {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary, #666);
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+    .inbox-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .inbox-item-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .inbox-open-btn {
+        flex: 1;
+    }
+}

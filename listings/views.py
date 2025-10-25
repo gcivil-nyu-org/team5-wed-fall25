@@ -168,8 +168,18 @@ def delete_listing(request, listing_id):
 
 @login_required
 def view_listing(request, listing_id):
-    listing = get_object_or_404(Listing, id=listing_id, user=request.user)
-    return render(request, "listings/view_listing.html", {"listing": listing})
+    """View listing details. Shows different options based on ownership."""
+    listing = get_object_or_404(Listing, id=listing_id)
+    is_owner = listing.user == request.user
+
+    # Only owners can view inactive listings
+    if not listing.is_active and not is_owner:
+        return get_object_or_404(Listing, id=listing_id, user=request.user)
+
+    return render(request, "listings/view_listing.html", {
+        "listing": listing,
+        "is_owner": is_owner
+    })
 
 
 @login_required
@@ -177,3 +187,10 @@ def my_listings(request):
     """Display all listings created by the current user"""
     listings = Listing.objects.filter(user=request.user).order_by("-created_at")
     return render(request, "listings/my_listings.html", {"listings": listings})
+
+
+@login_required
+def public_listings(request):
+    """Display all active listings from other users"""
+    listings = Listing.objects.filter(is_active=True).exclude(user=request.user).select_related('user').prefetch_related('images').order_by("-created_at")
+    return render(request, "listings/public_listings.html", {"listings": listings})

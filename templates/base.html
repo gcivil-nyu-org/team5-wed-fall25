@@ -28,8 +28,10 @@
 				{% if user.is_authenticated %}
 				<span class="nav-user">👋 {{ user.first_name|default:user.username }}</span>
 				<a href="{% url 'view_profile' %}">My Profile</a>
+				<a href="{% url 'public_listings' %}">Browse Listings</a>
 				<a href="{% url 'my_listings' %}">My Listings</a>
 				<a href="{% url 'my_items' %}">My Items</a>
+				<a href="{% url 'messaging:inbox' %}">Messages</a>
 				<div class="nav-dropdown">
 					<a href="#" class="dropdown-toggle">Find Roommates ▼</a>
 					<div class="dropdown-menu">

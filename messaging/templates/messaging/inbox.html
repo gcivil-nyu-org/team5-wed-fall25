@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'messaging/css/inbox.css' %}">
+{% endblock %}
+
+{% block content %}
+<h2 class="inbox-heading">Inbox</h2>
+
+{% if rows %}
+  <ul class="inbox-list">
+    {% for t, other, last, unread in rows %}
+      <li class="inbox-item">
+        <div class="inbox-item-content">
+          <div class="inbox-item-header">
+            {{ other.first_name|default:other.username }}
+            <span class="inbox-item-listing"> · {{ t.listing.title }}</span>
+          </div>
+          <div class="inbox-item-preview">
+            {% if last %}
+              {{ last.sender.first_name|default:last.sender.username }}: {{ last.body|truncatechars:60 }} — {{ last.created_at|date:"M d, H:i" }}
+            {% else %}
+              No messages yet.
+            {% endif %}
+          </div>
+        </div>
+        <div class="inbox-item-actions">
+          {% if unread %}
+            <span class="inbox-unread-badge">{{ unread }}</span>
+          {% endif %}
+          <a href="{% url 'messaging:thread' t.id %}" class="btn inbox-open-btn">Open</a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="inbox-empty text-muted">No conversations yet.</p>
+{% endif %}
+{% endblock %}

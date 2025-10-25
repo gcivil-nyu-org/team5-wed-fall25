@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Listings - CampusNest{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'listings/css/my_listings.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-card">
+<h2 class="listings-heading">Browse Housing Listings</h2>
+
+{% if listings %}
+<div class="listings-grid">
+	{% for listing in listings %}
+	<div class="listing-card">
+		<div class="listing-card-content">
+			{% if listing.images.first %}
+			<img src="{{ listing.images.first.image.url }}" alt="{{ listing.title }}" class="listing-image">
+			{% else %}
+			<div class="listing-no-image">
+				No Image
+			</div>
+			{% endif %}
+
+			<div class="listing-details">
+				<h3 class="listing-title">
+					<span>{{ listing.title }}</span>
+				</h3>
+				<p class="listing-info">
+					<strong>Address:</strong> {{ listing.address }}
+				</p>
+				<p class="listing-info">
+					<strong>Rent:</strong> <span class="listing-rent">${{ listing.rent }}/month</span>
+				</p>
+				<p class="listing-info">
+					<strong>Available:</strong> {{ listing.availability_start|date:"M. d, Y" }} to {{ listing.availability_end|date:"M. d, Y" }}
+				</p>
+				<p class="listing-info">
+					<strong>Posted by:</strong> {{ listing.user.first_name|default:listing.user.username }}
+				</p>
+				<p class="listing-info">
+					<strong>Posted:</strong> {{ listing.created_at|date:"F d, Y" }}
+				</p>
+				<div class="listing-actions">
+					<a href="{% url 'view_listing' listing.id %}" class="btn-listing btn-view">
+						View Details
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+	<p class="empty-state-text">
+		No listings available at the moment. Check back later!
+	</p>
+</div>
+{% endif %}
+</div>
+{% endblock %}

@@ -226,6 +226,16 @@
     transform: translateY(-1px);
 }
 
+/* Contact Seller Button - Blue styling for messaging */
+.message-modal-trigger {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+    box-shadow: 0 0 20px rgba(13, 110, 253, 0.2);
+}
+
+.message-modal-trigger:hover {
+    box-shadow: 0 0 30px rgba(13, 110, 253, 0.4);
+}
+
 /* ========================================
    Responsive Design
    ======================================== */

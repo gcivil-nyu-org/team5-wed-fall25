@@ -1041,8 +1041,18 @@ class ViewListingViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("/accounts/login/", response.url)
 
-    def test_view_listing_requires_ownership(self):
-        """Test that only owner can view listing"""
+    def test_view_listing_non_owner_can_view_active(self):
+        """Test that non-owners can view active listings"""
+        self.client.force_login(self.other_user)
+        response = self.client.get(reverse("view_listing", args=[self.listing.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["is_owner"])
+        self.assertEqual(response.context["listing"], self.listing)
+
+    def test_view_listing_non_owner_cannot_view_inactive(self):
+        """Test that non-owners cannot view inactive listings"""
+        self.listing.is_active = False
+        self.listing.save()
         self.client.force_login(self.other_user)
         response = self.client.get(reverse("view_listing", args=[self.listing.id]))
         self.assertEqual(response.status_code, 404)

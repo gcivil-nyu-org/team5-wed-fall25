@@ -1,0 +1,128 @@
+/* messaging/static/messaging/css/thread.css */
+/* Thread/conversation page styles for messaging app */
+
+/* ===== Page Header ===== */
+.thread-heading {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.thread-listing-title {
+    font-weight: 400;
+    color: var(--text-secondary, #666);
+}
+
+/* ===== Messages Container ===== */
+.thread-messages-container {
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 8px;
+    padding: 12px;
+    max-height: 50vh;
+    overflow: auto;
+    margin: 12px 0;
+    background-color: var(--bg-secondary, #f9f9f9);
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+    .thread-messages-container {
+        background-color: var(--bg-secondary, #1a1a1a);
+        border-color: var(--border-color, #333);
+    }
+}
+
+/* ===== Individual Message ===== */
+.thread-message {
+    margin-bottom: 10px;
+}
+
+.thread-message-right {
+    text-align: right;
+}
+
+.thread-message-bubble {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 12px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.thread-message-bubble-sent {
+    background: #e3f2fd;
+    color: var(--text-primary, #000);
+}
+
+.thread-message-bubble-received {
+    background: #f1f3f4;
+    color: var(--text-primary, #000);
+}
+
+/* Dark theme message bubbles */
+@media (prefers-color-scheme: dark) {
+    .thread-message-bubble-sent {
+        background: #1e3a5f;
+        color: var(--text-primary, #fff);
+    }
+
+    .thread-message-bubble-received {
+        background: #2a2a2a;
+        color: var(--text-primary, #fff);
+    }
+}
+
+.thread-message-meta {
+    font-size: 12px;
+    color: var(--text-secondary, #666);
+    margin-bottom: 4px;
+}
+
+.thread-message-body {
+    white-space: pre-wrap;
+}
+
+/* ===== Empty State ===== */
+.thread-empty {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary, #666);
+}
+
+/* ===== Message Form ===== */
+.thread-form {
+    margin-top: 1rem;
+}
+
+.thread-submit-btn {
+    margin-top: 8px;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+    .thread-messages-container {
+        max-height: 40vh;
+    }
+
+    .thread-message-bubble {
+        max-width: 85%;
+    }
+}
+
+/* ===== Scrollbar Styling ===== */
+.thread-messages-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.thread-messages-container::-webkit-scrollbar-track {
+    background: var(--bg-primary, #f1f1f1);
+    border-radius: 4px;
+}
+
+.thread-messages-container::-webkit-scrollbar-thumb {
+    background: var(--text-secondary, #888);
+    border-radius: 4px;
+}
+
+.thread-messages-container::-webkit-scrollbar-thumb:hover {
+    background: var(--text-primary, #555);
+}
