@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block title %}{{ listing.title }} - CampusNest{% endblock %}
 
 {% block content %}
@@ -7,103 +6,132 @@
   <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
     <h2 style="margin: 0;">{{ listing.title }}</h2>
     {% if listing.is_edited %}
-    <span style="background: rgba(245, 158, 11, 0.15); color: #fcd34d; padding: 0.375rem 0.875rem; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.3);">
-      EDITED
-    </span>
+      <span style="background: #ffc107; color: #856404; padding: 5px 12px; border-radius: 4px; font-size: 14px; margin-left: 10px;">
+        EDITED
+      </span>
     {% endif %}
-  </div>
+  </h2>
 
   <!-- Image Gallery -->
   <div style="margin-bottom: 2rem;">
     {% if listing.images.all %}
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-      {% for img in listing.images.all %}
-      <img src="{{ img.image.url }}"
-           alt="Photo {{ forloop.counter }}"
-           style="width: 100%; height: 280px; object-fit: cover; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); cursor: pointer; transition: all 0.2s;"
-           onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='var(--shadow-lg)'"
-           onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='var(--shadow-md)'">
-      {% endfor %}
-    </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        {% for img in listing.images.all %}
+          <img src="{{ img.image.url }}"
+               alt="Photo {{ forloop.counter }}"
+               style="width: 100%; height: 250px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        {% endfor %}
+      </div>
     {% endif %}
   </div>
 
   <!-- Listing Details -->
-  <div style="background: var(--color-surface-elevated); padding: 2rem; border-radius: var(--radius-lg); margin-bottom: 2rem; border: 1px solid var(--color-border);">
-    <h3 style="color: var(--color-primary-light); margin-bottom: 1.5rem; font-size: 1.5rem;">Details</h3>
+  <div style="background: #f9f9f9; padding: 25px; border-radius: 8px; margin-top: 20px;">
+    <div style="margin-bottom: 20px;">
+      <h3 style="color: #007bff; margin-bottom: 10px;">Details</h3>
 
-    <div style="display: grid; gap: 1.25rem;">
-      <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Address:</strong>
-        <p style="margin: 0; color: var(--color-text-secondary); font-size: 1rem;">{{ listing.address }}</p>
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #555;">Address:</strong>
+        <p style="margin: 5px 0;">{{ listing.address }}</p>
       </div>
 
-      <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Monthly Rent:</strong>
-        <p style="margin: 0; font-size: 2rem; color: var(--color-success); font-weight: 700; line-height: 1;">${{ listing.rent }}</p>
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #555;">Monthly Rent:</strong>
+        <p style="margin: 5px 0; font-size: 24px; color: #28a745; font-weight: bold;">${{ listing.rent }}</p>
       </div>
 
-      <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Description:</strong>
-        <p style="margin: 0; color: var(--color-text-secondary); line-height: 1.7; font-size: 1rem;">{{ listing.description }}</p>
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #555;">Description:</strong>
+        <p style="margin: 5px 0; line-height: 1.6;">{{ listing.description }}</p>
       </div>
 
-      <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Availability:</strong>
-        <p style="margin: 0; color: var(--color-text-secondary); font-size: 1rem;">{{ listing.availability_start|date:"F d, Y" }} to {{ listing.availability_end|date:"F d, Y" }}</p>
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #555;">Availability:</strong>
+        <p style="margin: 5px 0;">
+          {{ listing.availability_start|date:"F d, Y" }} to {{ listing.availability_end|date:"F d, Y" }}
+        </p>
       </div>
+
 
       {% if listing.get_amenities_display %}
-      <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.75rem; font-size: 0.9375rem;">Amenities:</strong>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.625rem;">
-          {% for amenity in listing.get_amenities_display %}
-          <span style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; padding: 0.5rem 1rem; border-radius: var(--radius-lg); font-size: 0.875rem; font-weight: 500; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);">
-            ✓ {{ amenity }}
-          </span>
-          {% endfor %}
+        <div style="margin-bottom: 15px;">
+          <strong style="color: #555;">Amenities:</strong>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+            {% for amenity in listing.get_amenities_display %}
+              <span style="background: #007bff; color: white; padding: 5px 12px; border-radius: 15px; font-size: 13px;">
+                ✓ {{ amenity }}
+              </span>
+            {% endfor %}
+          </div>
         </div>
-      </div>
       {% endif %}
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--color-border);">
-        <div>
-          <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Posted:</strong>
-          <p style="margin: 0; color: var(--color-text-secondary); font-size: 1rem;">{{ listing.created_at|date:"F d, Y" }}</p>
-        </div>
+      <hr>
+
+      {# --- Messaging composer / link --- #}
+      {% if not user.is_authenticated %}
+        <p>
+          <a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to message
+          {{ listing.user.first_name|default:listing.user.username }}.
+        </p>
+      {% elif user.id == listing.user_id %}
+        <p><em>This is your listing. Others can message you from here.</em></p>
+      {% else %}
+        <h3>Message {{ listing.user.first_name|default:listing.user.username }}</h3>
+
+        {% if existing_thread_id %}
+          <p style="margin-bottom:10px;">
+            You already have a conversation with this host.
+            <a class="btn" href="{% url 'messaging:thread' existing_thread_id %}">Open conversation</a>
+          </p>
+          <p style="margin:8px 0;">Or send a new message:</p>
+        {% endif %}
+
+        <form method="post" action="{% url 'messaging:start_thread' %}">
+          {% csrf_token %}
+          <input type="hidden" name="listing_id" value="{{ listing.id }}">
+          <input type="hidden" name="recipient_id" value="{{ listing.user.id }}">
+          <div class="form-group">
+            <label for="msg_body">Your message</label>
+            <textarea id="msg_body" name="body" rows="3" placeholder="Hi! I’m interested in this place…" required></textarea>
+          </div>
+          <button type="submit" class="btn">Chat with poster</button>
+        </form>
+      {% endif %}
+
+      <div style="margin-top: 20px;">
+        <strong style="color: #555;">Posted:</strong>
+        <p style="margin: 5px 0;">{{ listing.created_at|date:"F d, Y" }}</p>
         {% if listing.is_edited %}
-        <div>
-          <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Last Updated:</strong>
-          <p style="margin: 0; color: var(--color-text-secondary); font-size: 1rem;">{{ listing.updated_at|date:"F d, Y" }}</p>
-        </div>
+          <strong style="color: #555;">Last Updated:</strong>
+          <p style="margin: 5px 0;">{{ listing.updated_at|date:"F d, Y" }}</p>
         {% endif %}
       </div>
 
-      <div>
-        <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.375rem; font-size: 0.9375rem;">Status:</strong>
-        <p style="margin: 0; font-size: 1rem;">
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #555;">Status:</strong>
+        <p style="margin: 5px 0;">
           {% if listing.is_active %}
-          <span style="color: var(--color-success); font-weight: 700;">✓ Active</span>
+            <span style="color: #28a745; font-weight: bold;">✓ Active</span>
           {% else %}
-          <span style="color: var(--color-danger); font-weight: 700;">✗ Inactive</span>
+            <span style="color: #dc3545; font-weight: bold;">✗ Inactive</span>
           {% endif %}
         </p>
       </div>
     </div>
   </div>
 
-  <!-- Action Buttons -->
-  <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+  <div style="margin-top: 20px; text-align: center; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
     <a href="{% url 'edit_listing' listing.id %}"
-       style="display: inline-block; padding: 0.875rem 2rem; background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); font-size: 1rem;">
+       style="display: inline-block; padding: 12px 24px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px;">
       Edit Listing
     </a>
     <a href="{% url 'delete_listing' listing.id %}"
-       style="display: inline-block; padding: 0.875rem 2rem; background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); font-size: 1rem;">
+       style="display: inline-block; padding: 12px 24px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px;">
       Delete Listing
     </a>
     <a href="{% url 'my_listings' %}"
-       style="display: inline-block; padding: 0.875rem 2rem; background: var(--color-surface-elevated); color: var(--color-text-primary); text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; border: 1px solid var(--color-border); font-size: 1rem;">
+       style="display: inline-block; padding: 12px 24px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px;">
       Back to My Listings
     </a>
   </div>
@@ -128,30 +156,12 @@
   }
 
   @media (max-width: 768px) {
-    div[style*="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))"] {
-      grid-template-columns: 1fr !important;
+    div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    div[style*="display: flex; gap: 15px; justify-content: center"] {
+      flex-direction: column; align-items: center;
     }
-
-    div[style*="display: flex; gap: 1rem; justify-content: center"] {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    div[style*="display: flex; gap: 1rem; justify-content: center"] a {
-      width: 100%;
-      text-align: center;
-    }
-
-    div[style*="grid-template-columns: 1fr 1fr; gap: 1.25rem"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    h2 {
-      font-size: 1.75rem;
-    }
-
-    p[style*="font-size: 2rem"] {
-      font-size: 1.75rem !important;
+    div[style*="display: flex; gap: 15px; justify-content: center"] a {
+      width: 100%; max-width: 300px;
     }
   }
 </style>

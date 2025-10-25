@@ -1,81 +1,259 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>{% block title %}CampusNest{% endblock %}</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}CampusNest{% endblock %}</title>
+  <style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: Arial, sans-serif; background:#f5f5f5; min-height:100vh; display:flex; flex-direction:column; }
+
+  /* NAV */
+  nav { background:#283593; padding:14px 24px; box-shadow:0 2px 5px rgba(0,0,0,.1); }
+  .nav-container { max-width:1200px; margin:0 auto; display:flex; align-items:center; }
+  .nav-brand {
+    color:#fff; font-size:24px; font-weight:800; text-decoration:none;
+    margin-right:24px; flex-shrink:0;
+  }
+  .nav-brand:hover { text-decoration:none; }
+
+  .nav-links {
+    margin-left:auto; display:flex; align-items:center; gap:24px; flex-wrap:nowrap;
+  }
+  .nav-links a, .dropdown-toggle, .nav-user {
+    color:#fff; text-decoration:none; white-space:nowrap;
+  }
+  .nav-links a { padding:8px 12px; border-radius:6px; transition:background .2s; }
+  .nav-links a:hover { background:rgba(255,255,255,.12); text-decoration:none; }
+
+  .nav-user { opacity:.9; margin-right:6px; }
+
+  /* Button-ish logout */
+  .logout-btn {
+    background:#dc3545; color:black; border:none; padding:8px 14px;
+    border-radius:8px; cursor:pointer; text-decoration:none; display:inline-block;
+  }
+  .logout-btn:hover { background:#c82333; }
+
+  /* Dropdowns */
+  .nav-dropdown { position:relative; }
+  .dropdown-toggle { cursor:pointer; padding:8px 12px; border-radius:6px; display:flex; align-items:center; gap:6px; }
+  .dropdown-toggle:hover { background:rgba(255,255,255,.12); }
+
+  .nav-dropdown:hover .dropdown-menu { display:block; }
+  .dropdown-menu a {
+    display:block; padding:10px 12px; border-radius:8px; color:#333; text-decoration:none;
+  }
+  .dropdown-menu a:hover { background:#f3f4f6; }
+  .dropdown-divider { height:1px; background:#e5e7eb; margin:6px 0; }
+
+  .dropdown-menu {
+  position: absolute;
+  top: 100%;              /* sit flush under the toggle */
+  left: 0;
+  min-width: 220px;
+  padding: 8px;
+  background: #fff;
+  color: #333;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+  display: none;
+  z-index: 20;
+}
+
+  /* PAGE LAYOUT */
+  main { flex:1; padding:30px 20px; }
+  .container { max-width:900px; margin:0 auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.08); }
+  h1,h2 { color:#222; margin-bottom:18px; }
+
+  .form-group { margin-bottom:14px; }
+  label { display:block; margin-bottom:6px; color:#444; font-weight:700; }
+
+  /* ✅ Inputs: text-like controls only (no bare `input`) */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="file"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    width:100%;
+    padding:10px;
+    border:1px solid #cfd4da;
+    border-radius:8px;
+    font-size:14px;
+    background:#fff;
+    color:#111;
+  }
+
+  /* ✅ Buttons (don’t inherit input styles) */
+  button,
+  input[type="submit"],
+  input[type="button"],
+  .btn {
+    width:auto;               /* change to 100% if you want full-width buttons */
+    padding:12px 16px;
+    background:#007bff !important;
+    color:#fff !important; 
+    border:1px solid #0b5ed7 !important;
+    border-radius:8px;
+    font-size:16px;
+    cursor:pointer;
+    text-align:center;
+    display:inline-block;
+    font-weight:600;
+    text-decoration:none !important;
+  }
+  button:hover,
+  input[type="submit"]:hover,
+  input[type="button"]:hover,
+  .btn:hover { background:#0b5ed7 !important;
+  border-color:#0a58ca !important; }
+
+  /* Prevent checkboxes/radios from stretching */
+  input[type="checkbox"],
+  input[type="radio"] {
+    width:auto;
+    margin-right:6px;
+  }
+
+  .messages { margin-bottom:16px; }
+  .alert { padding:10px 12px; border-radius:8px; margin-bottom:10px; font-weight:600; }
+  .alert-success { background:#d4edda; color:#155724; }
+  .alert-error { background:#f8d7da; color:#721c24; }
+
+  footer { background:#283593; color:#fff; text-align:center; padding:16px; margin-top:auto; }
+</style>
+
 </head>
+<script>
+  (function () {
+    const dropdowns = document.querySelectorAll('.nav-dropdown');
+
+    dropdowns.forEach(dd => {
+      const toggle = dd.querySelector('.dropdown-toggle');
+      const menu = dd.querySelector('.dropdown-menu');
+      if (!toggle || !menu) return;
+
+      // Click toggles
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isOpen = dd.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        // When using JS open, force display
+        menu.style.display = isOpen ? 'block' : '';
+      });
+
+      // Close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!dd.contains(e.target)) {
+          dd.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+          menu.style.display = '';
+        }
+      });
+
+      // Close on Escape
+      dd.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          dd.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+          menu.style.display = '';
+          toggle.focus();
+        }
+      });
+    });
+  })();
+</script>
 
 <body>
-	<!-- Navigation Bar -->
-	<nav>
-		<div class="nav-container">
-			<a href="{% url 'home' %}" class="nav-brand">
-				<span class="nav-brand-icon">🏠</span>
-				<span>CampusNest</span>
-			</a>
 
-			<button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-container">
+      <a href="{% url 'listings:public_listings' %}" class="nav-brand">CampusNest</a>
 
-			<div class="nav-links" id="navLinks">
-				{% if user.is_authenticated %}
-				<span class="nav-user">👋 {{ user.first_name|default:user.username }}</span>
-				<a href="{% url 'view_profile' %}">My Profile</a>
-				<a href="{% url 'my_listings' %}">My Listings</a>
-				<a href="{% url 'my_items' %}">My Items</a>
-				<div class="nav-dropdown">
-					<a href="#" class="dropdown-toggle">Find Roommates ▼</a>
-					<div class="dropdown-menu">
-						<a href="{% url 'roommate_search' %}">Search Roommates</a>
-						<a href="{% url 'my_favorites' %}">My Favorites</a>
-						<a href="{% url 'connection_requests' %}">Connection Requests</a>
-					</div>
-				</div>
-				{% if user.is_staff %}
-				<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
-				{% endif %}
-				<a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-				{% else %}
-				<a href="{% url 'login' %}">Login</a>
-				<a href="{% url 'register' %}">Register</a>
-				{% endif %}
-			</div>
-		</div>
-	</nav>
+      <div class="nav-links">
+        {% if user.is_authenticated %}
+          <span class="nav-user">Hello, {{ user.first_name|default:user.username }}!</span>
 
-	<!-- Main Content -->
-	<main>
-		<div class="container">
-			{% if messages %}
-			<div class="messages">
-				{% for message in messages %}
-				<div class="alert alert-{{ message.tags }}">
-					{{ message }}
-				</div>
-				{% endfor %}
-			</div>
-			{% endif %}
+          <!-- marketplace -->
+          <a href="{% url 'marketplace:my_items' %}">My Items</a>
 
-			{% block content %}
-			{% endblock %}
-		</div>
-	</main>
 
-	<!-- Footer -->
-	<footer>
-		<div class="footer-content">
-			<p class="footer-text">&copy; 2025 CampusNest - Secure Housing for NYC Students</p>
-		</div>
-	</footer>
+           <!-- roommates dropdown -->
+          <div class="nav-dropdown">
+            <span class="dropdown-toggle">Listings ▾</span>
+            <div class="dropdown-menu">
+              <a href="{% url 'listings:public_listings' %}">Accomodations</a>
+              <a href="{% url 'listings:my_listings' %}">My Listings</a>
+              <a href="{% url 'listings:create_listing' %}">Post a Listing</a>
+            </div>
+          </div>
+         
 
-	<script src="{% static 'js/base.js' %}"></script>
+          <!-- roommates dropdown -->
+          <div class="nav-dropdown">
+            <span class="dropdown-toggle">Find Roommates ▾</span>
+            <div class="dropdown-menu">
+              <a href="{% url 'profiles:roommate_search' %}">Search Roommates</a>
+              <a href="{% url 'profiles:my_favorites' %}">My Favorites</a>
+              <a href="{% url 'profiles:connection_requests' %}">Connection Requests</a>
+            </div>
+          </div>
+
+          <!-- messaging -->
+          <a href="{% url 'messaging:inbox' %}">Messages</a>
+
+          <!-- profile dropdown -->
+          <div class="nav-dropdown">
+            <span class="dropdown-toggle">Profile ▾</span>
+            <div class="dropdown-menu" style="right:0; left:auto;">
+              <a href="{% url 'profiles:view_profile' %}">My Profile</a>
+              <div class="dropdown-divider"></div>
+              {% if user.is_staff %}
+                <a href="{% url 'admin:index' %}">Admin</a>
+                <div class="dropdown-divider"></div>
+              {% endif %}
+              <a href="{% url 'logout' %}">Logout</a>
+            </div>
+          </div>
+
+          <!-- optional: keep a prominent logout button, or remove since it's in the dropdown
+          <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        {% else %}
+          <a href="{% url 'listings:public_listings' %}">Listings</a>
+          <a href="{% url 'login' %}">Login</a>
+          <a href="{% url 'register' %}">Register</a>
+        {% endif %} -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <div class="container">
+      {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    &copy; 2025 CampusNest - Connecting NYC Students
+  </footer>
 </body>
-
 </html>
-

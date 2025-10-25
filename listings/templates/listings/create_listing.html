@@ -1,345 +1,63 @@
-{% extends 'base.html' %}
-
-{% block title %}Create Listing - CampusNest{% endblock %}
+{% extends "base.html" %}
+{% block title %}Post a Listing — CampusNest{% endblock %}
 
 {% block content %}
 <div class="content-card">
 <h2>Create Housing Listing</h2>
-<p style="margin-bottom: 1.5rem;">
-  Fill out the form below to advertise your room or sublet. Fields marked with * are required.
-</p>
 
-<form method="POST" enctype="multipart/form-data" id="listingForm">
+<form method="post" enctype="multipart/form-data" style="display:grid; gap:14px;">
   {% csrf_token %}
 
+  {# non-field errors from your view’s validation (e.g., image count/type/size) #}
   {% if form.non_field_errors %}
-  <div class="alert alert-error">
-    {% for error in form.non_field_errors %}
-    {{ error }}
-    {% endfor %}
-  </div>
+    <ul class="errorlist">{{ form.non_field_errors }}</ul>
   {% endif %}
 
-  <!-- Title -->
   <div class="form-group">
-    <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
-    {{ form.title }}
-    {% if form.title.errors %}
-    <ul class="errorlist">
-      {% for error in form.title.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+    {{ form.title.label_tag }}{{ form.title }}
+    {{ form.title.errors }}
   </div>
 
-  <!-- Description -->
   <div class="form-group">
-    <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-    {{ form.description }}
-    <small>
-      <span id="charCount">0</span>/2000 characters (minimum 20)
-    </small>
-    {% if form.description.errors %}
-    <ul class="errorlist">
-      {% for error in form.description.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+    {{ form.address.label_tag }}{{ form.address }}
+    {{ form.address.errors }}
   </div>
 
-  <!-- Address -->
   <div class="form-group">
-    <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
-    {{ form.address }}
-    {% if form.address.errors %}
-    <ul class="errorlist">
-      {% for error in form.address.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+    {{ form.rent.label_tag }}{{ form.rent }}
+    {{ form.rent.errors }}
   </div>
 
-  <!-- Rent -->
   <div class="form-group">
-    <label for="{{ form.rent.id_for_label }}">{{ form.rent.label }}</label>
-    {{ form.rent }}
-    {% if form.rent.errors %}
-    <ul class="errorlist">
-      {% for error in form.rent.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+    {{ form.description.label_tag }}{{ form.description }}
+    {{ form.description.errors }}
   </div>
 
-  <!-- Availability Dates -->
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-    <div class="form-group" style="margin-bottom: 0;">
-      <label for="{{ form.availability_start.id_for_label }}">{{ form.availability_start.label }}</label>
-      {{ form.availability_start }}
-      {% if form.availability_start.errors %}
-      <ul class="errorlist">
-        {% for error in form.availability_start.errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+  <div class="form-group">
+    {{ form.amenities.label_tag }}{{ form.amenities }}
+    {{ form.amenities.errors }}
+  </div>
+
+  <div class="form-group" style="display:grid; gap:10px;">
+    <div>
+      {{ form.availability_start.label_tag }}{{ form.availability_start }}
+      {{ form.availability_start.errors }}
     </div>
-
-    <div class="form-group" style="margin-bottom: 0;">
-      <label for="{{ form.availability_end.id_for_label }}">{{ form.availability_end.label }}</label>
-      {{ form.availability_end }}
-      {% if form.availability_end.errors %}
-      <ul class="errorlist">
-        {% for error in form.availability_end.errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+    <div>
+      {{ form.availability_end.label_tag }}{{ form.availability_end }}
+      {{ form.availability_end.errors }}
     </div>
   </div>
 
-  <!-- Amenities -->
   <div class="form-group">
-    <label>{{ form.amenities.label }}</label>
-    <div class="amenities-grid">
-      {% for checkbox in form.amenities %}
-      <label class="amenity-item">
-        {{ checkbox.tag }}
-        <span class="amenity-label">{{ checkbox.choice_label }}</span>
-      </label>
-      {% endfor %}
-    </div>
-    {% if form.amenities.errors %}
-    <ul class="errorlist">
-      {% for error in form.amenities.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+    <label for="id_images">Photos (up to 10)</label>
+    <input id="id_images" type="file" name="images" multiple accept="image/*" required>
+    <small>Max {{ 5 }}MB per image. JPG/PNG/WEBP recommended.</small>
   </div>
 
-  <!-- Custom Amenities -->
-  <div class="form-group">
-    <label for="{{ form.custom_amenities.id_for_label }}">{{ form.custom_amenities.label }}</label>
-    {{ form.custom_amenities }}
-    <small>{{ form.custom_amenities.help_text }}</small>
-    {% if form.custom_amenities.errors %}
-    <ul class="errorlist">
-      {% for error in form.custom_amenities.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <button type="submit" class="btn" style="width:auto;">Post Listing</button>
+    <a class="btn" style="width:auto; background:#6c757d;" href="{% url 'listings:my_listings' %}">Back to My Listings</a>
   </div>
-
-  <!-- Image Upload -->
-  <div class="form-group">
-    <label for="id_images">Upload Photos * (minimum 1, maximum 10)</label>
-    <input type="file" name="images" id="id_images" multiple accept="image/*" required>
-    <small>Accepted formats: JPG, PNG, WebP. Max 5MB per image.</small>
-
-    <!-- Image Preview -->
-    <div id="imagePreview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;">
-    </div>
-
-    <div id="imageCount" style="margin-top: 10px; color: var(--color-text-secondary); font-size: 14px;"></div>
-  </div>
-
-  <button type="submit" id="submitBtn">Post Listing</button>
 </form>
-
-<p class="text-center" style="margin-top: 20px;">
-  <a href="{% url 'my_listings' %}">Cancel and go back</a>
-</p>
-</div>
-
-<style>
-  /* Amenities Grid */
-  .amenities-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-    padding: 15px;
-    background: var(--color-surface-elevated);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
-  }
-
-  .amenity-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: var(--radius-sm);
-    transition: background-color 0.2s;
-  }
-
-  .amenity-item:hover {
-    background-color: var(--color-surface-hover);
-  }
-
-  .amenity-item input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    margin: 0;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
-  .amenity-label {
-    margin: 0;
-    font-weight: normal;
-    cursor: pointer;
-    user-select: none;
-    color: var(--color-text-secondary);
-  }
-
-  /* Image Preview Styles */
-  .image-preview-item {
-    position: relative;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-    background: var(--color-surface-elevated);
-  }
-
-  .image-preview-item img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    display: block;
-  }
-
-  .image-preview-item .remove-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 1;
-    padding: 0;
-    transition: all 0.2s;
-  }
-
-  .image-preview-item .remove-btn:hover {
-    background: var(--color-danger);
-    transform: scale(1.1);
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    div[style*="grid-template-columns: 1fr 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    .amenities-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
-
-<script>
-  // Character counter for description
-  const descriptionField = document.getElementById('{{ form.description.id_for_label }}');
-  const charCount = document.getElementById('charCount');
-
-  descriptionField.addEventListener('input', function() {
-    charCount.textContent = this.value.length;
-    charCount.style.color = this.value.length < 20 ? '#fca5a5' : '#6ee7b7';
-  });
-
-  // Set minimum date for date inputs (today)
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('{{ form.availability_start.id_for_label }}').setAttribute('min', today);
-  document.getElementById('{{ form.availability_end.id_for_label }}').setAttribute('min', today);
-
-  // Image preview functionality
-  const imageInput = document.getElementById('id_images');
-  const imagePreview = document.getElementById('imagePreview');
-  const imageCountDiv = document.getElementById('imageCount');
-  let selectedFiles = [];
-
-  imageInput.addEventListener('change', function(e) {
-    const files = Array.from(e.target.files);
-
-    if (files.length < 1) {
-      alert('Please select at least 1 image.');
-      return;
-    }
-    if (files.length > 10) {
-      alert('You can only upload a maximum of 10 images.');
-      e.target.value = '';
-      return;
-    }
-
-    selectedFiles = files;
-
-    imageCountDiv.textContent = `${files.length} image(s) selected`;
-    imageCountDiv.style.color = '#6ee7b7';
-
-    imagePreview.innerHTML = '';
-
-    files.forEach((file, index) => {
-      if (!file.type.startsWith('image/')) {
-        alert(`${file.name} is not a valid image file.`);
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name} exceeds 5MB size limit.`);
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const previewItem = document.createElement('div');
-        previewItem.className = 'image-preview-item';
-        previewItem.innerHTML = `
-          <img src="${e.target.result}" alt="Preview ${index + 1}">
-          <button type="button" class="remove-btn" onclick="removeImage(${index})" title="Remove image">×</button>
-        `;
-        imagePreview.appendChild(previewItem);
-      };
-      reader.readAsDataURL(file);
-    });
-  });
-
-  function removeImage(index) {
-    selectedFiles.splice(index, 1);
-    const dataTransfer = new DataTransfer();
-    selectedFiles.forEach(file => dataTransfer.items.add(file));
-    imageInput.files = dataTransfer.files;
-    imageInput.dispatchEvent(new Event('change'));
-  }
-
-  document.getElementById('listingForm').addEventListener('submit', function(e) {
-    const files = imageInput.files;
-
-    if (files.length < 1) {
-      e.preventDefault();
-      alert('Please upload at least 1 image.');
-      return false;
-    }
-
-    if (files.length > 10) {
-      e.preventDefault();
-      alert('You can only upload a maximum of 10 images.');
-      return false;
-    }
-
-    document.getElementById('submitBtn').disabled = true;
-    document.getElementById('submitBtn').textContent = 'Posting...';
-  });
-</script>
 {% endblock %}
