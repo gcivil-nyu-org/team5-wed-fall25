@@ -6,6 +6,12 @@ from .forms import ListingForm
 from .models import Listing, ListingImage
 
 
+@login_required
+def listings_home(request):
+    """Redirect /listings/ to /listings/my-listings/"""
+    return redirect("my_listings")
+
+
 def validate_image_files(files, form):
     """Validate uploaded image files. Returns True if validation fails."""
     if len(files) > 10:
