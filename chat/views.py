@@ -1,4 +1,4 @@
-# messaging/views.py
+# chat/views.py
 from django.contrib import messages as dj_messages
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -39,7 +39,7 @@ def inbox(request):
 
     return render(
         request,
-        "messaging/inbox.html",
+        "chat/inbox.html",
         {"rows": rows},  # (thread, other_user, last_msg, unread_count)
     )
 
@@ -64,15 +64,15 @@ def thread_view(request, thread_id):
         body = (request.POST.get("body") or "").strip()
         if not body:
             messages.error(request, "Message cannot be empty.")
-            return redirect("messaging:thread", thread_id=t.id)
+            return redirect("chat:thread", thread_id=t.id)
 
         Message.objects.create(thread=t, sender=request.user, body=body)
         messages.success(request, "Message sent.")
-        return redirect("messaging:thread", thread_id=t.id)
+        return redirect("chat:thread", thread_id=t.id)
 
     return render(
         request,
-        "messaging/thread.html",
+        "chat/thread.html",
         {
             "thread": t,
             "chat_messages": msgs,
@@ -90,7 +90,7 @@ def start_thread(request):
     # Don't reference listing_id unless we actually have a POST payload
     if request.method != "POST":
         # Nothing to do – go back to inbox (avoids undefined listing_id).
-        return redirect("messaging:inbox")
+        return redirect("chat:inbox")
 
     body = (request.POST.get("body") or "").strip()
     listing_id = request.POST.get("listing_id")
@@ -128,7 +128,7 @@ def start_thread(request):
 
     Message.objects.create(thread=thread, sender=request.user, body=body)
     messages.success(request, "Message sent.")
-    return redirect("messaging:thread", thread_id=thread.id)
+    return redirect("chat:thread", thread_id=thread.id)
 
 
 @login_required
@@ -146,8 +146,8 @@ def send_message(request, thread_id):
     body = (request.POST.get("body") or "").strip()
     if not body:
         dj_messages.error(request, "Message cannot be empty.")
-        return redirect("messaging:thread", thread_id=thread_id)
+        return redirect("chat:thread", thread_id=thread_id)
 
     Message.objects.create(thread=t, sender=request.user, body=body)
     dj_messages.success(request, "Message sent.")
-    return redirect("messaging:thread", thread_id=thread_id)
+    return redirect("chat:thread", thread_id=thread_id)

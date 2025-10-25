@@ -1,4 +1,4 @@
-# messaging/models.py
+# chat/models.py
 from django.conf import settings
 from django.db import models
 from django.db.models import F, Q
@@ -20,6 +20,7 @@ class Thread(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        db_table = "messaging_thread"
         constraints = [
             models.UniqueConstraint(
                 fields=["listing", "user_a", "user_b"],
@@ -60,6 +61,7 @@ class Message(models.Model):
     read_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
+        db_table = "messaging_message"
         ordering = ["created_at"]
         indexes = [
             models.Index(fields=["thread", "created_at"]),
