@@ -114,7 +114,7 @@ def create_listing(request):
             request,
             "Only verified .edu email addresses can post listings.",
         )
-        return redirect("view_profile")
+        return redirect("profiles:view_profile")
 
     if request.method == "POST":
         form = ListingForm(request.POST)
@@ -186,7 +186,7 @@ def edit_listing(request, listing_id: int):  # noqa: C901
         files = request.FILES.getlist("images")
         keep_existing = request.POST.get("keep_existing_images") == "on"
 
-<<<<<<< HEAD
+        # Validate images
         has_image_error = False
         if files:
             if len(files) > MAX_IMAGES:
@@ -211,13 +211,8 @@ def edit_listing(request, listing_id: int):  # noqa: C901
                 None, "Please upload at least one image or keep existing images."
             )
             has_image_error = True
-=======
-        error = _validate_images_for_edit(files, keep_existing, listing)
-        if error:
-            form.add_error(None, error)
->>>>>>> 4b4ae5f (resolved flake8 issue)
 
-        if form.is_valid() and not error:
+        if form.is_valid() and not has_image_error:
             with transaction.atomic():
                 obj = form.save(commit=False)
                 obj.is_edited = True
@@ -233,22 +228,13 @@ def edit_listing(request, listing_id: int):  # noqa: C901
             return redirect("listings:view_listing", listing_id=listing.id)
     else:
         form = ListingForm(instance=listing)
-        if getattr(listing, "amenities", ""):
-            form.initial["amenities"] = listing.amenities.split(",")
 
-<<<<<<< HEAD
-    # Pre-populate amenities on initial GET (or keep it if you want only on GET)
+    # Pre-populate amenities on initial GET
     if request.method != "POST" and getattr(listing, "amenities", ""):
         form.initial["amenities"] = listing.amenities.split(",")
 
     return render(
         request, "listings/edit_listing.html", {"form": form, "listing": listing}
-=======
-    return render(
-        request,
-        "listings/edit_listing.html",
-        {"form": form, "listing": listing},
->>>>>>> 4b4ae5f (resolved flake8 issue)
     )
 
 
