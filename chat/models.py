@@ -24,16 +24,16 @@ class Thread(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["listing", "user_a", "user_b"],
-                name="unique_thread_per_listing_pair",
+                name="chat_unique_thread_per_listing_pair",
             ),
             models.CheckConstraint(
-                check=~Q(user_a=F("user_b")), name="prevent_self_thread"
+                check=~Q(user_a=F("user_b")), name="chat_prevent_self_thread"
             ),
         ]
         indexes = [
-            models.Index(fields=["listing", "user_a"]),
-            models.Index(fields=["listing", "user_b"]),
-            models.Index(fields=["updated_at"]),
+            models.Index(fields=["listing", "user_a"], name="chat_t_listing_aa1807_idx"),
+            models.Index(fields=["listing", "user_b"], name="chat_t_listing_0e0d67_idx"),
+            models.Index(fields=["updated_at"], name="chat_t_updated_fc6b0c_idx"),
         ]
 
     def save(self, *args, **kwargs):
@@ -64,8 +64,8 @@ class Message(models.Model):
         db_table = "messaging_message"
         ordering = ["created_at"]
         indexes = [
-            models.Index(fields=["thread", "created_at"]),
-            models.Index(fields=["thread", "is_read"]),
+            models.Index(fields=["thread", "created_at"], name="chat_m_thread__1731c3_idx"),
+            models.Index(fields=["thread", "is_read"], name="chat_m_thread__01ce92_idx"),
         ]
 
     def mark_read(self):
