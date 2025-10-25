@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="messages",
-                        to="messaging.thread",
+                        to="chat.thread",
                     ),
                 ),
             ],

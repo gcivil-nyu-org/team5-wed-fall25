@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("listings", "0004_listing_is_edited_listing_updated_at"),
-        ("messaging", "0001_initial"),
+        ("chat", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

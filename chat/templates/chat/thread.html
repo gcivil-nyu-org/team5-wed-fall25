@@ -1,9 +1,9 @@
-{# messaging/templates/messaging/thread.html #}
+{# chat/templates/chat/thread.html #}
 {% extends 'base.html' %}
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'messaging/css/thread.css' %}">
+<link rel="stylesheet" href="{% static 'chat/css/thread.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -29,7 +29,7 @@
   {% endif %}
 </div>
 
-<form method="post" action="{% url 'messaging:thread' thread.id %}" class="thread-form">
+<form method="post" action="{% url 'chat:thread' thread.id %}" class="thread-form">
   {% csrf_token %}
   <div class="form-group">
     <label for="body">Your message</label>

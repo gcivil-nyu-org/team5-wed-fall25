@@ -126,7 +126,7 @@
 <div id="messageModal" class="message-modal-overlay">
   <div class="message-modal-container">
     <h3 class="message-modal-heading">Send Message to {{ listing.user.first_name|default:listing.user.username }}</h3>
-    <form method="post" action="{% url 'messaging:start_thread' %}" class="message-modal-form">
+    <form method="post" action="{% url 'chat:start_thread' %}" class="message-modal-form">
       {% csrf_token %}
       <input type="hidden" name="listing_id" value="{{ listing.id }}">
       <input type="hidden" name="recipient_id" value="{{ listing.user.id }}">

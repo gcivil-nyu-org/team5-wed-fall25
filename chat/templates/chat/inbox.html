@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'messaging/css/inbox.css' %}">
+<link rel="stylesheet" href="{% static 'chat/css/inbox.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -29,7 +29,7 @@
           {% if unread %}
             <span class="inbox-unread-badge">{{ unread }}</span>
           {% endif %}
-          <a href="{% url 'messaging:thread' t.id %}" class="btn inbox-open-btn">Open</a>
+          <a href="{% url 'chat:thread' t.id %}" class="btn inbox-open-btn">Open</a>
         </div>
       </li>
     {% endfor %}

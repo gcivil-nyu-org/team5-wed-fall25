@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     #    'storages',
     "listings",
     "marketplace",
-    "messaging",
+    "chat",
 ]
 
 MIDDLEWARE = [

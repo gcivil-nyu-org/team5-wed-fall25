@@ -9,7 +9,7 @@ urlpatterns = [
     path("accounts/", include("accounts.urls")),
     path("listings/", include("listings.urls")),
     path("marketplace/", include("marketplace.urls")),
-    path("messages/", include("messaging.urls")),
+    path("messages/", include("chat.urls")),
 ]
 
 if settings.DEBUG:

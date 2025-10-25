@@ -1,8 +1,8 @@
-# messaging/urls.py
+# chat/urls.py
 from django.urls import path
 from . import views
 
-app_name = "messaging"
+app_name = "chat"
 
 urlpatterns = [
     path("inbox/", views.inbox, name="inbox"),
