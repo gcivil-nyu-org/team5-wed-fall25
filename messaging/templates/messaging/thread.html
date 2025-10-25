@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>
-  Chat with {{ other.username }}
+  Chat with {{ other.first_name|default:other.username }}
   <small style="font-weight:400; color:#666;"> · {{ thread.listing.title }}</small>
 </h2>
 
 <div style="border:1px solid #ddd; border-radius:8px; padding:12px; max-height:50vh; overflow:auto; margin:12px 0;">
-  {% if messages %}
-    {% for m in messages %}
+  {% if chat_messages %}
+    {% for m in chat_messages %}
       <div style="margin-bottom:10px; {% if m.sender_id == request.user.id %}text-align:right;{% endif %}">
         <div style="display:inline-block; padding:8px 12px; border-radius:12px; {% if m.sender_id == request.user.id %}background:#e3f2fd;{% else %}background:#f1f3f4;{% endif %}">
           <div style="font-size:12px; color:#666; margin-bottom:4px;">
-            {{ m.sender.username }} · {{ m.created_at|date:"M d, H:i" }}
+            {{ m.sender.first_name|default:m.sender.username }} · {{ m.created_at|date:"M d, H:i" }}
           </div>
-          <div>{{ m.body|linebreaksbr }}</div>
+          <div style="white-space:pre-wrap">{{ m.body }}</div>
         </div>
       </div>
     {% endfor %}

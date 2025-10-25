@@ -6,12 +6,7 @@
 <div class="content-card">
 <h2>My Marketplace Items</h2>
 
-<div style="margin-bottom: 20px;">
-    <a href="{% url 'create_item' %}" class="btn"
-        style="width: auto; display: inline-block; padding: 10px 20px;">
-        + Post New Item
-    </a>
-</div>
+
 
 {% if items %}
 <div style="display: grid; gap: 20px;">
@@ -90,7 +85,8 @@
         You haven't posted any items yet.
     </p>
     <a href="{% url 'create_item' %}"
-        style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);">
+        class ="btn  Post Your First Item"
+        style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);">
         Post Your First Item
     </a>
 </div>

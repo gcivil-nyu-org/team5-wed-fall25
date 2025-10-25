@@ -8,12 +8,12 @@
       <li style="display:flex; justify-content:space-between; align-items:center; padding:12px 8px; border-bottom:1px solid #eee;">
         <div>
           <div style="font-weight:600;">
-            {{ other.username }}
+            {{ other.first_name|default:other.username }}
             <span style="color:#666; font-weight:400;"> · {{ t.listing.title }}</span>
           </div>
           <div style="font-size:12px; color:#666; margin-top:2px;">
             {% if last %}
-              {{ last.sender.username }}: {{ last.body|truncatechars:60 }} — {{ last.created_at|date:"M d, H:i" }}
+              {{ last.sender.first_name|default:last.sender.username }}: {{ last.body|truncatechars:60 }} — {{ last.created_at|date:"M d, H:i" }}
             {% else %}
               No messages yet.
             {% endif %}
