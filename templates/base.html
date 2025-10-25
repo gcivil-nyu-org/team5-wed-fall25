@@ -1,7 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +11,45 @@
 	<link rel="stylesheet" href="{% static 'css/base.css' %}">
 	{% block extra_css %}{% endblock %}
 </head>
+<script>
+  (function () {
+    const dropdowns = document.querySelectorAll('.nav-dropdown');
+
+    dropdowns.forEach(dd => {
+      const toggle = dd.querySelector('.dropdown-toggle');
+      const menu = dd.querySelector('.dropdown-menu');
+      if (!toggle || !menu) return;
+
+      // Click toggles
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isOpen = dd.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        // When using JS open, force display
+        menu.style.display = isOpen ? 'block' : '';
+      });
+
+      // Close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!dd.contains(e.target)) {
+          dd.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+          menu.style.display = '';
+        }
+      });
+
+      // Close on Escape
+      dd.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          dd.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+          menu.style.display = '';
+          toggle.focus();
+        }
+      });
+    });
+  })();
+</script>
 
 <body>
 	<!-- Navigation Bar -->
@@ -81,5 +119,86 @@
 	{% block extra_js %}{% endblock %}
 </body>
 
-</html>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-container">
+      <a href="{% url 'listings:public_listings' %}" class="nav-brand">CampusNest</a>
 
+      <div class="nav-links">
+        {% if user.is_authenticated %}
+          <span class="nav-user">Hello, {{ user.first_name|default:user.username }}!</span>
+
+          <!-- marketplace -->
+          <a href="{% url 'marketplace:my_items' %}">My Items</a>
+
+
+           <!-- roommates dropdown -->
+          <div class="nav-dropdown">
+            <span class="dropdown-toggle">Listings ▾</span>
+            <div class="dropdown-menu">
+              <a href="{% url 'listings:public_listings' %}">Accomodations</a>
+              <a href="{% url 'listings:my_listings' %}">My Listings</a>
+              <a href="{% url 'listings:create_listing' %}">Post a Listing</a>
+            </div>
+          </div>
+         
+
+          <!-- roommates dropdown -->
+          <div class="nav-dropdown">
+            <span class="dropdown-toggle">Find Roommates ▾</span>
+            <div class="dropdown-menu">
+              <a href="{% url 'profiles:roommate_search' %}">Search Roommates</a>
+              <a href="{% url 'profiles:my_favorites' %}">My Favorites</a>
+              <a href="{% url 'profiles:connection_requests' %}">Connection Requests</a>
+            </div>
+          </div>
+
+          <!-- messaging -->
+          <a href="{% url 'messaging:inbox' %}">Messages</a>
+
+          <!-- profile dropdown -->
+          <div class="nav-dropdown">
+            <span class="dropdown-toggle">Profile ▾</span>
+            <div class="dropdown-menu" style="right:0; left:auto;">
+              <a href="{% url 'profiles:view_profile' %}">My Profile</a>
+              <div class="dropdown-divider"></div>
+              {% if user.is_staff %}
+                <a href="{% url 'admin:index' %}">Admin</a>
+                <div class="dropdown-divider"></div>
+              {% endif %}
+              <a href="{% url 'logout' %}">Logout</a>
+            </div>
+          </div>
+
+          <!-- optional: keep a prominent logout button, or remove since it's in the dropdown
+          <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        {% else %}
+          <a href="{% url 'listings:public_listings' %}">Listings</a>
+          <a href="{% url 'login' %}">Login</a>
+          <a href="{% url 'register' %}">Register</a>
+        {% endif %} -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <div class="container">
+      {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    &copy; 2025 CampusNest - Connecting NYC Students
+  </footer>
+</body>
+</html>

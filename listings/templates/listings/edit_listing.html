@@ -164,11 +164,8 @@
 	</div>
 	{% endif %}
 
-	<!-- Image Upload -->
-	<div class="form-group">
-		<label for="id_images">Upload New Photos (optional, maximum 10)</label>
-		<input type="file" name="images" id="id_images" multiple accept="image/*">
-		<small>Leave empty to keep current images. Accepted formats: JPG, PNG, WebP. Max 5MB per image.</small>
+  <!-- your existing form fields exactly as you had them -->
+  {{ form.as_p }}
 
 		<!-- Image Preview -->
 		<div id="imagePreview" class="image-preview-grid">
@@ -185,3 +182,4 @@
 </p>
 </div>
 {% endblock %}
+

@@ -2,10 +2,11 @@ from django.urls import path
 from django.shortcuts import redirect
 from . import views
 
+app_name = "marketplace"
+
 
 def marketplace_home(request):
-    """Redirect /marketplace/ to /marketplace/my-items/"""
-    return redirect("my_items")
+    return redirect("marketplace:my_items")
 
 
 urlpatterns = [

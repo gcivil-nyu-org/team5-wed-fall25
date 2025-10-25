@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "profiles",
     #    'storages',
     "listings",
+    "messaging",
     "marketplace",
     "chat",
 ]

@@ -19,7 +19,7 @@
       EDITED
     </span>
     {% endif %}
-  </div>
+  </h2>
 
   <!-- Image Gallery -->
   <div class="image-gallery">
@@ -59,6 +59,7 @@
         <p class="detail-field-value">{{ listing.availability_start|date:"F d, Y" }} to {{ listing.availability_end|date:"F d, Y" }}</p>
       </div>
 
+
       {% if listing.get_amenities_display %}
       <div>
         <strong class="detail-field-label" style="margin-bottom: 0.75rem;">Amenities:</strong>
@@ -69,7 +70,6 @@
           </span>
           {% endfor %}
         </div>
-      </div>
       {% endif %}
 
       <div class="metadata-grid">
