@@ -176,10 +176,11 @@ def view_listing(request, listing_id):
     if not listing.is_active and not is_owner:
         return get_object_or_404(Listing, id=listing_id, user=request.user)
 
-    return render(request, "listings/view_listing.html", {
-        "listing": listing,
-        "is_owner": is_owner
-    })
+    return render(
+        request,
+        "listings/view_listing.html",
+        {"listing": listing, "is_owner": is_owner},
+    )
 
 
 @login_required
@@ -192,5 +193,11 @@ def my_listings(request):
 @login_required
 def public_listings(request):
     """Display all active listings from other users"""
-    listings = Listing.objects.filter(is_active=True).exclude(user=request.user).select_related('user').prefetch_related('images').order_by("-created_at")
+    listings = (
+        Listing.objects.filter(is_active=True)
+        .exclude(user=request.user)
+        .select_related("user")
+        .prefetch_related("images")
+        .order_by("-created_at")
+    )
     return render(request, "listings/public_listings.html", {"listings": listings})
