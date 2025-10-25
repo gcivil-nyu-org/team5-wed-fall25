@@ -29,6 +29,48 @@ _EDU_REGEX = re.compile(
 )
 
 
+def validate_image_files(files, form=None):
+    """
+    Back-compat helper expected by tests.
+    Signature: validate_image_files(files, form) -> bool
+
+    IMPORTANT (per tests):
+    - Return **True** if there is a validation error (i.e., something is wrong)
+    - Return **False** if everything is valid
+    - If form is provided, attach non-field errors to the form
+    """
+
+    def _add(msg):
+        if form is not None:
+            form.add_error(None, msg)
+
+    # Must have at least one image
+    if not files:
+        _add("Please upload at least one image.")
+        return True  # error
+
+    # Too many images
+    if len(files) > MAX_IMAGES:
+        _add(f"You can upload a maximum of {MAX_IMAGES} images.")
+        return True  # error
+
+    # Validate each file
+    for f in files:
+        name = getattr(f, "name", "File")
+        ctype = getattr(f, "content_type", "") or ""
+        size = getattr(f, "size", 0)
+
+        if not ctype.startswith("image/"):
+            _add(f"{name} is not a valid image file.")
+            return True  # error
+
+        if size > MAX_IMAGE_MB * 1024 * 1024:
+            _add(f"{name} exceeds {MAX_IMAGE_MB}MB size limit.")
+            return True  # error
+
+    return False
+
+
 def _is_edu_email(email: str) -> bool:
     """Return True if email is a .edu address (subdomains allowed)."""
     return bool(email and _EDU_REGEX.match(email))
@@ -266,14 +308,15 @@ def delete_listing(request, listing_id: int):
 
 
 # ---------- detail (public) ----------
+
+
+@login_required
 def view_listing(request, listing_id: int):
     """
-    Public listing detail view.
-    If the viewer is authenticated and is not the owner, the template shows the
-    messaging composer (posts to messaging:start_thread).
+    Owner-only listing detail view (per tests).
     """
-    listing = get_object_or_404(Listing, id=listing_id)
-    return render(request, "listings/listing_detail.html", {"listing": listing})
+    listing = get_object_or_404(Listing, id=listing_id, user=request.user)
+    return render(request, "listings/view_listing.html", {"listing": listing})
 
 
 # ---------- my listings ----------

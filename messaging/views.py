@@ -7,7 +7,6 @@ from django.db.models import Q
 from django.http import HttpResponseForbidden, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-
 from listings.models import Listing
 from .models import Message, Thread
 
@@ -81,7 +80,7 @@ def thread_view(request, thread_id):
         },
     )
 
-    
+
 @login_required
 def start_thread(request):
     """

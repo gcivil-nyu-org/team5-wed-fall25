@@ -6,7 +6,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    # Home → public listings
+    # Home → public listings (namespaced)
     path(
         "",
         RedirectView.as_view(pattern_name="listings:public_listings", permanent=False),
@@ -24,7 +24,43 @@ urlpatterns = [
 
 # ---------- Back-compat alias names (old, non-namespaced template links) ----------
 urlpatterns += [
-    # Marketplace aliases (names without namespace)
+    # --- Listings aliases (GLOBAL names used by tests) ---
+    path(
+        "listings/",
+        RedirectView.as_view(pattern_name="listings:public_listings", permanent=False),
+        name="public_listings",
+    ),
+    path(
+        "listings/create/",
+        RedirectView.as_view(pattern_name="listings:create_listing", permanent=False),
+        name="create_listing",
+    ),
+    path(
+        "listings/my/",
+        RedirectView.as_view(pattern_name="listings:my_listings", permanent=False),
+        name="my_listings",
+    ),
+    path(
+        "listings/<int:listing_id>/",
+        RedirectView.as_view(pattern_name="listings:view_listing", permanent=False),
+        name="view_listing",
+    ),
+    path(
+        "listings/<int:listing_id>/edit/",
+        RedirectView.as_view(pattern_name="listings:edit_listing", permanent=False),
+        name="edit_listing",
+    ),
+    path(
+        "listings/<int:listing_id>/delete/",
+        RedirectView.as_view(pattern_name="listings:delete_listing", permanent=False),
+        name="delete_listing",
+    ),
+    # --- Marketplace aliases (keep yours + add marketplace_home) ---
+    path(
+        "marketplace/home/",
+        RedirectView.as_view(pattern_name="marketplace:my_items", permanent=False),
+        name="marketplace_home",
+    ),
     path(
         "marketplace/my-items/",
         RedirectView.as_view(pattern_name="marketplace:my_items", permanent=False),
@@ -55,7 +91,7 @@ urlpatterns += [
         RedirectView.as_view(pattern_name="marketplace:mark_as_sold", permanent=False),
         name="mark_as_sold",
     ),
-    # Profile pages
+    # --- Profile pages (as you had) ---
     path(
         "profiles/view/",
         RedirectView.as_view(pattern_name="profiles:view_profile", permanent=False),
@@ -76,7 +112,7 @@ urlpatterns += [
         RedirectView.as_view(pattern_name="profiles:admin_dashboard", permanent=False),
         name="admin_dashboard",
     ),
-    # Roommates feature
+    # --- Roommates feature (as you had) ---
     path(
         "profiles/roommates/search/",
         RedirectView.as_view(pattern_name="profiles:roommate_search", permanent=False),
