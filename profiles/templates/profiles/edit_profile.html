@@ -12,214 +12,278 @@
 {% endblock %}
 
 {% block content %}
-<div class="content-card edit-profile-container">
-    <h2 class="edit-profile-title">Edit Your Profile</h2>
-    <p class="edit-profile-subtitle">Update your information</p>
+<div class="edit-profile-wrapper">
+    <!-- Header Section -->
+    <div class="edit-profile-header">
+        <div class="header-content">
+            <div>
+                <h1 class="page-title">Edit Your Profile</h1>
+                <p class="page-subtitle">Update your information and preferences</p>
+            </div>
+            <a href="{% url 'view_profile' %}" class="view-profile-link">
+                <svg class="link-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"/>
+                </svg>
+                View Profile
+            </a>
+        </div>
+    </div>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" class="edit-profile-form">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
-        <ul class="errorlist">
-            {% for error in form.non_field_errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-        </ul>
+        <div class="form-errors">
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
         {% endif %}
 
-        <!-- Basic Information Section -->
-        <div class="form-group">
-            <label for="{{ form.bio.id_for_label }}">Bio</label>
-            {{ form.bio }}
-            {% if form.bio.errors %}
-            <ul class="errorlist">
-                {% for error in form.bio.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            <small class="form-field-help">Tell us about yourself (10-500 characters)</small>
-        </div>
+        <div class="form-grid">
+            <!-- Left Column - Main Information -->
+            <div class="form-left-column">
+                <!-- Basic Information -->
+                <div class="form-card">
+                    <h2 class="card-title">
+                        <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"/>
+                        </svg>
+                        Basic Information
+                    </h2>
 
-        <div class="form-group">
-            <label for="{{ form.university.id_for_label }}">University</label>
-            {{ form.university }}
-            {% if form.university.errors %}
-            <ul class="errorlist">
-                {% for error in form.university.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            <label for="{{ form.profile_photo.id_for_label }}">Profile Photo</label>
-            {% if form.instance.profile_photo %}
-            <div class="current-photo-container">
-                <img src="{{ form.instance.profile_photo.url }}" class="current-photo">
-                <p class="current-photo-label">Current photo</p>
-            </div>
-            {% endif %}
-            {{ form.profile_photo }}
-            {% if form.profile_photo.errors %}
-            <ul class="errorlist">
-                {% for error in form.profile_photo.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            <small class="form-field-help">JPG, PNG, or WebP (max 5MB)</small>
-            <div class="photo-preview-container">
-                <img id="photoPreview" class="photo-preview" />
-            </div>
-        </div>
-
-
-        <!-- Lifestyle Preferences Section -->
-        <div class="profile-section-card">
-            <h3 class="profile-section-title">🏠 Lifestyle Preferences</h3>
-            <p class="profile-section-description">Update your preferences to find better roommate matches</p>
-
-            <div class="form-group">
-                <label for="{{ form.eating_habit.id_for_label }}">{{ form.eating_habit.label }}</label>
-                {{ form.eating_habit }}
-                {% if form.eating_habit.help_text %}
-                    <small class="form-field-help">{{ form.eating_habit.help_text }}</small>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.smoking_preference.id_for_label }}">{{ form.smoking_preference.label }}</label>
-                {{ form.smoking_preference }}
-                {% if form.smoking_preference.help_text %}
-                    <small class="form-field-help">{{ form.smoking_preference.help_text }}</small>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.sharing_preference.id_for_label }}">{{ form.sharing_preference.label }}</label>
-                {{ form.sharing_preference }}
-                {% if form.sharing_preference.help_text %}
-                    <small class="form-field-help">{{ form.sharing_preference.help_text }}</small>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.drinking_preference.id_for_label }}">{{ form.drinking_preference.label }}</label>
-                {{ form.drinking_preference }}
-                {% if form.drinking_preference.help_text %}
-                    <small class="form-field-help">{{ form.drinking_preference.help_text }}</small>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.pet_preference.id_for_label }}">{{ form.pet_preference.label }}</label>
-                {{ form.pet_preference }}
-                {% if form.pet_preference.help_text %}
-                    <small class="form-field-help">{{ form.pet_preference.help_text }}</small>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.cleanliness_preference.id_for_label }}">{{ form.cleanliness_preference.label }}</label>
-                {{ form.cleanliness_preference }}
-                {% if form.cleanliness_preference.help_text %}
-                    <small class="form-field-help">{{ form.cleanliness_preference.help_text }}</small>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Housing Preferences Section -->
-        <div class="profile-section-card">
-            <h3 class="profile-section-title">🏘️ Housing Preferences</h3>
-            <p class="profile-section-description">Update your housing needs</p>
-
-            <div class="form-group">
-                <label for="{{ form.budget_min.id_for_label }}">{{ form.budget_min.label }}</label>
-                {{ form.budget_min }}
-                {% if form.budget_min.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.budget_min.errors %}
+                    <div class="form-group">
+                        <label for="{{ form.bio.id_for_label }}">Bio</label>
+                        {{ form.bio }}
+                        {% if form.bio.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.bio.errors %}
                             <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% if form.budget_min.help_text %}
-                    <small class="form-field-help">{{ form.budget_min.help_text }}</small>
-                {% endif %}
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        <small class="form-field-help">Tell us about yourself (10-500 characters)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.university.id_for_label }}">University</label>
+                        {{ form.university }}
+                        {% if form.university.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.university.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Lifestyle Preferences -->
+                <div class="form-card">
+                    <h2 class="card-title">
+                        <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"/>
+                        </svg>
+                        Lifestyle Preferences
+                    </h2>
+                    <p class="card-description">Help us find better roommate matches for you</p>
+
+                    <div class="preferences-grid-form">
+                        <div class="form-group">
+                            <label for="{{ form.eating_habit.id_for_label }}">{{ form.eating_habit.label }}</label>
+                            {{ form.eating_habit }}
+                            {% if form.eating_habit.help_text %}
+                                <small class="form-field-help">{{ form.eating_habit.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.smoking_preference.id_for_label }}">{{ form.smoking_preference.label }}</label>
+                            {{ form.smoking_preference }}
+                            {% if form.smoking_preference.help_text %}
+                                <small class="form-field-help">{{ form.smoking_preference.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.sharing_preference.id_for_label }}">{{ form.sharing_preference.label }}</label>
+                            {{ form.sharing_preference }}
+                            {% if form.sharing_preference.help_text %}
+                                <small class="form-field-help">{{ form.sharing_preference.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.drinking_preference.id_for_label }}">{{ form.drinking_preference.label }}</label>
+                            {{ form.drinking_preference }}
+                            {% if form.drinking_preference.help_text %}
+                                <small class="form-field-help">{{ form.drinking_preference.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.pet_preference.id_for_label }}">{{ form.pet_preference.label }}</label>
+                            {{ form.pet_preference }}
+                            {% if form.pet_preference.help_text %}
+                                <small class="form-field-help">{{ form.pet_preference.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.cleanliness_preference.id_for_label }}">{{ form.cleanliness_preference.label }}</label>
+                            {{ form.cleanliness_preference }}
+                            {% if form.cleanliness_preference.help_text %}
+                                <small class="form-field-help">{{ form.cleanliness_preference.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Housing Preferences -->
+                <div class="form-card">
+                    <h2 class="card-title">
+                        <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                        Housing Preferences
+                    </h2>
+                    <p class="card-description">Specify your housing needs and budget</p>
+
+                    <div class="budget-grid">
+                        <div class="form-group">
+                            <label for="{{ form.budget_min.id_for_label }}">{{ form.budget_min.label }}</label>
+                            {{ form.budget_min }}
+                            {% if form.budget_min.errors %}
+                                <ul class="errorlist">
+                                    {% for error in form.budget_min.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if form.budget_min.help_text %}
+                                <small class="form-field-help">{{ form.budget_min.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.budget_max.id_for_label }}">{{ form.budget_max.label }}</label>
+                            {{ form.budget_max }}
+                            {% if form.budget_max.errors %}
+                                <ul class="errorlist">
+                                    {% for error in form.budget_max.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if form.budget_max.help_text %}
+                                <small class="form-field-help">{{ form.budget_max.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
+                        {{ form.location }}
+                        {% if form.location.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.location.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if form.location.help_text %}
+                            <small class="form-field-help">{{ form.location.help_text }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.move_in_date.id_for_label }}">{{ form.move_in_date.label }}</label>
+                        {{ form.move_in_date }}
+                        {% if form.move_in_date.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.move_in_date.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if form.move_in_date.help_text %}
+                            <small class="form-field-help">{{ form.move_in_date.help_text }}</small>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="{{ form.budget_max.id_for_label }}">{{ form.budget_max.label }}</label>
-                {{ form.budget_max }}
-                {% if form.budget_max.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.budget_max.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% if form.budget_max.help_text %}
-                    <small class="form-field-help">{{ form.budget_max.help_text }}</small>
-                {% endif %}
-            </div>
+            <!-- Right Column - Photo & Settings -->
+            <div class="form-right-column">
+                <!-- Profile Photo -->
+                <div class="form-card">
+                    <h2 class="card-title-small">Profile Photo</h2>
 
-            <div class="form-group">
-                <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
-                {{ form.location }}
-                {% if form.location.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.location.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% if form.location.help_text %}
-                    <small class="form-field-help">{{ form.location.help_text }}</small>
-                {% endif %}
-            </div>
+                    {% if form.instance.profile_photo %}
+                    <div class="current-photo-container">
+                        <img src="{{ form.instance.profile_photo.url }}" class="current-photo" alt="Current profile photo">
+                        <p class="current-photo-label">Current Photo</p>
+                    </div>
+                    {% endif %}
 
-            <div class="form-group">
-                <label for="{{ form.move_in_date.id_for_label }}">{{ form.move_in_date.label }}</label>
-                {{ form.move_in_date }}
-                {% if form.move_in_date.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.move_in_date.errors %}
+                    <div class="form-group">
+                        <label for="{{ form.profile_photo.id_for_label }}">Upload New Photo</label>
+                        {{ form.profile_photo }}
+                        {% if form.profile_photo.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.profile_photo.errors %}
                             <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% if form.move_in_date.help_text %}
-                    <small class="form-field-help">{{ form.move_in_date.help_text }}</small>
-                {% endif %}
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        <small class="form-field-help">JPG, PNG, or WebP (max 5MB)</small>
+                        <div class="photo-preview-container">
+                            <img id="photoPreview" class="photo-preview" alt="Photo preview" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="form-card privacy-card">
+                    <h2 class="card-title-small">
+                        <svg class="title-icon-small" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Privacy Settings
+                    </h2>
+
+                    <div class="form-group">
+                        <div class="checkbox-wrapper">
+                            {{ form.visibility }}
+                            <label for="{{ form.visibility.id_for_label }}" class="checkbox-label">
+                                Make my profile visible to other students
+                            </label>
+                        </div>
+                        {% if form.visibility.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.visibility.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        <small class="form-field-help">When enabled, your profile will be searchable by other verified students</small>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="form-actions-card">
+                    <button type="submit" class="submit-btn">
+                        <svg class="btn-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Update Profile
+                    </button>
+                    <a href="{% url 'view_profile' %}" class="cancel-btn">Cancel</a>
+                </div>
             </div>
         </div>
-
-        <!-- Privacy Settings -->
-        <div class="profile-section-card">
-            <h3 class="profile-section-title">🔒 Privacy Settings</h3>
-
-            <div class="form-group">
-                <label for="{{ form.visibility.id_for_label }}" class="visibility-label">
-                    {{ form.visibility }} Make my profile visible to other students
-                </label>
-                {% if form.visibility.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.visibility.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                <small class="form-field-help">Your profile will be searchable by other verified students</small>
-            </div>
-        </div>
-
-        <button type="submit">Update Profile</button>
     </form>
-
-    <p class="text-center cancel-link-container">
-        <a href="{% url 'view_profile' %}" class="cancel-link">Cancel and go back</a>
-    </p>
 </div>
 {% endblock %}
