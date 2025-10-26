@@ -20,7 +20,7 @@ script:
   - black --check .
   - flake8 .
   - coverage run --source='.' manage.py test
-  - coveralls
+  - coveralls --service=travis-pro
 
 deploy:
   - provider: elasticbeanstalk
