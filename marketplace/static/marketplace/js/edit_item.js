@@ -1,22 +1,28 @@
-// edit item JavaScript
+// Edit Item JavaScript
 
-  const descriptionField = document.getElementById('{{ form.description.id_for_label }}');
+document.addEventListener('DOMContentLoaded', function() {
+  // Character counting for description field
+  const descriptionField = document.querySelector('textarea[name="description"]');
   const charCount = document.getElementById('charCount');
 
-  charCount.textContent = descriptionField.value.length;
-  charCount.style.color = descriptionField.value.length < 20 ? '#fca5a5' : '#6ee7b7';
+  if (descriptionField && charCount) {
+    charCount.textContent = descriptionField.value.length;
+    charCount.style.color = descriptionField.value.length < 20 ? '#fca5a5' : '#6ee7b7';
 
-  descriptionField.addEventListener('input', function() {
-    charCount.textContent = this.value.length;
-    charCount.style.color = this.value.length < 20 ? '#fca5a5' : '#6ee7b7';
-  });
+    descriptionField.addEventListener('input', function() {
+      charCount.textContent = this.value.length;
+      charCount.style.color = this.value.length < 20 ? '#fca5a5' : '#6ee7b7';
+    });
+  }
 
+  // Image upload handling
   const imageInput = document.getElementById('id_images');
   const imagePreview = document.getElementById('imagePreview');
   const imageCountDiv = document.getElementById('imageCount');
   const keepExistingCheckbox = document.getElementById('keep_existing_images');
   let selectedFiles = [];
 
+  // Handle keep existing images checkbox
   if (keepExistingCheckbox) {
     keepExistingCheckbox.addEventListener('change', function() {
       if (this.checked) {
@@ -28,98 +34,132 @@
     });
   }
 
-  imageInput.addEventListener('change', function(e) {
-    const files = Array.from(e.target.files);
-    if (files.length > 0 && keepExistingCheckbox) {
-      keepExistingCheckbox.checked = false;
-    }
-    if (files.length > 10) {
-      alert('You can only upload a maximum of 10 images.');
-      e.target.value = '';
-      return;
-    }
-    selectedFiles = files;
-    if (files.length > 0) {
-      imageCountDiv.textContent = `${files.length} new image(s) selected`;
-      imageCountDiv.style.color = '#6ee7b7';
-    } else {
-      imageCountDiv.textContent = '';
-    }
-    imagePreview.innerHTML = '';
-    files.forEach((file, index) => {
-      if (!file.type.startsWith('image/')) {
-        alert(`${file.name} is not a valid image file.`);
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name} exceeds 5MB size limit.`);
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const previewItem = document.createElement('div');
-        previewItem.className = 'image-preview-item';
-        previewItem.innerHTML = `
-          <img src="${e.target.result}" alt="Preview ${index + 1}">
-          <button type="button" class="remove-btn" onclick="removeImage(${index})" title="Remove image">×</button>
-        `;
-        imagePreview.appendChild(previewItem);
-      };
-      reader.readAsDataURL(file);
-    });
-  });
+  // Handle new image selection
+  if (imageInput) {
+    imageInput.addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
 
-  function removeImage(index) {
-    selectedFiles.splice(index, 1);
-    const dataTransfer = new DataTransfer();
-    selectedFiles.forEach(file => dataTransfer.items.add(file));
-    imageInput.files = dataTransfer.files;
-    imageInput.dispatchEvent(new Event('change'));
+      // Uncheck keep existing if new files selected
+      if (files.length > 0 && keepExistingCheckbox) {
+        keepExistingCheckbox.checked = false;
+      }
+
+      // Validate max 10 images
+      if (files.length > 10) {
+        alert('You can only upload a maximum of 10 images.');
+        e.target.value = '';
+        return;
+      }
+
+      selectedFiles = files;
+
+      // Update image count display
+      if (files.length > 0) {
+        imageCountDiv.textContent = `${files.length} new image(s) selected`;
+        imageCountDiv.style.color = '#6ee7b7';
+      } else {
+        imageCountDiv.textContent = '';
+      }
+
+      // Clear and rebuild preview
+      imagePreview.innerHTML = '';
+
+      files.forEach((file, index) => {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          alert(`${file.name} is not a valid image file.`);
+          return;
+        }
+
+        // Validate file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+          alert(`${file.name} exceeds 5MB size limit.`);
+          return;
+        }
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const previewItem = document.createElement('div');
+          previewItem.className = 'image-preview-item';
+          previewItem.innerHTML = `
+            <img src="${e.target.result}" alt="Preview ${index + 1}">
+            <button type="button" class="remove-btn" onclick="removeImage(${index})" title="Remove image">×</button>
+          `;
+          imagePreview.appendChild(previewItem);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
   }
 
-  document.getElementById('itemForm').addEventListener('submit', function(e) {
-    const files = imageInput.files;
-    if (files.length > 10) {
-      e.preventDefault();
-      alert('You can only upload a maximum of 10 images.');
-      return false;
-    }
-    document.getElementById('submitBtn').disabled = true;
-    document.getElementById('submitBtn').textContent = 'Updating...';
-  });
+  // Handle form submission
+  const itemForm = document.getElementById('itemForm');
+  const submitBtn = document.getElementById('submitBtn');
 
-  // Track removed images
+  if (itemForm && submitBtn) {
+    itemForm.addEventListener('submit', function(e) {
+      const files = imageInput.files;
+      if (files.length > 10) {
+        e.preventDefault();
+        alert('You can only upload a maximum of 10 images.');
+        return false;
+      }
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Updating...';
+    });
+  }
+
+  // Track removed current images
   let removedImages = [];
 
-  function removeCurrentImage(imageId) {
+  // Make removeCurrentImage available globally
+  window.removeCurrentImage = function(imageId) {
     const imageItem = document.querySelector(`.current-image-item[data-image-id="${imageId}"]`);
 
+    if (!imageItem) return;
+
     if (imageItem.classList.contains('marked-for-removal')) {
-        // Unmark for removal
-        imageItem.classList.remove('marked-for-removal');
-        removedImages = removedImages.filter(id => id !== imageId);
+      // Unmark for removal
+      imageItem.classList.remove('marked-for-removal');
+      removedImages = removedImages.filter(id => id !== imageId);
     } else {
-        // Mark for removal
-        imageItem.classList.add('marked-for-removal');
-        removedImages.push(imageId);
+      // Mark for removal
+      imageItem.classList.add('marked-for-removal');
+      removedImages.push(imageId);
     }
 
     // Update hidden input
-    document.getElementById('removed_images').value = removedImages.join(',');
+    const removedImagesInput = document.getElementById('removed_images');
+    if (removedImagesInput) {
+      removedImagesInput.value = removedImages.join(',');
+    }
 
     // Update message
     const messageDiv = document.getElementById('current-images-message');
     const countSpan = document.getElementById('removed-count');
 
-    if (removedImages.length > 0) {
+    if (messageDiv && countSpan) {
+      if (removedImages.length > 0) {
         countSpan.textContent = removedImages.length;
         messageDiv.style.display = 'block';
-    } else {
+      } else {
         messageDiv.style.display = 'none';
+      }
     }
-  }
+  };
 
-  // Clear the "keep existing images" checkbox behavior since we now handle individual removals
-  if (keepExistingCheckbox) {
+  // Make removeImage available globally for new image previews
+  window.removeImage = function(index) {
+    selectedFiles.splice(index, 1);
+    const dataTransfer = new DataTransfer();
+    selectedFiles.forEach(file => dataTransfer.items.add(file));
+    imageInput.files = dataTransfer.files;
+    imageInput.dispatchEvent(new Event('change'));
+  };
+
+  // Hide keep existing images checkbox since we handle individual removals
+  if (keepExistingCheckbox && keepExistingCheckbox.parentElement) {
     keepExistingCheckbox.parentElement.style.display = 'none';
   }
+});

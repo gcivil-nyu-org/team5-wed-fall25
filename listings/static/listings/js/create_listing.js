@@ -1,6 +1,9 @@
 // Create Listing JavaScript
 // Note: This file expects certain element IDs to be passed from the template
 
+// Global variable for selected files (needed for removeImage function)
+let selectedFiles = [];
+
 function initCreateListing(descriptionFieldId, availabilityStartId, availabilityEndId) {
   // Character counter for description
   const descriptionField = document.getElementById(descriptionFieldId);
@@ -25,7 +28,7 @@ function initCreateListing(descriptionFieldId, availabilityStartId, availability
   const imageInput = document.getElementById('id_images');
   const imagePreview = document.getElementById('imagePreview');
   const imageCountDiv = document.getElementById('imageCount');
-  let selectedFiles = [];
+  selectedFiles = []; // Reset global variable
 
   if (imageInput) {
     imageInput.addEventListener('change', function(e) {
@@ -120,3 +123,19 @@ function removeImage(index) {
     imageInput.dispatchEvent(new Event('change'));
   }
 }
+
+// Auto-initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Get form field IDs from the page
+  const descriptionField = document.querySelector('textarea[name="description"]');
+  const availabilityStartField = document.querySelector('input[name="availability_start"]');
+  const availabilityEndField = document.querySelector('input[name="availability_end"]');
+
+  if (descriptionField && availabilityStartField && availabilityEndField) {
+    initCreateListing(
+      descriptionField.id,
+      availabilityStartField.id,
+      availabilityEndField.id
+    );
+  }
+});

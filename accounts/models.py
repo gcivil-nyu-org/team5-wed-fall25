@@ -5,16 +5,10 @@ import re
 
 
 def validation_edu_email(value):
-    """adrian test"""
-    _TEST_EMAIL_WHITELIST = {"adriandsouza2504@gmail.com"}
-    email = (value or "").strip().lower()
-    if email in _TEST_EMAIL_WHITELIST:
-        return
-
     """
     Stricter validation: ensures domain is exactly *.edu (not *.*.edu)
     """
-    strict_edu_pattern = r"^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)*edu$"
+    strict_edu_pattern = r"^[\w\.-]+@[\w-]+\.edu$"
 
     if not re.match(strict_edu_pattern, value):
         raise ValidationError(

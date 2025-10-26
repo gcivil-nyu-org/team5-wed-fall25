@@ -1,57 +1,92 @@
-{% extends "base.html" %}
-{% block title %}My Listings — CampusNest{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Listings - CampusNest{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'listings/css/my_listings.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="content-card">
-<h2 style="margin-bottom: 1.5rem;">My Listings</h2>
+<h2 class="listings-heading">My Listings</h2>
 
-<div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap:wrap;">
-  <a class="btn" style="width:auto;" href="{% url 'listings:create_listing' %}">Post a Listing</a>
-  <a class="btn" style="width:auto; background:#6c757d;" href="{% url 'listings:public_listings' %}">Browse All</a>
+<div class="create-listing-container">
+	<a href="{% url 'create_listing' %}" class="btn-create-listing">
+		+ Create New Listing
+	</a>
 </div>
 
 {% if listings %}
-  <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px;">
-    {% for listing in listings %}
-      <div style="background:#fff; border:1px solid #eee; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.06);">
-        <div style="height:160px; background:#f2f2f2; display:flex; align-items:center; justify-content:center;">
-          {% with first=listing.images.all|first %}
-            {% if first %}
-              <img src="{{ first.image.url }}" alt="{{ listing.title }}" style="width:100%; height:160px; object-fit:cover;">
-            {% else %}
-              <div style="color:#777;">No Photo</div>
-            {% endif %}
-          {% endwith %}
-        </div>
+<div class="listings-grid">
+	{% for listing in listings %}
+	<div class="listing-card">
+		<div class="listing-card-content">
+			{% if listing.images.first %}
+			<img src="{{ listing.images.first.image.url }}" alt="{{ listing.title }}" class="listing-image">
+			{% else %}
+			<div class="listing-no-image">
+				No Image
+			</div>
+			{% endif %}
 
-        <div style="padding:12px 14px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-            <h3 style="font-size:16px; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-              {{ listing.title }}
-            </h3>
-            <div style="color:#28a745; font-weight:700;">${{ listing.rent }}</div>
-          </div>
-
-          <p style="color:#555; font-size:13px; line-height:1.4; margin-top:8px; height:3.6em; overflow:hidden;">
-            {{ listing.description|truncatechars:120 }}
-          </p>
-
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a class="btn" style="width:auto;" href="{% url 'listings:view_listing' listing.id %}">View</a>
-            <a class="btn" style="width:auto; background:#198754;" href="{% url 'listings:edit_listing' listing.id %}">Edit</a>
-            <a class="btn" style="width:auto; background:#dc3545;" href="{% url 'listings:delete_listing' listing.id %}">Delete</a>
-          </div>
-
-          <div style="margin-top:8px; font-size:12px; color:#666;">
-            Posted {{ listing.created_at|date:"M d, Y" }}
-            {% if listing.is_edited %} • Updated {{ listing.updated_at|date:"M d, Y" }}{% endif %}
-          </div>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
+			<div class="listing-details">
+				<h3 class="listing-title">
+					<span>{{ listing.title }}</span>
+					{% if listing.is_edited %}
+					<span class="badge-edited">
+						EDITED
+					</span>
+					{% endif %}
+				</h3>
+				<p class="listing-info">
+					<strong>Address:</strong> {{ listing.address }}
+				</p>
+				<p class="listing-info">
+					<strong>Rent:</strong> <span class="listing-rent">${{ listing.rent }}/month</span>
+				</p>
+				<p class="listing-info">
+					<strong>Available:</strong> {{ listing.availability_start|date:"M. d, Y" }} to {{ listing.availability_end|date:"M. d, Y" }}
+				</p>
+				<p class="listing-info">
+					<strong>Posted:</strong> {{ listing.created_at|date:"F d, Y" }}
+					{% if listing.is_edited %}
+					<br><strong>Last Updated:</strong> {{ listing.updated_at|date:"F d, Y" }}
+					{% endif %}
+				</p>
+				<p class="listing-info">
+					<strong>Status:</strong>
+					{% if listing.is_active %}
+					<span class="status-active">✓ Active</span>
+					{% else %}
+					<span class="status-inactive">✗ Inactive</span>
+					{% endif %}
+				</p>
+				<div class="listing-actions">
+					<a href="{% url 'view_listing' listing.id %}" class="btn-listing btn-view">
+						View Details
+					</a>
+					<a href="{% url 'edit_listing' listing.id %}" class="btn-listing btn-edit">
+						Edit
+					</a>
+					<a href="{% url 'delete_listing' listing.id %}" class="btn-listing btn-delete">
+						Delete
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
 {% else %}
-  <p class="text-muted">You haven’t posted anything yet.</p>
-  <a class="btn" style="width:auto;" href="{% url 'listings:create_listing' %}">Post your first listing</a>
+<div class="empty-state">
+	<p class="empty-state-text">
+		You haven't created any listings yet.
+	</p>
+	<a href="{% url 'create_listing' %}" class="btn-create-first">
+		Create Your First Listing
+	</a>
+</div>
 {% endif %}
+</div>
 {% endblock %}

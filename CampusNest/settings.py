@@ -57,8 +57,8 @@ INSTALLED_APPS = [
     "profiles",
     #    'storages',
     "listings",
-    "messaging",
     "marketplace",
+    "messaging",
 ]
 
 MIDDLEWARE = [
@@ -117,7 +117,7 @@ else:
         }
     }
 
-# Uncomment while testing so that RDS does not get used when testing
+# # Uncomment while testing so that RDS does not get used when testing
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.sqlite3",

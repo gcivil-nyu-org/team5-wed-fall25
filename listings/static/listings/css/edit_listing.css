@@ -1,91 +1,177 @@
-/* Edit Listing Styles - Same as create_listing.css */
+/* Edit Listing Styles */
 
-/* Amenities Grid */
+/* ========================================
+   Page Description
+   ======================================== */
+
+.page-description {
+    margin-bottom: 1.5rem;
+}
+
+/* ========================================
+   Date Fields Grid
+   ======================================== */
+
+.date-fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.date-field-group {
+    margin-bottom: 0;
+}
+
+/* ========================================
+   Amenities Grid
+   ======================================== */
+
 .amenities-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
-  padding: 15px;
-  background: var(--color-surface-elevated);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    padding: 15px;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
 }
 
 .amenity-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: var(--radius-sm);
-  transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s;
 }
 
 .amenity-item:hover {
-  background-color: var(--color-surface-hover);
+    background-color: var(--color-surface-hover);
 }
 
 .amenity-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  cursor: pointer;
-  flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+    flex-shrink: 0;
 }
 
 .amenity-label {
-  margin: 0;
-  font-weight: normal;
-  cursor: pointer;
-  user-select: none;
-  color: var(--color-text-secondary);
+    margin: 0;
+    font-weight: normal;
+    cursor: pointer;
+    user-select: none;
+    color: var(--color-text-secondary);
 }
 
-/* Image Preview Styles */
+/* ========================================
+   Current Images Display
+   ======================================== */
+
+.current-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.current-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+}
+
+.keep-images-container {
+    margin-top: 10px;
+}
+
+.keep-images-checkbox {
+    width: auto;
+}
+
+.keep-images-label {
+    display: inline;
+    margin-left: 5px;
+    font-weight: normal;
+}
+
+/* ========================================
+   Image Preview
+   ======================================== */
+
+.image-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
 .image-preview-item {
-  position: relative;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  background: var(--color-surface-elevated);
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    background: var(--color-surface-elevated);
 }
 
 .image-preview-item img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  display: block;
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
 }
 
 .image-preview-item .remove-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: rgba(239, 68, 68, 0.9);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  padding: 0;
-  transition: all 0.2s;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.2s;
 }
 
 .image-preview-item .remove-btn:hover {
-  background: var(--color-danger);
-  transform: scale(1.1);
+    background: var(--color-danger);
+    transform: scale(1.1);
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  div[style*="grid-template-columns: 1fr 1fr"] {
-    grid-template-columns: 1fr !important;
-  }
+.image-count-info {
+    margin-top: 10px;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
 
-  .amenities-grid {
-    grid-template-columns: 1fr;
-  }
+/* ========================================
+   Cancel Link
+   ======================================== */
+
+.cancel-link-container {
+    margin-top: 20px;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .date-fields-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .amenities-grid {
+        grid-template-columns: 1fr;
+    }
 }

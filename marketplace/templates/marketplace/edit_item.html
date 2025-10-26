@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Edit Item - CampusNest Marketplace{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'marketplace/css/edit_item.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="content-card">
 <h2>Edit Your Item</h2>
-<p style="margin-bottom: 20px;">
+<p class="edit-item-description">
   Update your item details. Fields marked with * are required.
 </p>
 
@@ -50,8 +55,8 @@
   </div>
 
   <!-- Condition and Price -->
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-    <div class="form-group" style="margin-bottom: 0;">
+  <div class="edit-item-form-grid">
+    <div class="form-group">
       <label for="{{ form.condition.id_for_label }}">{{ form.condition.label }}</label>
       {{ form.condition }}
       {% if form.condition.errors %}
@@ -63,7 +68,7 @@
       {% endif %}
     </div>
 
-    <div class="form-group" style="margin-bottom: 0;">
+    <div class="form-group">
       <label for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
       {{ form.price }}
       {% if form.price.errors %}
@@ -119,10 +124,10 @@
   {% if item.images.all %}
   <div class="form-group">
     <label>Current Images</label>
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px;">
+    <div class="current-images-grid">
         {% for img in item.images.all %}
         <div class="current-image-item" data-image-id="{{ img.id }}">
-            <img src="{{ img.image.url }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--shadow-md);">
+            <img src="{{ img.image.url }}" alt="Current image {{ forloop.counter }}">
             <button type="button" class="remove-current-btn" onclick="removeCurrentImage('{{ img.id }}')" title="Remove image">×</button>
         </div>
         {% endfor %}
@@ -130,7 +135,7 @@
     <!-- Hidden input to track removed images -->
     <input type="hidden" name="removed_images" id="removed_images" value="">
 
-    <div id="current-images-message" style="margin-top: 10px; color: #fca5a5; display: none;">
+    <div id="current-images-message" class="current-images-message">
         <strong>Note:</strong> <span id="removed-count">0</span> image(s) will be removed when you save.
     </div>
   </div>
@@ -142,243 +147,19 @@
     <input type="file" name="images" id="id_images" multiple accept="image/*">
     <small>Leave empty to keep current images. Accepted formats: JPG, PNG, WebP. Max 5MB per image.</small>
 
-    <div id="imagePreview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;"></div>
-    <div id="imageCount" style="margin-top: 10px; color: var(--color-text-secondary); font-size: 14px;"></div>
+    <div id="imagePreview" class="edit-item-image-preview-grid"></div>
+    <div id="imageCount" class="edit-item-image-count"></div>
   </div>
 
   <button type="submit" id="submitBtn">Update & Save Item</button>
 </form>
 
-<p class="text-center" style="margin-top: 20px;">
+<div class="edit-item-cancel-container">
   <a href="{% url 'view_item' item.id %}">Cancel and go back</a>
-</p>
 </div>
+</div>
+{% endblock %}
 
-<style>
-  .image-preview-item {
-    position: relative;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-    background: var(--color-surface-elevated);
-  }
-
-  .image-preview-item img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    display: block;
-  }
-
-  .image-preview-item .remove-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 1;
-    padding: 0;
-    transition: all 0.2s;
-  }
-
-  .image-preview-item .remove-btn:hover {
-    background: var(--color-danger);
-    transform: scale(1.1);
-  }
-
-  @media (max-width: 768px) {
-    div[style*="grid-template-columns: 1fr 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-  }
-
-  .current-image-item {
-    position: relative;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-    background: var(--color-surface-elevated);
-  }
-
-  .current-image-item img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    display: block;
-  }
-
-  .remove-current-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 1;
-    padding: 0;
-    z-index: 10;
-    transition: all 0.2s;
-  }
-
-  .remove-current-btn:hover {
-    background: var(--color-danger);
-    transform: scale(1.1);
-  }
-
-  .current-image-item.marked-for-removal {
-    opacity: 0.4;
-    position: relative;
-  }
-
-  .current-image-item.marked-for-removal::after {
-    content: "Will be removed";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-    padding: 5px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-    font-weight: bold;
-  }
-</style>
-
-<script>
-  const descriptionField = document.getElementById('{{ form.description.id_for_label }}');
-  const charCount = document.getElementById('charCount');
-
-  charCount.textContent = descriptionField.value.length;
-  charCount.style.color = descriptionField.value.length < 20 ? '#fca5a5' : '#6ee7b7';
-
-  descriptionField.addEventListener('input', function() {
-    charCount.textContent = this.value.length;
-    charCount.style.color = this.value.length < 20 ? '#fca5a5' : '#6ee7b7';
-  });
-
-  const imageInput = document.getElementById('id_images');
-  const imagePreview = document.getElementById('imagePreview');
-  const imageCountDiv = document.getElementById('imageCount');
-  const keepExistingCheckbox = document.getElementById('keep_existing_images');
-  let selectedFiles = [];
-
-  if (keepExistingCheckbox) {
-    keepExistingCheckbox.addEventListener('change', function() {
-      if (this.checked) {
-        imageInput.value = '';
-        imagePreview.innerHTML = '';
-        imageCountDiv.textContent = '';
-        selectedFiles = [];
-      }
-    });
-  }
-
-  imageInput.addEventListener('change', function(e) {
-    const files = Array.from(e.target.files);
-    if (files.length > 0 && keepExistingCheckbox) {
-      keepExistingCheckbox.checked = false;
-    }
-    if (files.length > 10) {
-      alert('You can only upload a maximum of 10 images.');
-      e.target.value = '';
-      return;
-    }
-    selectedFiles = files;
-    if (files.length > 0) {
-      imageCountDiv.textContent = `${files.length} new image(s) selected`;
-      imageCountDiv.style.color = '#6ee7b7';
-    } else {
-      imageCountDiv.textContent = '';
-    }
-    imagePreview.innerHTML = '';
-    files.forEach((file, index) => {
-      if (!file.type.startsWith('image/')) {
-        alert(`${file.name} is not a valid image file.`);
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name} exceeds 5MB size limit.`);
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const previewItem = document.createElement('div');
-        previewItem.className = 'image-preview-item';
-        previewItem.innerHTML = `
-          <img src="${e.target.result}" alt="Preview ${index + 1}">
-          <button type="button" class="remove-btn" onclick="removeImage(${index})" title="Remove image">×</button>
-        `;
-        imagePreview.appendChild(previewItem);
-      };
-      reader.readAsDataURL(file);
-    });
-  });
-
-  function removeImage(index) {
-    selectedFiles.splice(index, 1);
-    const dataTransfer = new DataTransfer();
-    selectedFiles.forEach(file => dataTransfer.items.add(file));
-    imageInput.files = dataTransfer.files;
-    imageInput.dispatchEvent(new Event('change'));
-  }
-
-  document.getElementById('itemForm').addEventListener('submit', function(e) {
-    const files = imageInput.files;
-    if (files.length > 10) {
-      e.preventDefault();
-      alert('You can only upload a maximum of 10 images.');
-      return false;
-    }
-    document.getElementById('submitBtn').disabled = true;
-    document.getElementById('submitBtn').textContent = 'Updating...';
-  });
-
-  // Track removed images
-  let removedImages = [];
-
-  function removeCurrentImage(imageId) {
-    const imageItem = document.querySelector(`.current-image-item[data-image-id="${imageId}"]`);
-
-    if (imageItem.classList.contains('marked-for-removal')) {
-        // Unmark for removal
-        imageItem.classList.remove('marked-for-removal');
-        removedImages = removedImages.filter(id => id !== imageId);
-    } else {
-        // Mark for removal
-        imageItem.classList.add('marked-for-removal');
-        removedImages.push(imageId);
-    }
-
-    // Update hidden input
-    document.getElementById('removed_images').value = removedImages.join(',');
-
-    // Update message
-    const messageDiv = document.getElementById('current-images-message');
-    const countSpan = document.getElementById('removed-count');
-
-    if (removedImages.length > 0) {
-        countSpan.textContent = removedImages.length;
-        messageDiv.style.display = 'block';
-    } else {
-        messageDiv.style.display = 'none';
-    }
-  }
-
-  // Clear the "keep existing images" checkbox behavior since we now handle individual removals
-  if (keepExistingCheckbox) {
-    keepExistingCheckbox.parentElement.style.display = 'none';
-  }
-</script>
+{% block extra_js %}
+<script src="{% static 'marketplace/js/edit_item.js' %}"></script>
 {% endblock %}

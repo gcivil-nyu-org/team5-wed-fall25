@@ -1,4 +1,309 @@
-/* roommate search Styles */
+/* Roommate Search Styles */
+
+/* ========================================
+   Page Container
+   ======================================== */
+
+.roommate-search-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.roommate-search-title {
+    color: var(--color-text-primary);
+    margin-bottom: 2rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* ========================================
+   Filter Section
+   ======================================== */
+
+.filter-section {
+    background: var(--color-surface-elevated);
+    padding: 1.75rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 2rem;
+    border: 1px solid var(--color-border-light);
+    box-shadow: var(--shadow-md);
+}
+
+.filter-section-title {
+    color: var(--color-text-primary);
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* ========================================
+   Filter Grids
+   ======================================== */
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.75rem;
+    margin-bottom: 1.75rem;
+}
+
+/* ========================================
+   Filter Groups
+   ======================================== */
+
+.filter-group-title {
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.875rem;
+}
+
+.filter-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.filter-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    cursor: pointer;
+    margin: 0;
+}
+
+.filter-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+}
+
+.filter-checkbox-text {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   Filter Input Fields
+   ======================================== */
+
+.filter-input-label {
+    display: block;
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.filter-input {
+    width: 100%;
+    padding: 0.625rem;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+}
+
+/* ========================================
+   Filter Buttons
+   ======================================== */
+
+.filter-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-search {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.btn-search:hover {
+    transform: translateY(-2px);
+}
+
+.btn-clear-filters {
+    padding: 0.75rem 1.5rem;
+    background: var(--color-surface-elevated);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-block;
+    font-size: 0.875rem;
+    border: 1px solid var(--color-border-light);
+    transition: all 0.2s;
+}
+
+.btn-clear-filters:hover {
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   Results Section
+   ======================================== */
+
+.results-header {
+    color: var(--color-text-primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+/* ========================================
+   Profile Card
+   ======================================== */
+
+.profile-card {
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.profile-card-content {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+/* ========================================
+   Profile Photo
+   ======================================== */
+
+.profile-photo-container {
+    margin-bottom: 1rem;
+}
+
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.profile-photo-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--color-surface-hover);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: var(--color-text-muted);
+    border: 3px solid var(--color-primary);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   Profile Info
+   ======================================== */
+
+.profile-name {
+    color: var(--color-text-primary);
+    margin: 0.625rem 0;
+    font-size: 1.125rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.profile-university {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 0.625rem;
+}
+
+/* ========================================
+   Preference Icons
+   ======================================== */
+
+.preference-icons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.preference-icon {
+    font-size: 20px;
+    cursor: help;
+}
+
+/* ========================================
+   Budget & Location Box
+   ======================================== */
+
+.profile-details-box {
+    background: var(--color-surface);
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    font-size: 0.8125rem;
+    border: 1px solid var(--color-border);
+}
+
+.profile-detail-item {
+    margin: 0.375rem 0;
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   Action Buttons
+   ======================================== */
+
+.profile-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.btn-view-profile {
+    flex: 1;
+    padding: 0.625rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.btn-view-profile:hover {
+    transform: translateY(-2px);
+}
+
+.favorite-btn {
+    flex: 1;
+    padding: 0.625rem;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: var(--color-surface);
+    color: var(--color-danger);
+}
 
 .favorite-btn:hover {
     transform: translateY(-2px);
@@ -6,10 +311,104 @@
 }
 
 .favorite-btn.favorited {
-    background: linear-gradient(135deg, var(--color-warning) 0%, #f59e0b 100%) !important;
-    color: var(--color-text-primary) !important;
+    background: linear-gradient(135deg, var(--color-warning) 0%, #f59e0b 100%);
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
 }
 
-button:hover, a:hover {
+/* ========================================
+   Connection Request
+   ======================================== */
+
+.connection-status {
+    color: var(--color-success);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.connection-form {
+    display: inline;
+}
+
+.btn-connect {
+    width: 100%;
+    padding: 0.625rem;
+    background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.btn-connect:hover {
     transform: translateY(-2px);
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.empty-state {
+    text-align: center;
+    padding: 3.75rem 1.5rem;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+}
+
+.empty-state-title {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.625rem;
+}
+
+.empty-state-text {
+    color: var(--color-text-muted);
+    margin-bottom: 1.25rem;
+}
+
+.btn-empty-state {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.btn-empty-state:hover {
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   Navigation Links
+   ======================================== */
+
+.navigation-links {
+    margin-top: 2rem;
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.nav-link {
+    margin-right: 1rem;
+    color: var(--color-primary-light);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.nav-link:last-child {
+    margin-right: 0;
 }

@@ -1,10 +1,16 @@
 {% extends 'accounts/base.html' %}
+{% load static %}
 
 {% block title %}Register - CampusNest{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/css/register.css' %}">
+{% endblock %}
+
 {% block auth_content %}
-<h2>Create Your CampusNest Account</h2>
-<p style="margin-bottom: 20px;">Join the exclusive NYC student housing community</p>
+<div class="auth-content">
+    <h2>Create Your CampusNest Account</h2>
+    <p class="auth-subtitle">Join the exclusive NYC student housing community</p>
 
 <form method="post">
     {% csrf_token %}
@@ -92,10 +98,11 @@
     <button type="submit">Register</button>
 </form>
 
-<p class="text-center" style="margin-top: 20px;">
+<p class="auth-footer">
     Already have an account? <a href="{% url 'login' %}">Login</a>
 </p>
-<p class="text-center" style="margin-top: 10px;">
+<p class="auth-footer-secondary">
     Need to resend verification? <a href="{% url 'resend_verification' %}">Click here</a>
 </p>
+</div>
 {% endblock %}

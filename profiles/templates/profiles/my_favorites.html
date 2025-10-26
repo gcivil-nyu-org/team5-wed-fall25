@@ -1,54 +1,57 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}My Favorites - CampusNest{% endblock %}
 
-{% block content %}
-<div class="content-card" style="max-width: 1200px; margin: 0 auto;">
-    <h1 style="color: var(--color-text-primary); margin-bottom: 2rem; font-family: 'Space Grotesk', sans-serif;">❤️ My Favorite Roommates</h1>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'profiles/css/my_favorites.css' %}">
+{% endblock %}
 
-    <a href="{% url 'roommate_search' %}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; margin-bottom: 1.5rem; display: inline-block; transition: color 0.2s;">
+{% block content %}
+<div class="content-card favorites-container">
+    <h1 class="favorites-heading">❤️ My Favorite Roommates</h1>
+
+    <a href="{% url 'roommate_search' %}" class="back-link">
         ← Back to Search
     </a>
 
     {% if favorites %}
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1.5rem;">
+        <div class="favorites-grid">
             {% for favorite in favorites %}
-                <div style="background: var(--color-surface-elevated); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="padding: 1.5rem; text-align: center;">
+                <div class="favorite-card">
+                    <div class="favorite-card-content">
                         <!-- Profile Photo -->
-                        <div style="margin-bottom: 1rem;">
+                        <div class="profile-photo-container">
                             {% if favorite.favorite_profile.profile_photo %}
                                 <img src="{{ favorite.favorite_profile.profile_photo.url }}"
                                      alt="{{ favorite.favorite_profile.user.first_name }}"
-                                     style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-warning); box-shadow: var(--shadow-md);">
+                                     class="profile-photo-img">
                             {% else %}
-                                <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--color-surface-hover); display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: var(--color-text-muted); border: 3px solid var(--color-warning); box-shadow: var(--shadow-md);">
+                                <div class="profile-photo-placeholder">
                                     {{ favorite.favorite_profile.user.first_name.0 }}{{ favorite.favorite_profile.user.last_name.0 }}
                                 </div>
                             {% endif %}
                         </div>
 
                         <!-- Name & University -->
-                        <h3 style="color: var(--color-text-primary); margin: 0.625rem 0; font-size: 1.125rem; font-family: 'Space Grotesk', sans-serif;">{{ favorite.favorite_profile.user.first_name }} {{ favorite.favorite_profile.user.last_name }}</h3>
-                        <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 0.625rem;">{{ favorite.favorite_profile.get_university_display }}</p>
+                        <h3 class="profile-name">{{ favorite.favorite_profile.user.first_name }} {{ favorite.favorite_profile.user.last_name }}</h3>
+                        <p class="profile-university">{{ favorite.favorite_profile.get_university_display }}</p>
 
                         <!-- Budget & Location -->
-                        <div style="background: var(--color-surface); padding: 0.75rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.8125rem; border: 1px solid var(--color-border);">
-                            <p style="margin: 0.375rem 0; color: var(--color-text-secondary);">💰 ${{ favorite.favorite_profile.budget_min }} - ${{ favorite.favorite_profile.budget_max }}/mo</p>
+                        <div class="profile-info-box">
+                            <p>💰 ${{ favorite.favorite_profile.budget_min }} - ${{ favorite.favorite_profile.budget_max }}/mo</p>
                             {% if favorite.favorite_profile.location %}
-                                <p style="margin: 0.375rem 0; color: var(--color-text-secondary);">📍 {{ favorite.favorite_profile.location }}</p>
+                                <p>📍 {{ favorite.favorite_profile.location }}</p>
                             {% endif %}
                         </div>
 
                         <!-- Action Buttons -->
-                        <div style="display: flex; gap: 0.5rem;">
-                            <a href="{% url 'roommate_detail' favorite.favorite_profile.user.id %}"
-                               style="flex: 1; padding: 0.625rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);">
+                        <div class="action-buttons">
+                            <a href="{% url 'roommate_detail' favorite.favorite_profile.user.id %}" class="btn-view-profile">
                                 View Profile
                             </a>
 
-                            <button class="remove-favorite-btn" data-user-id="{{ favorite.favorite_profile.user.id }}"
-                                    style="padding: 0.625rem 1rem; background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);">
+                            <button class="remove-favorite-btn" data-user-id="{{ favorite.favorite_profile.user.id }}">
                                 Remove
                             </button>
                         </div>
@@ -57,46 +60,19 @@
             {% endfor %}
         </div>
     {% else %}
-        <div style="text-align: center; padding: 3.75rem 1.5rem; background: var(--color-surface-elevated); border-radius: var(--radius-lg); margin-top: 1.5rem; border: 1px solid var(--color-border);">
-            <p style="font-size: 1.125rem; color: var(--color-text-secondary); margin-bottom: 0.625rem;">😔 No favorites yet</p>
-            <p style="color: var(--color-text-muted); margin-bottom: 1.25rem;">Start exploring and add your favorite roommates!</p>
-            <a class = "btn" href="{% url 'roommate_search' %}" style="display: inline-block; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); color: white; text-decoration: none; border-radius:8px; font-weight: 600; transition: all 0.2s; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
+        <div class="empty-state">
+            <p class="empty-state-title">😔 No favorites yet</p>
+            <p class="empty-state-text">Start exploring and add your favorite roommates!</p>
+            <a href="{% url 'roommate_search' %}" class="btn-find-roommates">
                 Find Roommates
             </a>
         </div>
     {% endif %}
 </div>
 
-<style>
-    .remove-favorite-btn:hover, a:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.1);
-    }
-</style>
+{% csrf_token %}
+{% endblock %}
 
-<script>
-document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
-    btn.addEventListener('click', async function(e) {
-        e.preventDefault();
-        const userId = this.dataset.userId;
-
-        try {
-            const response = await fetch(`/roommates/${userId}/favorite/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                // Reload page to update favorites list
-                location.reload();
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
-});
-</script>
+{% block extra_js %}
+<script src="{% static 'profiles/js/my_favorites.js' %}"></script>
 {% endblock %}

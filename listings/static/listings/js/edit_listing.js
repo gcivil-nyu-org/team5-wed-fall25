@@ -1,5 +1,8 @@
 // Edit Listing JavaScript
 
+// Global variable for selected files (needed for removeImage function)
+let selectedFiles = [];
+
 function initEditListing(descriptionFieldId, availabilityStartId, availabilityEndId, initialCharCount) {
   // Character counter for description
   const descriptionField = document.getElementById(descriptionFieldId);
@@ -33,7 +36,7 @@ function initEditListing(descriptionFieldId, availabilityStartId, availabilityEn
   const imagePreview = document.getElementById('imagePreview');
   const imageCountDiv = document.getElementById('imageCount');
   const keepExistingCheckbox = document.getElementById('keep_existing_images');
-  let selectedFiles = [];
+  selectedFiles = []; // Reset global variable
 
   // Handle keep existing checkbox
   if (keepExistingCheckbox) {
@@ -135,3 +138,21 @@ function removeImage(index) {
     imageInput.dispatchEvent(new Event('change'));
   }
 }
+
+// Auto-initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Get form field IDs from the page
+  const descriptionField = document.querySelector('textarea[name="description"]');
+  const availabilityStartField = document.querySelector('input[name="availability_start"]');
+  const availabilityEndField = document.querySelector('input[name="availability_end"]');
+
+  if (descriptionField && availabilityStartField && availabilityEndField) {
+    const initialCharCount = descriptionField.value ? descriptionField.value.length : 0;
+    initEditListing(
+      descriptionField.id,
+      availabilityStartField.id,
+      availabilityEndField.id,
+      initialCharCount
+    );
+  }
+});

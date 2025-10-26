@@ -1,11 +1,20 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Create Profile - CampusNest{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'profiles/css/profile_form.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'profiles/js/profile_form.js' %}"></script>
+{% endblock %}
+
 {% block content %}
-<div class="content-card" style="max-width: 900px; margin: 0 auto;">
-    <h2 style="color: var(--color-text-primary); font-family: 'Space Grotesk', sans-serif; margin-bottom: 1rem;">Create Your Profile</h2>
-    <p style="margin-bottom: 2rem; color: var(--color-text-secondary);">Tell us about yourself</p>
+<div class="content-card profile-form-container">
+    <h2 class="profile-form-title">Create Your Profile</h2>
+    <p class="profile-form-subtitle">Tell us about yourself</p>
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -29,7 +38,7 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            <small style="color: var(--color-text-muted);">Tell us about yourself (10-500 characters)</small>
+            <small class="form-field-help">Tell us about yourself (10-500 characters)</small>
         </div>
 
         <div class="form-group">
@@ -54,22 +63,22 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            <small style="color: var(--color-text-muted);">JPG, PNG, or WebP (max 5MB)</small>
-            <div style="margin-top: 1rem;">
-                <img id="photoPreview" style="max-width: 150px; border-radius: var(--radius-md); display: none; border: 2px solid var(--color-primary); box-shadow: var(--shadow-md);" />
+            <small class="form-field-help">JPG, PNG, or WebP (max 5MB)</small>
+            <div class="photo-preview-container">
+                <img id="photoPreview" class="photo-preview" />
             </div>
         </div>
 
         <!-- Lifestyle Preferences Section -->
-        <div style="background: var(--color-surface-elevated); padding: 1.5rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; border: 1px solid var(--color-border-light);">
-            <h3 style="margin-bottom: 1rem; color: var(--color-text-primary); font-family: 'Space Grotesk', sans-serif;">🏠 Lifestyle Preferences</h3>
-            <p style="color: var(--color-text-secondary); margin-bottom: 1.25rem;">Help us match you with compatible roommates</p>
+        <div class="profile-section-card">
+            <h3 class="profile-section-title">🏠 Lifestyle Preferences</h3>
+            <p class="profile-section-description">Help us match you with compatible roommates</p>
 
             <div class="form-group">
                 <label for="{{ form.eating_habit.id_for_label }}">{{ form.eating_habit.label }}</label>
                 {{ form.eating_habit }}
                 {% if form.eating_habit.help_text %}
-                    <small style="color: var(--color-text-muted);">{{ form.eating_habit.help_text }}</small>
+                    <small class="form-field-help">{{ form.eating_habit.help_text }}</small>
                 {% endif %}
             </div>
 
@@ -77,7 +86,7 @@
                 <label for="{{ form.smoking_preference.id_for_label }}">{{ form.smoking_preference.label }}</label>
                 {{ form.smoking_preference }}
                 {% if form.smoking_preference.help_text %}
-                    <small style="color: var(--color-text-muted);">{{ form.smoking_preference.help_text }}</small>
+                    <small class="form-field-help">{{ form.smoking_preference.help_text }}</small>
                 {% endif %}
             </div>
 
@@ -85,7 +94,7 @@
                 <label for="{{ form.sharing_preference.id_for_label }}">{{ form.sharing_preference.label }}</label>
                 {{ form.sharing_preference }}
                 {% if form.sharing_preference.help_text %}
-                    <small style="color: var(--color-text-muted);">{{ form.sharing_preference.help_text }}</small>
+                    <small class="form-field-help">{{ form.sharing_preference.help_text }}</small>
                 {% endif %}
             </div>
 
@@ -93,7 +102,7 @@
                 <label for="{{ form.drinking_preference.id_for_label }}">{{ form.drinking_preference.label }}</label>
                 {{ form.drinking_preference }}
                 {% if form.drinking_preference.help_text %}
-                    <small style="color: var(--color-text-muted);">{{ form.drinking_preference.help_text }}</small>
+                    <small class="form-field-help">{{ form.drinking_preference.help_text }}</small>
                 {% endif %}
             </div>
 
@@ -101,7 +110,7 @@
                 <label for="{{ form.pet_preference.id_for_label }}">{{ form.pet_preference.label }}</label>
                 {{ form.pet_preference }}
                 {% if form.pet_preference.help_text %}
-                    <small style="color: var(--color-text-muted);">{{ form.pet_preference.help_text }}</small>
+                    <small class="form-field-help">{{ form.pet_preference.help_text }}</small>
                 {% endif %}
             </div>
 
@@ -109,15 +118,15 @@
                 <label for="{{ form.cleanliness_preference.id_for_label }}">{{ form.cleanliness_preference.label }}</label>
                 {{ form.cleanliness_preference }}
                 {% if form.cleanliness_preference.help_text %}
-                    <small style="color: var(--color-text-muted);">{{ form.cleanliness_preference.help_text }}</small>
+                    <small class="form-field-help">{{ form.cleanliness_preference.help_text }}</small>
                 {% endif %}
             </div>
         </div>
 
         <!-- Housing Preferences Section -->
-        <div style="background: var(--color-surface-elevated); padding: 1.5rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; border: 1px solid var(--color-border-light);">
-            <h3 style="margin-bottom: 1rem; color: var(--color-text-primary); font-family: 'Space Grotesk', sans-serif;">🏘️ Housing Preferences</h3>
-            <p style="color: var(--color-text-secondary); margin-bottom: 1.25rem;">Tell us about your housing needs</p>
+        <div class="profile-section-card">
+            <h3 class="profile-section-title">🏘️ Housing Preferences</h3>
+            <p class="profile-section-description">Tell us about your housing needs</p>
 
             <div class="form-group">
                 <label for="{{ form.budget_min.id_for_label }}">{{ form.budget_min.label }}</label>
@@ -130,7 +139,7 @@
                     </ul>
                 {% endif %}
                 {% if form.budget_min.help_text %}
-                    <small style="color: var(--color-text-muted);">{{ form.budget_min.help_text }}</small>
+                    <small class="form-field-help">{{ form.budget_min.help_text }}</small>
                 {% endif %}
             </div>
 
@@ -145,7 +154,7 @@
                     </ul>
                 {% endif %}
                 {% if form.budget_max.help_text %}
-                    <small style="color: var(--color-text-muted);">{{ form.budget_max.help_text }}</small>
+                    <small class="form-field-help">{{ form.budget_max.help_text }}</small>
                 {% endif %}
             </div>
 
@@ -160,7 +169,7 @@
                     </ul>
                 {% endif %}
                 {% if form.location.help_text %}
-                    <small style="color: var(--color-text-muted);">{{ form.location.help_text }}</small>
+                    <small class="form-field-help">{{ form.location.help_text }}</small>
                 {% endif %}
             </div>
 
@@ -175,7 +184,7 @@
                     </ul>
                 {% endif %}
                 {% if form.move_in_date.help_text %}
-                    <small style="color: var(--color-text-muted);">{{ form.move_in_date.help_text }}</small>
+                    <small class="form-field-help">{{ form.move_in_date.help_text }}</small>
                 {% endif %}
             </div>
         </div>
@@ -191,21 +200,10 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            <small style="color: var(--color-text-muted);">Make your profile visible to other students</small>
+            <small class="form-field-help">Make your profile visible to other students</small>
         </div>
 
         <button type="submit">Create Profile</button>
     </form>
 </div>
-
-<script>
-    document.getElementById('id_profile_photo').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const preview = document.getElementById('photoPreview');
-            preview.src = URL.createObjectURL(file);
-            preview.style.display = 'block';
-        }
-    });
-</script>
 {% endblock %}

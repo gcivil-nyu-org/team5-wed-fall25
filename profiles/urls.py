@@ -1,22 +1,23 @@
-# profiles/urls.py
 from django.urls import path
 from django.shortcuts import redirect
 from . import views
 
-app_name = "profiles"
 
-
+# Simple redirect view for /profiles/
 def profiles_home(request):
     """Redirect /profiles/ to /profiles/view/"""
-    return redirect("profiles:view_profile")  # <- use namespaced name
+    return redirect("view_profile")
 
 
 urlpatterns = [
-    path("", profiles_home, name="profiles_home"),
-    path("create/", views.create_profile, name="create_profile"),
-    path("view/", views.view_profile, name="view_profile"),
-    path("edit/", views.edit_profile, name="edit_profile"),
-    path("admin-dashboard/", views.admin_dashboard, name="admin_dashboard"),
+    path("", views.home, name="home"),  # Root / goes to home
+    path(
+        "profiles/", profiles_home, name="profiles_home"
+    ),  # /profiles/ → /profiles/view/
+    path("profiles/create/", views.create_profile, name="create_profile"),
+    path("profiles/view/", views.view_profile, name="view_profile"),
+    path("profiles/edit/", views.edit_profile, name="edit_profile"),
+    path("profiles/admin-dashboard/", views.admin_dashboard, name="admin_dashboard"),
     # Roommate search URLs
     path("roommates/search/", views.roommate_search, name="roommate_search"),
     path("roommates/<int:user_id>/", views.roommate_detail, name="roommate_detail"),

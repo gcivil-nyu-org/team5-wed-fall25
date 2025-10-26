@@ -1,33 +1,252 @@
-/* My Listings Styles */
+/* My Listings Page Specific Styles */
 
-a[style*="linear-gradient"]:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+/* Page heading */
+.listings-heading {
+    margin-bottom: 1.5rem;
 }
 
-a[style*="var(--color-success)"]:hover {
-	box-shadow: 0 0 25px rgba(16, 185, 129, 0.4) !important;
+/* Create listing button container */
+.create-listing-container {
+    margin-bottom: 2rem;
 }
 
-a[style*="var(--color-danger)"]:hover {
-	box-shadow: 0 0 25px rgba(239, 68, 68, 0.4) !important;
+/* Create listing button */
+.btn-create-listing {
+    width: auto;
+    display: inline-block;
+    padding: 0.875rem 1.75rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
 
+.btn-create-listing:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+}
+
+/* Listings grid */
+.listings-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+/* Individual listing card */
+.listing-card {
+    background: var(--color-surface-elevated);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s;
+}
+
+.listing-card:hover {
+    border-color: var(--color-border-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Listing card content */
+.listing-card-content {
+    display: flex;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* Listing image */
+.listing-image {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    flex-shrink: 0;
+}
+
+/* Placeholder for no image */
+.listing-no-image {
+    width: 180px;
+    height: 180px;
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+/* Listing details container */
+.listing-details {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Listing title */
+.listing-title {
+    margin-bottom: 0.75rem;
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Edited badge */
+.badge-edited {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fcd34d;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Listing info text */
+.listing-info {
+    color: var(--color-text-secondary);
+    margin-bottom: 0.5rem;
+    font-size: 0.9375rem;
+}
+
+.listing-info:last-of-type {
+    margin-bottom: 1rem;
+}
+
+.listing-info strong {
+    color: var(--color-text-primary);
+}
+
+/* Rent price highlight */
+.listing-rent {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+/* Status indicators */
+.status-active {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.status-inactive {
+    color: var(--color-danger);
+    font-weight: 600;
+}
+
+/* Action buttons container */
+.listing-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Base button styles */
+.btn-listing {
+    display: inline-block;
+    padding: 0.625rem 1.25rem;
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+/* View button */
+.btn-view {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.btn-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+}
+
+/* Edit button */
+.btn-edit {
+    background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+}
+
+/* Delete button */
+.btn-delete {
+    background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+}
+
+.empty-state-text {
+    color: var(--color-text-secondary);
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Empty state create button */
+.btn-create-first {
+    display: inline-block;
+    padding: 0.875rem 1.75rem;
+    background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+    font-size: 1rem;
+}
+
+.btn-create-first:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+}
+
+/* Responsive design */
 @media (max-width: 768px) {
-	div[style*="display: flex; gap: 1.5rem; align-items: start"] {
-		flex-direction: column;
-	}
+    .listing-card-content {
+        flex-direction: column;
+    }
 
-	div[style*="display: flex; gap: 0.75rem; flex-wrap: wrap"] a {
-		flex: 1;
-		text-align: center;
-		min-width: 120px;
-	}
+    .listing-actions .btn-listing {
+        flex: 1;
+        text-align: center;
+        min-width: 120px;
+    }
 
-	img[style*="width: 180px"],
-	div[style*="width: 180px"] {
-		width: 100% !important;
-		max-width: 300px;
-		margin: 0 auto;
-	}
+    .listing-image,
+    .listing-no-image {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
 }

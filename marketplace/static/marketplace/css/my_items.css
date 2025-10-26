@@ -1,12 +1,238 @@
 /* My Items Styles */
 
-div[style*="border-left: 4px solid var(--color-success)"]:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg) !important;
-    }
+/* ========================================
+   Top Actions
+   ======================================== */
 
-    a[style*="background: linear-gradient"]:hover,
-    button[style*="background: linear-gradient"]:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.1);
-    }
+.my-items-top-actions {
+    margin-bottom: 20px;
+}
+
+.btn-post-new-item {
+    width: auto;
+    display: inline-block;
+    padding: 10px 20px;
+}
+
+/* ========================================
+   Items Grid
+   ======================================== */
+
+.my-items-grid {
+    display: grid;
+    gap: 20px;
+}
+
+/* ========================================
+   Item Card
+   ======================================== */
+
+.my-item-card {
+    background: var(--color-surface-elevated);
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    border-left: 4px solid var(--color-success);
+    border: 1px solid var(--color-border);
+    transition: all 0.3s;
+    box-shadow: var(--shadow-md);
+}
+
+.my-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.my-item-content {
+    display: flex;
+    gap: 20px;
+    align-items: start;
+}
+
+/* ========================================
+   Item Image
+   ======================================== */
+
+.my-item-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.my-item-no-image {
+    width: 150px;
+    height: 150px;
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+}
+
+/* ========================================
+   Item Details
+   ======================================== */
+
+.my-item-details {
+    flex: 1;
+}
+
+.my-item-title {
+    margin-bottom: 10px;
+    color: var(--color-text-primary);
+}
+
+.my-item-badge-edited {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    margin-left: 8px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.my-item-badge-sold {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    margin-left: 8px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.my-item-info {
+    color: var(--color-text-secondary);
+    margin-bottom: 5px;
+}
+
+.my-item-info-dates {
+    color: var(--color-text-secondary);
+    margin-bottom: 10px;
+}
+
+.my-item-info-label {
+    color: var(--color-text-primary);
+}
+
+/* ========================================
+   Item Actions
+   ======================================== */
+
+.my-item-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-view-item {
+    display: inline-block;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.btn-view-item:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.btn-edit-item {
+    display: inline-block;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.btn-edit-item:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.mark-sold-form {
+    display: inline;
+}
+
+.btn-mark-sold {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    width: auto;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+}
+
+.btn-mark-sold:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.btn-delete-item {
+    display: inline-block;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
+
+.btn-delete-item:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.my-items-empty-state {
+    text-align: center;
+    padding: 40px;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+}
+
+.my-items-empty-text {
+    color: var(--color-text-secondary);
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.btn-post-first-item {
+    display: inline-block;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-post-first-item:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
