@@ -48,10 +48,10 @@
 
     <!-- Messages Container -->
     <div class="messages-wrapper">
-        <div class="messages-container" id="messagesContainer">
+        <div class="messages-container" id="messagesContainer" data-thread-id="{{ thread.id }}" data-current-user-id="{{ request.user.id }}">
             {% if chat_messages %}
                 {% for m in chat_messages %}
-                    <div class="message-row {% if m.sender_id == request.user.id %}message-sent{% else %}message-received{% endif %}">
+                    <div class="message-row {% if m.sender_id == request.user.id %}message-sent{% else %}message-received{% endif %}" data-message-id="{{ m.id }}">
                         <!-- Avatar (for received messages) -->
                         {% if m.sender_id != request.user.id %}
                             <div class="message-avatar">
