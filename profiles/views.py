@@ -75,8 +75,6 @@ def view_profile(request):
 @login_required
 def roommate_search(request):
     """Display roommate search page with filters"""
-    from django.db.models import Q
-
     form = RoommateSearchForm(request.GET or None)
     profiles = Profile.objects.filter(visibility=True).exclude(user=request.user)
 
