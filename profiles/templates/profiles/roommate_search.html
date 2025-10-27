@@ -13,13 +13,23 @@
 
 {% block content %}
 <div class="content-card roommate-search-container">
-    <h1 class="roommate-search-title">🏠 Find Your Perfect Roommate</h1>
+    <div class="search-header">
+        <div class="search-header-content">
+            <h1 class="roommate-search-title">🏠 Find Your Perfect Roommate</h1>
+            <p class="roommate-search-subtitle">Discover compatible roommates from NYC universities</p>
+        </div>
+        <button type="button" class="filter-toggle-btn" id="filterToggle">
+            <span class="filter-icon">🔍</span>
+            <span class="filter-text">Filters</span>
+            <span class="filter-count" id="filterCount"></span>
+        </button>
+    </div>
 
-    <!-- Filter Section -->
-    <div class="filter-section">
-        <h2 class="filter-section-title">Filter Roommates</h2>
+    <!-- Filter Section (Collapsible) -->
+    <div class="filter-section" id="filterSection">
+        <h2 class="filter-section-title">Refine Your Search</h2>
 
-        <form method="get">
+        <form method="get" id="filterForm">
             <!-- Lifestyle Preferences Row -->
             <div class="filter-grid">
                 <!-- Smoking -->
