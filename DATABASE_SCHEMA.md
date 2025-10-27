@@ -2,7 +2,7 @@
 
 This file documents the complete database schema for all models in the CampusNest application. Reference this document when adding new features to ensure schema consistency and avoid migration conflicts.
 
-**Last Updated:** October 23, 2025
+**Last Updated:** October 27, 2025
 
 ---
 
@@ -15,6 +15,8 @@ This file documents the complete database schema for all models in the CampusNes
 - [listings.ListingImage](#listingslistingimage)
 - [marketplace.Item](#marketplaceitem)
 - [marketplace.ItemImage](#marketplaceitemimage)
+- [messaging.Thread](#messagingthread)
+- [messaging.Message](#messagingmessage)
 - [Model Relationships](#model-relationships)
 - [Database Indexes](#database-indexes)
 - [Constraints Summary](#constraints-summary)
@@ -493,6 +495,141 @@ def __str__(self):
 
 ---
 
+## messaging.Thread
+
+**Table Name:** `messaging_thread`
+
+### Fields
+
+| Field Name | Type | Constraints | Default | Description |
+|------------|------|-------------|---------|-------------|
+| `id` | AutoField | PRIMARY KEY | Auto | Auto-incrementing primary key |
+| `listing` | ForeignKey(Listing) | CASCADE | - | Associated listing |
+| `user_a` | ForeignKey(User) | CASCADE | - | First participant (lower ID) |
+| `user_b` | ForeignKey(User) | CASCADE | - | Second participant (higher ID) |
+| `created_at` | DateTimeField | AUTO_ADD | now | Thread creation timestamp |
+| `updated_at` | DateTimeField | AUTO_UPDATE | now | Last update timestamp |
+
+### Meta Options
+
+```python
+class Meta:
+    constraints = [
+        models.UniqueConstraint(
+            fields=["listing", "user_a", "user_b"],
+            name="unique_thread_per_listing_pair",
+        ),
+        models.CheckConstraint(
+            check=~Q(user_a=F("user_b")),
+            name="prevent_self_thread"
+        ),
+    ]
+    indexes = [
+        models.Index(fields=["listing", "user_a"]),
+        models.Index(fields=["listing", "user_b"]),
+        models.Index(fields=["updated_at"]),
+    ]
+```
+
+### String Representation
+
+```python
+def __str__(self):
+    return f"Thread(listing={self.listing_id}, users=({self.user_a_id},{self.user_b_id}))"
+```
+
+### Custom Methods
+
+```python
+def save(self, *args, **kwargs):
+    """Ensures user_a always has lower ID than user_b for consistency"""
+    if self.user_a_id and self.user_b_id and self.user_a_id > self.user_b_id:
+        self.user_a_id, self.user_b_id = self.user_b_id, self.user_a_id
+    super().save(*args, **kwargs)
+
+def other_participant(self, user):
+    """Returns the other participant in the thread"""
+    return self.user_b if user.id == self.user_a_id else self.user_a
+```
+
+### Related Names
+
+- **listing → threads:** `listing.threads.all()`
+- **user_a → threads_a:** `user.threads_a.all()`
+- **user_b → threads_b:** `user.threads_b.all()`
+
+### Notes
+
+- Unique constraint prevents duplicate threads for same listing and user pair
+- Check constraint prevents users from creating threads with themselves
+- Users are automatically ordered by ID (user_a < user_b) on save
+- Multiple indexes for efficient querying by listing and participants
+- CASCADE delete: deleting listing or user removes related threads
+- Updated_at auto-updates on save
+
+---
+
+## messaging.Message
+
+**Table Name:** `messaging_message`
+
+### Fields
+
+| Field Name | Type | Constraints | Default | Description |
+|------------|------|-------------|---------|-------------|
+| `id` | AutoField | PRIMARY KEY | Auto | Auto-incrementing primary key |
+| `thread` | ForeignKey(Thread) | CASCADE | - | Associated thread |
+| `sender` | ForeignKey(User) | CASCADE | - | User who sent the message |
+| `body` | TextField(2000) | NOT NULL | - | Message content |
+| `created_at` | DateTimeField | AUTO_ADD | now | Message creation timestamp |
+| `is_read` | BooleanField | NOT NULL | False | Read status |
+| `read_at` | DateTimeField | Optional | None | Timestamp when message was read |
+
+### Meta Options
+
+```python
+class Meta:
+    ordering = ["created_at"]
+    indexes = [
+        models.Index(fields=["thread", "created_at"]),
+        models.Index(fields=["thread", "is_read"]),
+    ]
+```
+
+### String Representation
+
+```python
+def __str__(self):
+    return f"Msg(thread={self.thread_id}, from={self.sender_id}, at={self.created_at:%Y-%m-%d %H:%M})"
+```
+
+### Custom Methods
+
+```python
+def mark_read(self):
+    """Marks message as read and sets read_at timestamp"""
+    if not self.is_read:
+        self.is_read = True
+        self.read_at = timezone.now()
+        self.save(update_fields=["is_read", "read_at"])
+```
+
+### Related Names
+
+- **thread → messages:** `thread.messages.all()`
+- **sender → sent_messages:** `user.sent_messages.all()`
+
+### Notes
+
+- Messages ordered chronologically (oldest first)
+- Max length of 2000 characters for message body
+- Read status tracking with optional read_at timestamp
+- Multiple indexes for efficient querying by thread
+- CASCADE delete: deleting thread or sender removes messages
+- mark_read() method efficiently updates only necessary fields
+
+---
+
 ## Model Relationships
 
 ### Entity Relationship Diagram
@@ -504,37 +641,39 @@ def __str__(self):
 └────────┬────────┘
          │
          │ 1:1
-         ├──────────────────┐
-         │                  │
-         │                  ▼
-         │         ┌─────────────────┐
-         │         │ profiles.Profile│
-         │         └────────┬────────┘
-         │                  │
-         │                  │ 1:M
-         │         ┌────────┴────────┐
-         │         │                 │
-         │         ▼                 ▼
-         │  ┌──────────────┐  ┌─────────────────────┐
-         │  │   Favorite   │  │ ConnectionRequest   │
-         │  │  (M:M via)   │  │    (M:M via)        │
-         │  └──────────────┘  └─────────────────────┘
-         │
-         │ 1:M
-         ├──────────────────┬──────────────────┐
-         │                  │                  │
-         ▼                  ▼                  ▼
-┌─────────────────┐  ┌──────────────┐  ┌──────────────┐
-│listings.Listing │  │marketplace.  │  │    Other     │
-│                 │  │    Item      │  │  Relations   │
-└────────┬────────┘  └──────┬───────┘  └──────────────┘
-         │                  │
-         │ 1:M             │ 1:M
-         │                  │
-         ▼                  ▼
-┌─────────────────┐  ┌──────────────┐
-│ ListingImage    │  │  ItemImage   │
-└─────────────────┘  └──────────────┘
+         ├──────────────────┬────────────────────┬──────────────────┐
+         │                  │                    │                  │
+         │                  ▼                    │                  │
+         │         ┌─────────────────┐           │                  │
+         │         │ profiles.Profile│           │                  │
+         │         └────────┬────────┘           │                  │
+         │                  │                    │                  │
+         │                  │ 1:M               │                  │
+         │         ┌────────┴────────┐           │                  │
+         │         │                 │           │                  │
+         │         ▼                 ▼           │                  │
+         │  ┌──────────────┐  ┌─────────────────────┐              │
+         │  │   Favorite   │  │ ConnectionRequest   │              │
+         │  │  (M:M via)   │  │    (M:M via)        │              │
+         │  └──────────────┘  └─────────────────────┘              │
+         │                                                          │
+         │ 1:M                                                     │
+         ├──────────────────┬──────────────────┐                   │
+         │                  │                  │                   │
+         ▼                  ▼                  ▼                   │
+┌─────────────────┐  ┌──────────────┐  ┌──────────────┐           │
+│listings.Listing │  │marketplace.  │  │  messaging.  │           │
+│                 │  │    Item      │  │   Thread     │◄──────────┤
+└────────┬────────┘  └──────┬───────┘  └──────┬───────┘           │
+         │                  │                  │                   │
+         │ 1:M             │ 1:M              │ 1:M              │ M:1
+         │                  │                  │                   │
+         ├──────────────────┤                  ▼                   │
+         │                  │         ┌─────────────────┐          │
+         ▼                  ▼         │   messaging.    │          │
+┌─────────────────┐  ┌──────────────┐│    Message      │──────────┘
+│ ListingImage    │  │  ItemImage   ││                 │
+└─────────────────┘  └──────────────┘└─────────────────┘
 ```
 
 ### Foreign Key Relationships
@@ -550,6 +689,11 @@ def __str__(self):
 | ListingImage | listing | Listing | CASCADE | M:1 |
 | Item | user | User | CASCADE | M:1 |
 | ItemImage | item | Item | CASCADE | M:1 |
+| Thread | listing | Listing | CASCADE | M:1 |
+| Thread | user_a | User | CASCADE | M:1 |
+| Thread | user_b | User | CASCADE | M:1 |
+| Message | thread | Thread | CASCADE | M:1 |
+| Message | sender | User | CASCADE | M:1 |
 
 ### Related Name Mapping
 
@@ -564,6 +708,11 @@ def __str__(self):
 | ListingImage | listing | images | `listing.images.all()` |
 | Item | user | (default) | `user.item_set.all()` |
 | ItemImage | item | images | `item.images.all()` |
+| Thread | listing | threads | `listing.threads.all()` |
+| Thread | user_a | threads_a | `user.threads_a.all()` |
+| Thread | user_b | threads_b | `user.threads_b.all()` |
+| Message | thread | messages | `thread.messages.all()` |
+| Message | sender | sent_messages | `user.sent_messages.all()` |
 
 ---
 
@@ -578,7 +727,7 @@ Django automatically creates indexes for:
 
 ### Explicit Indexes
 
-The following fields have explicit indexes due to `unique_together` or `ordering`:
+The following fields have explicit indexes due to `unique_together`, `ordering`, or explicit index definitions:
 
 **profiles.Favorite:**
 - Index on `(user, favorite_profile)` - unique_together
@@ -589,6 +738,16 @@ The following fields have explicit indexes due to `unique_together` or `ordering
 - Index on `created_at` - ordering
 
 **marketplace.Item:**
+- Index on `created_at` - ordering
+
+**messaging.Thread:**
+- Index on `(listing, user_a)` - explicit
+- Index on `(listing, user_b)` - explicit
+- Index on `updated_at` - explicit
+
+**messaging.Message:**
+- Index on `(thread, created_at)` - explicit
+- Index on `(thread, is_read)` - explicit
 - Index on `created_at` - ordering
 
 ### Fields Frequently Used in Queries (Consider Adding Indexes)
@@ -614,6 +773,7 @@ If performance issues arise, consider adding indexes to:
 | Profile | user | UNIQUE (1:1) |
 | Favorite | (user, favorite_profile) | unique_together |
 | ConnectionRequest | (from_user, to_user) | unique_together |
+| Thread | (listing, user_a, user_b) | UniqueConstraint |
 
 ### NOT NULL Constraints
 
@@ -622,9 +782,14 @@ All fields are NOT NULL except:
 - Profile: `location`, `move_in_date`
 - ConnectionRequest: `message`
 - Listing: `amenities`, `custom_amenities`
+- Message: `read_at`
 
-### Check Constraints (Application Level)
+### Check Constraints
 
+**Database Level:**
+- Thread: `user_a` cannot equal `user_b` (prevent_self_thread)
+
+**Application Level (Validators):**
 These are enforced by validators, not database constraints:
 - User.email: Must match `.edu` pattern
 - Listing.availability_start: Cannot be in past
@@ -657,6 +822,8 @@ These are enforced by validators, not database constraints:
 | Item | is_edited | False |
 | Item | is_sold | False |
 | Item | is_active | True |
+| Message | is_read | False |
+| Message | read_at | None |
 
 ---
 
