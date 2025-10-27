@@ -228,8 +228,8 @@
 
 /* Sent Messages (Right Side) */
 .message-sent .message-bubble {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-    color: white;
+    background: linear-gradient(135deg, #5b5fc7 0%, #7c7ef0 100%);
+    color: #ffffff;
     border-bottom-right-radius: 0.25rem;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
@@ -237,6 +237,14 @@
 .message-sent .message-bubble:hover {
     box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
     transform: translateY(-1px);
+}
+
+.message-sent .message-text {
+    color: #ffffff;
+}
+
+.message-sent .message-meta {
+    color: rgba(255, 255, 255, 0.95);
 }
 
 /* Received Messages (Left Side) */
@@ -403,7 +411,7 @@
 }
 
 .send-button:hover {
-    transform: scale(1.1) rotate(5deg);
+    transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
 }
 
@@ -411,10 +419,13 @@
     transform: scale(0.95);
 }
 
+.send-button span {
+    display: none;
+}
+
 .send-icon {
     width: 20px;
     height: 20px;
-    transform: translateX(1px);
 }
 
 /* ===== Responsive Design ===== */
