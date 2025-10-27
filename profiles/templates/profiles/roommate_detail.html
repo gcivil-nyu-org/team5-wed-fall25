@@ -4,43 +4,163 @@
 {% block title %}{{ profile.user.first_name }}'s Profile - CampusNest{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'profiles/css/roommate_detail.css' %}">
-{% endblock %}
+<link rel="stylesheet" href="{% static 'profiles/css/view_profile.css' %}">
+<style>
+    .action-buttons-container {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
 
-{% block extra_js %}
-<script src="{% static 'profiles/js/roommate_detail.js' %}"></script>
+    .action-btn {
+        flex: 1;
+        min-width: 200px;
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--radius-md);
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        border: none;
+        font-size: 1rem;
+        font-family: inherit;
+    }
+
+    .favorite-btn-detail {
+        background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .favorite-btn-detail.favorited {
+        background: linear-gradient(135deg, var(--color-warning) 0%, #f59e0b 100%);
+    }
+
+    .favorite-btn-detail:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+    }
+
+    .favorite-btn-detail.favorited:hover {
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+    }
+
+    .connect-btn-detail {
+        background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+        color: white;
+    }
+
+    .connect-btn-detail:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .connection-status-badge {
+        flex: 1;
+        min-width: 200px;
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--radius-md);
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .connection-status-badge.pending {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%);
+        color: var(--color-warning);
+        border: 2px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .connection-status-badge.accepted {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+        color: var(--color-success);
+        border: 2px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .connection-status-badge.rejected {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.1) 100%);
+        color: var(--color-danger);
+        border: 2px solid rgba(239, 68, 68, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons-container {
+            flex-direction: column;
+        }
+
+        .action-btn,
+        .connection-status-badge {
+            width: 100%;
+            min-width: auto;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="content-card roommate-detail-container">
+<div class="view-profile-wrapper">
     <!-- Back Button -->
-    <a href="{% url 'roommate_search' %}" class="back-link-top">
-        ← Back to Search
-    </a>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem 1rem;">
+        <a href="{% url 'roommate_search' %}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; font-size: 0.9375rem; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.5rem;">
+            ← Back to Search
+        </a>
+    </div>
 
-    <!-- Main Profile Card -->
-    <div class="profile-detail-card">
+    <!-- Header with Profile Photo and Basic Info -->
+    <div class="profile-header">
+        <div class="profile-header-container">
+            <div class="profile-header-content">
+                <div class="profile-photo-wrapper">
+                    {% if profile.profile_photo %}
+                        <img src="{{ profile.profile_photo.url }}"
+                             alt="{{ profile.user.first_name }}'s photo"
+                             class="profile-photo-large">
+                    {% else %}
+                        <div class="profile-photo-placeholder-large">
+                            {{ profile.user.first_name.0 }}{{ profile.user.last_name.0 }}
+                        </div>
+                    {% endif %}
+                    {% if profile.user.is_verified %}
+                        <div class="verified-badge">
+                            <svg class="verified-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Verified
+                        </div>
+                    {% endif %}
+                </div>
 
-        <!-- Header Section -->
-        <div class="profile-header">
-            <!-- Profile Photo -->
-            <div class="profile-photo-section">
-                {% if profile.profile_photo %}
-                    <img src="{{ profile.profile_photo.url }}" alt="{{ profile.user.first_name }}" class="detail-profile-photo">
-                {% else %}
-                    <div class="detail-profile-photo-placeholder">
-                        {{ profile.user.first_name.0 }}{{ profile.user.last_name.0 }}
-                    </div>
-                {% endif %}
+                <div class="profile-header-info">
+                    <h1 class="profile-name">{{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
+                    <p class="profile-username">@{{ profile.user.username }}</p>
+                    <p class="profile-university">
+                        <svg class="university-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                        </svg>
+                        {{ profile.get_university_display }}
+                    </p>
+                </div>
 
-                <!-- Favorite & Connect Buttons -->
-                <div class="profile-actions-container">
-                    <button class="favorite-btn {% if is_favorited %}favorited{% else %}not-favorited{% endif %}" data-user-id="{{ profile.user.id }}">
-                        {% if is_favorited %}❤️ Favorited{% else %}🤍 Add to Favorites{% endif %}
+                <!-- Action Buttons -->
+                <div class="action-buttons-container">
+                    <button class="action-btn favorite-btn-detail {% if is_favorited %}favorited{% endif %}" data-user-id="{{ profile.user.id }}">
+                        {% if is_favorited %}
+                            ❤️ Favorited
+                        {% else %}
+                            🤍 Add to Favorites
+                        {% endif %}
                     </button>
 
                     {% if connection_request %}
-                        <div class="connection-status-box">
+                        <div class="connection-status-badge {{ connection_request.status }}">
                             {% if connection_request.status == 'pending' %}
                                 ⏳ Request Pending
                             {% elif connection_request.status == 'accepted' %}
@@ -50,103 +170,167 @@
                             {% endif %}
                         </div>
                     {% else %}
-                        <form method="post" action="{% url 'send_connection_request' profile.user.id %}" class="connection-request-form">
+                        <form method="post" action="{% url 'send_connection_request' profile.user.id %}" style="flex: 1; min-width: 200px;">
                             {% csrf_token %}
-                            <button type="submit" class="btn-send-connection">
+                            <button type="submit" class="action-btn connect-btn-detail">
                                 🤝 Send Connection Request
                             </button>
                         </form>
                     {% endif %}
                 </div>
             </div>
-
-            <!-- Basic Info -->
-            <div>
-                <h1 class="profile-name">{{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
-                <p class="profile-university-text">{{ profile.get_university_display }}</p>
-
-                <div class="basic-info-box">
-                    <p class="basic-info-item"><strong class="basic-info-label">📧 Email:</strong> {{ profile.user.email }}</p>
-                    <p class="basic-info-item"><strong class="basic-info-label">👤 Member Since:</strong> {{ profile.created_at|date:"F d, Y" }}</p>
-                </div>
-
-                <!-- Bio -->
-                <div class="bio-box">
-                    <h3 class="bio-title">About</h3>
-                    <p class="bio-text">{{ profile.bio }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lifestyle Preferences Section -->
-        <div class="preferences-section">
-            <h2 class="preferences-title">🏠 Lifestyle Preferences</h2>
-
-            <div class="preferences-grid">
-                <div class="preference-card">
-                    <p class="preference-label">🚬 Smoking</p>
-                    <p class="preference-value">{{ profile.get_smoking_preference_display }}</p>
-                </div>
-
-                <div class="preference-card">
-                    <p class="preference-label">🐾 Pets</p>
-                    <p class="preference-value">{{ profile.get_pet_preference_display }}</p>
-                </div>
-
-                <div class="preference-card">
-                    <p class="preference-label">✨ Cleanliness</p>
-                    <p class="preference-value">{{ profile.get_cleanliness_preference_display }}</p>
-                </div>
-
-                <div class="preference-card">
-                    <p class="preference-label">🍽️ Eating</p>
-                    <p class="preference-value">{{ profile.get_eating_habit_display }}</p>
-                </div>
-
-                <div class="preference-card">
-                    <p class="preference-label">🍷 Drinking</p>
-                    <p class="preference-value">{{ profile.get_drinking_preference_display }}</p>
-                </div>
-
-                <div class="preference-card">
-                    <p class="preference-label">🤝 Sharing</p>
-                    <p class="preference-value">{{ profile.get_sharing_preference_display }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Housing Preferences Section -->
-        <div class="preferences-section last">
-            <h2 class="preferences-title">🏘️ Housing Preferences</h2>
-
-            <div class="preferences-grid">
-                <div class="preference-card">
-                    <p class="preference-label">💰 Budget Range</p>
-                    <p class="preference-value">${{ profile.budget_min }} - ${{ profile.budget_max }}/month</p>
-                </div>
-
-                {% if profile.location %}
-                    <div class="preference-card">
-                        <p class="preference-label">📍 Preferred Location</p>
-                        <p class="preference-value">{{ profile.location }}</p>
-                    </div>
-                {% endif %}
-
-                {% if profile.move_in_date %}
-                    <div class="preference-card">
-                        <p class="preference-label">📅 Move-In Date</p>
-                        <p class="preference-value">{{ profile.move_in_date|date:"F d, Y" }}</p>
-                    </div>
-                {% endif %}
-            </div>
         </div>
     </div>
 
-    <!-- Back Button -->
-    <div class="back-link-bottom-container">
-        <a href="{% url 'roommate_search' %}" class="btn-back-to-search">
-            ← Back to Search
-        </a>
+    <!-- Main Content Grid -->
+    <div class="profile-main-content">
+        <div class="profile-grid">
+            <!-- Left Column - About & Preferences -->
+            <div class="profile-left-column">
+                <!-- About Section -->
+                <div class="profile-card">
+                    <h2 class="card-title">
+                        <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"/>
+                        </svg>
+                        About
+                    </h2>
+                    <p class="bio-text">{{ profile.bio|default:"No bio provided yet." }}</p>
+                </div>
+
+                <!-- Lifestyle Preferences -->
+                <div class="profile-card">
+                    <h2 class="card-title">
+                        <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"/>
+                        </svg>
+                        Lifestyle Preferences
+                    </h2>
+                    <div class="preferences-grid">
+                        <div class="preference-item">
+                            <div class="preference-dot"></div>
+                            <div>
+                                <p class="preference-label-small">Eating</p>
+                                <p class="preference-value-text">{{ profile.get_eating_habit_display }}</p>
+                            </div>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-dot"></div>
+                            <div>
+                                <p class="preference-label-small">Smoking</p>
+                                <p class="preference-value-text">{{ profile.get_smoking_preference_display }}</p>
+                            </div>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-dot"></div>
+                            <div>
+                                <p class="preference-label-small">Sharing</p>
+                                <p class="preference-value-text">{{ profile.get_sharing_preference_display }}</p>
+                            </div>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-dot"></div>
+                            <div>
+                                <p class="preference-label-small">Drinking</p>
+                                <p class="preference-value-text">{{ profile.get_drinking_preference_display }}</p>
+                            </div>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-dot"></div>
+                            <div>
+                                <p class="preference-label-small">Pets</p>
+                                <p class="preference-value-text">{{ profile.get_pet_preference_display }}</p>
+                            </div>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-dot"></div>
+                            <div>
+                                <p class="preference-label-small">Cleanliness</p>
+                                <p class="preference-value-text">{{ profile.get_cleanliness_preference_display }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Housing Preferences -->
+                <div class="profile-card">
+                    <h2 class="card-title">
+                        <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                        Housing Preferences
+                    </h2>
+                    <div class="housing-preferences">
+                        <div class="preference-item">
+                            <div class="preference-dot"></div>
+                            <div>
+                                <p class="preference-label-small">Budget</p>
+                                <p class="preference-value-text">${{ profile.budget_min }} - ${{ profile.budget_max }}/month</p>
+                            </div>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-dot"></div>
+                            <div>
+                                <p class="preference-label-small">Location</p>
+                                <p class="preference-value-text">{{ profile.location|default:"Not specified" }}</p>
+                            </div>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-dot"></div>
+                            <div>
+                                <p class="preference-label-small">Move In Date</p>
+                                <p class="preference-value-text">
+                                    {% if profile.move_in_date %}
+                                        {{ profile.move_in_date|date:"F d, Y" }}
+                                    {% else %}
+                                        Not specified
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Contact & Account Info -->
+            <div class="profile-right-column">
+                <!-- Contact Info -->
+                <div class="profile-card">
+                    <h2 class="card-title-small">Contact Info</h2>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <svg class="contact-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                            <span class="contact-text">{{ profile.user.email }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Details -->
+                <div class="profile-card">
+                    <h2 class="card-title-small">Account Details</h2>
+                    <div class="account-details">
+                        <div class="account-item">
+                            <svg class="account-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <p class="account-label">Member Since</p>
+                                <p class="account-value">{{ profile.created_at|date:"F Y" }}</p>
+                            </div>
+                        </div>
+                        <div class="verification-badge">
+                            <svg class="verification-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            .edu Verified
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

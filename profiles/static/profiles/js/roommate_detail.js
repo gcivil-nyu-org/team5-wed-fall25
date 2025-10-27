@@ -2,8 +2,8 @@
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Favorite button functionality
-    const favoriteBtn = document.querySelector('.favorite-btn');
+    // Favorite button functionality - updated selector for new template
+    const favoriteBtn = document.querySelector('.favorite-btn-detail');
 
     if (favoriteBtn) {
         favoriteBtn.addEventListener('click', async function(e) {
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await fetch(`/roommates/${userId}/favorite/`, {
                     method: 'POST',
                     headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                        'X-CSRFToken': getCsrfToken(),
                         'Content-Type': 'application/json',
                     },
                 });
@@ -25,9 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.textContent = data.favorited ? '❤️ Favorited' : '🤍 Add to Favorites';
                     if (data.favorited) {
                         this.classList.add('favorited');
-                        this.classList.remove('not-favorited');
                     } else {
-                        this.classList.add('not-favorited');
                         this.classList.remove('favorited');
                     }
                 }
@@ -37,3 +35,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Helper function to get CSRF token
+function getCsrfToken() {
+    // Try to get from cookie first
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+
+    if (cookieValue) return cookieValue;
+
+    // Fallback to hidden input
+    const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    return tokenInput ? tokenInput.value : '';
+}
