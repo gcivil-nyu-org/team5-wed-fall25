@@ -171,7 +171,7 @@ nav {
 .dropdown-menu {
 	display: none;
 	position: absolute;
-	top: calc(100% + 0.5rem);
+	top: 100%;
 	left: 0;
 	background-color: var(--color-surface-elevated);
 	min-width: 220px;
@@ -183,6 +183,7 @@ nav {
 	transition: opacity 0.2s ease;
 	pointer-events: none;
 	border: 1px solid var(--color-border-light);
+	margin-top: -2px;
 }
 
 .nav-dropdown:hover .dropdown-menu {
