@@ -172,7 +172,11 @@ def get_new_messages(request, thread_id):
         last_message_id = 0
 
     # Fetch messages newer than the last known message
-    new_messages = t.messages.filter(id__gt=last_message_id).select_related("sender").order_by("created_at")
+    new_messages = (
+        t.messages.filter(id__gt=last_message_id)
+        .select_related("sender")
+        .order_by("created_at")
+    )
 
     # Mark incoming messages as read
     new_messages.filter(is_read=False).exclude(sender=request.user).update(
@@ -184,22 +188,32 @@ def get_new_messages(request, thread_id):
     for msg in new_messages:
         # Check if sender has a profile with photo
         profile_photo_url = None
-        if hasattr(msg.sender, 'profile') and msg.sender.profile.profile_photo:
+        if hasattr(msg.sender, "profile") and msg.sender.profile.profile_photo:
             profile_photo_url = msg.sender.profile.profile_photo.url
 
-        messages_data.append({
-            "id": msg.id,
-            "sender_id": msg.sender.id,
-            "sender_name": msg.sender.first_name or msg.sender.username,
-            "sender_first_initial": (msg.sender.first_name or msg.sender.username)[0].upper(),
-            "sender_last_initial": (msg.sender.last_name or "")[0].upper() if msg.sender.last_name else "",
-            "profile_photo_url": profile_photo_url,
-            "body": msg.body,
-            "created_at": msg.created_at.strftime("%b %d, %I:%M %p"),
-            "is_current_user": msg.sender.id == request.user.id,
-        })
+        messages_data.append(
+            {
+                "id": msg.id,
+                "sender_id": msg.sender.id,
+                "sender_name": msg.sender.first_name or msg.sender.username,
+                "sender_first_initial": (msg.sender.first_name or msg.sender.username)[
+                    0
+                ].upper(),
+                "sender_last_initial": (
+                    (msg.sender.last_name or "")[0].upper()
+                    if msg.sender.last_name
+                    else ""
+                ),
+                "profile_photo_url": profile_photo_url,
+                "body": msg.body,
+                "created_at": msg.created_at.strftime("%b %d, %I:%M %p"),
+                "is_current_user": msg.sender.id == request.user.id,
+            }
+        )
 
-    return JsonResponse({
-        "messages": messages_data,
-        "count": len(messages_data),
-    })
+    return JsonResponse(
+        {
+            "messages": messages_data,
+            "count": len(messages_data),
+        }
+    )
