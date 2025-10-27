@@ -75,22 +75,25 @@ def view_profile(request):
 @login_required
 def roommate_search(request):
     """Display roommate search page with filters"""
+    from django.db.models import Q
+
     form = RoommateSearchForm(request.GET or None)
     profiles = Profile.objects.filter(visibility=True).exclude(user=request.user)
 
     # Apply filters
     if form.is_valid():
-        # Lifestyle filters
+        # Lifestyle filters - "no_preference" in filter means show ALL profiles
+        # Only apply filter if "no_preference" is NOT selected
         smoking_prefs = form.cleaned_data.get("smoking_preference")
-        if smoking_prefs:
+        if smoking_prefs and "no_preference" not in smoking_prefs:
             profiles = profiles.filter(smoking_preference__in=smoking_prefs)
 
         pet_prefs = form.cleaned_data.get("pet_preference")
-        if pet_prefs:
+        if pet_prefs and "no_preference" not in pet_prefs:
             profiles = profiles.filter(pet_preference__in=pet_prefs)
 
         cleanliness_prefs = form.cleaned_data.get("cleanliness_preference")
-        if cleanliness_prefs:
+        if cleanliness_prefs and "no_preference" not in cleanliness_prefs:
             profiles = profiles.filter(cleanliness_preference__in=cleanliness_prefs)
 
         # Housing filters
