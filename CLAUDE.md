@@ -36,9 +36,19 @@ SECRET_KEY=your-secret-key-here
 DEBUG=True
 EMAIL_HOST_USER=your-email@gmail.com
 EMAIL_HOST_PASSWORD=your-app-password  # Gmail App Password required
+
+# AWS S3 Configuration (required for production)
+USE_S3=True  # Set to False for local development
+AWS_ACCESS_KEY_ID=your-aws-access-key-id
+AWS_SECRET_ACCESS_KEY=your-aws-secret-access-key
+AWS_STORAGE_BUCKET_NAME=campusnest-media
+AWS_S3_REGION_NAME=us-east-1
 ```
 
-**Note:** Email functionality requires Gmail App Password (not regular password). If not configured, Django falls back to console email backend for development.
+**Note:**
+- Email functionality requires Gmail App Password (not regular password). If not configured, Django falls back to console email backend for development.
+- S3 is required for production to persist media files across deployments. Set `USE_S3=False` for local development to use local media storage.
+- See `.env.example` for complete list of environment variables.
 
 ## Testing & CI/CD
 
@@ -265,11 +275,67 @@ python manage.py cleanstatic --pyc-only         # Only clean .pyc files and __py
 ```
 
 ## Media Files
-- **Profile photos:** `media/profile_photos/`
-- **Listing images:** `media/listing_photos/`
-- **Marketplace images:** `media/marketplace_photos/`
-- **Configuration:** `MEDIA_URL = "/media/"` and `MEDIA_ROOT = BASE_DIR / "media"`
-- **AWS S3 integration:** Commented out but available in settings.py
+
+### AWS S3 Integration (Production)
+Media files are stored in AWS S3 for production to persist across deployments. Local storage is used as fallback for development.
+
+**Setup Steps:**
+1. **Create S3 Bucket:**
+   - Bucket name: `campusnest-media` (or your preferred name)
+   - Region: `us-east-1` (or your preferred region)
+   - Disable "Block all public access" for public-read access
+   - Enable versioning (optional but recommended)
+
+2. **Configure Bucket Policy:**
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Sid": "PublicReadGetObject",
+         "Effect": "Allow",
+         "Principal": "*",
+         "Action": "s3:GetObject",
+         "Resource": "arn:aws:s3:::campusnest-media/*"
+       }
+     ]
+   }
+   ```
+
+3. **Create IAM User with S3 Permissions:**
+   - Create IAM user: `campusnest-s3-user`
+   - Attach policy: `AmazonS3FullAccess` (or create custom policy with limited permissions)
+   - Generate access keys and save them securely
+
+4. **Configure Environment Variables:**
+   ```bash
+   USE_S3=True
+   AWS_ACCESS_KEY_ID=your-access-key-id
+   AWS_SECRET_ACCESS_KEY=your-secret-access-key
+   AWS_STORAGE_BUCKET_NAME=campusnest-media
+   AWS_S3_REGION_NAME=us-east-1
+   ```
+
+5. **Install Dependencies:**
+   ```bash
+   pip install django-storages boto3
+   ```
+
+**Storage Locations:**
+- **Profile photos:** `profile_photos/` (in S3 bucket)
+- **Listing images:** `listing_photos/` (in S3 bucket)
+- **Marketplace images:** `marketplace_photos/` (in S3 bucket)
+
+**Configuration Details:**
+- `USE_S3=True`: Enables S3 storage (set to `False` for local development)
+- `AWS_S3_FILE_OVERWRITE=False`: Prevents overwriting existing files
+- `AWS_DEFAULT_ACL="public-read"`: Makes uploaded files publicly accessible
+- `AWS_QUERYSTRING_AUTH=False`: Disables query string authentication for public URLs
+
+**Local Development:**
+- Set `USE_S3=False` in your `.env` file
+- Media files stored in `media/` directory
+- Configuration: `MEDIA_URL = "/media/"` and `MEDIA_ROOT = BASE_DIR / "media"`
 
 **Note:** Profile photos are used in messaging interface for avatars (falls back to initial placeholders if no photo).
 
