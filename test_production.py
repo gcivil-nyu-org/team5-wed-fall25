@@ -6,8 +6,8 @@ Temporarily sets DEBUG=False to test static files.
 import os
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CampusNest.settings')
-os.environ['DEBUG'] = 'False'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "CampusNest.settings")
+os.environ["DEBUG"] = "False"
 
 django.setup()
 
@@ -27,6 +27,7 @@ print(f"  staticfiles: {settings.STORAGES['staticfiles']['BACKEND']}")
 
 # Check if staticfiles directory exists and has files
 import os
+
 staticfiles_path = settings.STATIC_ROOT
 if os.path.exists(staticfiles_path):
     file_count = sum(len(files) for _, _, files in os.walk(staticfiles_path))

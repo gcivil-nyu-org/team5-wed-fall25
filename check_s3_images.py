@@ -10,10 +10,10 @@ bucket_name = os.getenv("AWS_STORAGE_BUCKET_NAME", "campusnest-media")
 region = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
 
 s3_client = boto3.client(
-    's3',
+    "s3",
     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-    region_name=region
+    region_name=region,
 )
 
 print("=" * 60)
@@ -22,11 +22,11 @@ print("=" * 60)
 
 response = s3_client.list_objects_v2(Bucket=bucket_name)
 
-if 'Contents' in response:
+if "Contents" in response:
     print(f"\nFound {len(response['Contents'])} objects:\n")
-    for obj in response['Contents']:
-        key = obj['Key']
-        size = obj['Size']
+    for obj in response["Contents"]:
+        key = obj["Key"]
+        size = obj["Size"]
         url = f"https://{bucket_name}.s3.amazonaws.com/{key}"
         print(f"File: {key}")
         print(f"Size: {size} bytes")
