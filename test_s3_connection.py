@@ -62,10 +62,10 @@ try:
 
     try:
         response = s3_client.head_bucket(Bucket=bucket_name)
-        print(f"   ✓ Bucket exists and is accessible")
+        print("   ✓ Bucket exists and is accessible")
 
         # List objects in bucket
-        print(f"\n4. Bucket Contents:")
+        print("\n4. Bucket Contents:")
         response = s3_client.list_objects_v2(Bucket=bucket_name, MaxKeys=10)
         if "Contents" in response:
             print(f"   Found {len(response['Contents'])} objects (showing first 10):")
@@ -75,7 +75,7 @@ try:
             print("   Bucket is empty")
 
         # Test upload permissions
-        print(f"\n5. Testing Upload Permissions:")
+        print("\n5. Testing Upload Permissions:")
         test_key = "test_upload.txt"
         test_content = b"This is a test file"
 
@@ -89,16 +89,16 @@ try:
 
         # Clean up test file
         s3_client.delete_object(Bucket=bucket_name, Key=test_key)
-        print(f"   ✓ Successfully deleted test file")
+        print("   ✓ Successfully deleted test file")
 
     except ClientError as e:
         error_code = e.response["Error"]["Code"]
         if error_code == "404":
             print(f"   ✗ Bucket '{bucket_name}' does not exist")
-            print(f"   → Please create the bucket in AWS Console")
+            print("   → Please create the bucket in AWS Console")
         elif error_code == "403":
             print(f"   ✗ Access denied to bucket '{bucket_name}'")
-            print(f"   → Check IAM permissions for your AWS credentials")
+            print("   → Check IAM permissions for your AWS credentials")
         else:
             print(f"   ✗ Error: {e}")
 

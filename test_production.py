@@ -21,7 +21,7 @@ print(f"\nDEBUG: {settings.DEBUG}")
 print(f"STATIC_URL: {settings.STATIC_URL}")
 print(f"STATIC_ROOT: {settings.STATIC_ROOT}")
 print(f"MEDIA_URL: {settings.MEDIA_URL}")
-print(f"\nSTORAGES Configuration:")
+print("\nSTORAGES Configuration:")
 print(f"  default: {settings.STORAGES['default']['BACKEND']}")
 print(f"  staticfiles: {settings.STORAGES['staticfiles']['BACKEND']}")
 

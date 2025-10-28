@@ -44,6 +44,6 @@ print(f"   Storage module: {profile_photo_field.storage.__class__.__module__}")
 if hasattr(profile_photo_field.storage, "bucket_name"):
     print(f"   S3 Bucket: {profile_photo_field.storage.bucket_name}")
 else:
-    print(f"   S3 Bucket: Not using S3 storage")
+    print("   S3 Bucket: Not using S3 storage")
 
 print("\n" + "=" * 60)

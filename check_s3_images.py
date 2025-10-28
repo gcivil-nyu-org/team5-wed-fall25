@@ -35,7 +35,7 @@ if "Contents" in response:
         # Test if publicly accessible
         try:
             head_response = s3_client.head_object(Bucket=bucket_name, Key=key)
-            print(f"✓ File exists and is accessible")
+            print("✓ File exists and is accessible")
         except Exception as e:
             print(f"✗ Error accessing file: {e}")
         print()
