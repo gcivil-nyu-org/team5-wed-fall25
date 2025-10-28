@@ -39,7 +39,6 @@ AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None  # Bucket has ACLs disabled, use bucket policy instead
 AWS_S3_VERIFY = True
 AWS_QUERYSTRING_AUTH = False
-AWS_LOCATION = ""  # Root of bucket (no prefix)
 
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
