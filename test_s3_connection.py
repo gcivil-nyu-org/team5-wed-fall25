@@ -33,7 +33,7 @@ print(f"   AWS_S3_REGION_NAME: {os.getenv('AWS_S3_REGION_NAME')}")
 # Check Django settings
 print("\n2. Django Settings:")
 print(f"   USE_S3: {settings.USE_S3}")
-print(f"   DEFAULT_FILE_STORAGE: {settings.DEFAULT_FILE_STORAGE if settings.USE_S3 else 'Local storage'}")
+print(f"   STORAGES['default']: {settings.STORAGES['default']['BACKEND']}")
 print(f"   MEDIA_URL: {settings.MEDIA_URL}")
 print(f"   AWS_STORAGE_BUCKET_NAME: {settings.AWS_STORAGE_BUCKET_NAME}")
 print(f"   AWS_S3_REGION_NAME: {settings.AWS_S3_REGION_NAME}")
