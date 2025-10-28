@@ -28,11 +28,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
+
+# AWS S3 Configuration
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "campusnest-media")
 AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
 AWS_S3_SIGNATURE_VERSION = "s3v4"
-DEBUG = True
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None  # Bucket has ACLs disabled, use bucket policy instead
+AWS_S3_VERIFY = True
+AWS_QUERYSTRING_AUTH = False
+
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = [
     "localhost",
@@ -55,7 +63,7 @@ INSTALLED_APPS = [
     "CampusNest",
     "accounts",
     "profiles",
-    #    'storages',
+    "storages",
     "listings",
     "marketplace",
     "messaging",
@@ -159,7 +167,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -195,22 +203,33 @@ if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
 # EMAIL_HOST_PASSWORD = 'your-password'
 
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# Media files configuration
+USE_S3 = os.getenv("USE_S3", "False") == "True"
+
+if USE_S3:
+    # S3 Media Storage Settings (Django 4.2+ STORAGES setting)
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+    MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/"
+else:
+    # Local Media Storage (for development) - Fallback
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
 
 
 LOGIN_REDIRECT_URL = "home"
 PASSWORD_RESET_TIMEOUT = 3600
-
-
-# # Public media settings
-# AWS_DEFAULT_ACL = 'public-read'
-# AWS_S3_FILE_OVERWRITE = False
-# AWS_QUERYSTRING_AUTH = False
-# AWS_S3_VERIFY = True
-
-# # Use django-storages backend
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-# Media URL served from S3 (commented out for local development)
-# MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'

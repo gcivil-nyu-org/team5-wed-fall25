@@ -19,8 +19,10 @@ deprecated
 dj-database-url
 django
 django-cors-headers
+django-storages
 djangorestframework
 docopt
+boto3
 fabric
 flake8
 gunicorn
