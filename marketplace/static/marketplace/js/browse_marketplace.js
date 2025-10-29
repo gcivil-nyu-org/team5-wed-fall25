@@ -1,37 +1,96 @@
-// Browse Marketplace JavaScript
+// Marketplace Browse JavaScript
 
+// Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  const filterForm = document.getElementById('filterForm');
-  const keywordInput = document.getElementById('keyword');
-  const categorySelect = document.getElementById('category');
-  const priceMinInput = document.getElementById('price_min');
-  const priceMaxInput = document.getElementById('price_max');
+    // Filter Toggle Functionality
+    const filterToggle = document.getElementById('filterToggle');
+    const filterSection = document.getElementById('filterSection');
+    const filterForm = document.getElementById('filterForm');
+    const filterCount = document.getElementById('filterCount');
 
-  // Auto-submit form when category changes
-  if (categorySelect) {
-    categorySelect.addEventListener('change', function() {
-      filterForm.submit();
-    });
-  }
+    if (filterToggle && filterSection) {
+        // Check if there are active filters on page load
+        const hasActiveFilters = checkActiveFilters();
+        if (hasActiveFilters) {
+            filterSection.classList.add('active');
+            filterToggle.classList.add('active');
+        }
 
-  // Validate price inputs
-  if (priceMinInput && priceMaxInput) {
-    priceMinInput.addEventListener('change', validatePriceRange);
-    priceMaxInput.addEventListener('change', validatePriceRange);
-  }
+        // Toggle filter section
+        filterToggle.addEventListener('click', function() {
+            filterSection.classList.toggle('active');
+            filterToggle.classList.toggle('active');
 
-  // Focus on keyword input for better UX
-  if (keywordInput) {
-    keywordInput.focus();
-  }
+            // Update button text
+            const filterText = filterToggle.querySelector('.filter-text');
+            if (filterSection.classList.contains('active')) {
+                filterText.textContent = 'Hide Filters';
+            } else {
+                filterText.textContent = 'Filters';
+            }
+        });
+    }
+
+    // Count and display active filters
+    function checkActiveFilters() {
+        if (!filterForm) return false;
+
+        let count = 0;
+        const selectInputs = filterForm.querySelectorAll('select');
+        const textInputs = filterForm.querySelectorAll('input[type="text"], input[type="number"]');
+
+        // Count selected category (if not "All Categories")
+        selectInputs.forEach(select => {
+            if (select.value && select.value.trim() !== '') {
+                count++;
+            }
+        });
+
+        // Count text and number inputs
+        textInputs.forEach(input => {
+            if (input.value && input.value.trim() !== '') {
+                count++;
+            }
+        });
+
+        if (filterCount) {
+            if (count > 0) {
+                filterCount.textContent = count;
+                filterCount.style.display = 'inline-block';
+            } else {
+                filterCount.textContent = '';
+                filterCount.style.display = 'none';
+            }
+        }
+
+        return count > 0;
+    }
+
+    // Update filter count when form changes
+    if (filterForm) {
+        filterForm.addEventListener('change', checkActiveFilters);
+        filterForm.addEventListener('input', checkActiveFilters);
+
+        // Initial count check
+        checkActiveFilters();
+    }
+
+    // Price validation
+    const priceMinInput = document.getElementById('price_min');
+    const priceMaxInput = document.getElementById('price_max');
+
+    if (priceMinInput && priceMaxInput) {
+        priceMinInput.addEventListener('change', validatePriceRange);
+        priceMaxInput.addEventListener('change', validatePriceRange);
+    }
+
+    function validatePriceRange() {
+        const priceMin = parseFloat(priceMinInput.value);
+        const priceMax = parseFloat(priceMaxInput.value);
+
+        if (!isNaN(priceMin) && !isNaN(priceMax) && priceMin > priceMax) {
+            alert('Minimum price cannot be greater than maximum price.');
+            priceMaxInput.value = '';
+        }
+    }
 });
-
-function validatePriceRange() {
-  const priceMin = parseFloat(document.getElementById('price_min').value);
-  const priceMax = parseFloat(document.getElementById('price_max').value);
-
-  if (!isNaN(priceMin) && !isNaN(priceMax) && priceMin > priceMax) {
-    alert('Minimum price cannot be greater than maximum price.');
-    document.getElementById('price_max').value = '';
-  }
-}
