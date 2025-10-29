@@ -54,6 +54,19 @@
     {% endif %}
   </div>
 
+  <!-- Category -->
+  <div class="form-group">
+    <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+    {{ form.category }}
+    {% if form.category.errors %}
+    <ul class="errorlist">
+      {% for error in form.category.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+
   <!-- Condition and Price -->
   <div class="create-item-grid">
     <div class="form-group">

@@ -48,6 +48,9 @@
                     <strong class="my-item-info-label">Price:</strong> ${{ item.price }}
                 </p>
                 <p class="my-item-info">
+                    <strong class="my-item-info-label">Category:</strong> {{ item.get_category_display }}
+                </p>
+                <p class="my-item-info">
                     <strong class="my-item-info-label">Condition:</strong> {{ item.get_condition_display }}
                 </p>
                 <p class="my-item-info">

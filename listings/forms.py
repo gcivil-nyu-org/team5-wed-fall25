@@ -2,12 +2,13 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from .models import Listing
+from .constants import AMENITY_CHOICES
 
 
 class ListingForm(forms.ModelForm):
     # Create individual checkbox fields for amenities
     amenities = forms.MultipleChoiceField(
-        choices=Listing.AMENITY_CHOICES,
+        choices=AMENITY_CHOICES,
         widget=forms.CheckboxSelectMultiple(attrs={"class": "amenity-checkbox"}),
         required=False,
         label="Amenities",

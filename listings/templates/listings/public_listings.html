@@ -5,13 +5,123 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'listings/css/my_listings.css' %}">
+<link rel="stylesheet" href="{% static 'listings/css/search_listings.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="content-card">
-<h2 class="listings-heading">Browse Housing Listings</h2>
+<h2 class="listings-heading">Find Your Perfect Housing</h2>
+<p class="listings-subtitle">Search and filter available listings near your school</p>
+
+<!-- Search and Filter Section -->
+<div class="search-filters-container">
+  <form method="GET" class="search-filters-form" id="filterForm">
+    <!-- Line 1: Keyword, Budget, Location -->
+    <div class="filter-group">
+      <label for="keyword">Search by keyword:</label>
+      <input 
+        type="text" 
+        id="keyword" 
+        name="keyword" 
+        placeholder="Search listings..." 
+        value="{{ keyword }}"
+        class="filter-input"
+      >
+    </div>
+
+    <div class="filter-group filter-price-group">
+      <label>Budget Range (Monthly):</label>
+      <div class="price-inputs">
+        <input 
+          type="number" 
+          id="rent_min" 
+          name="rent_min" 
+          placeholder="Min" 
+          value="{{ rent_min }}"
+          min="0"
+          class="filter-input price-input"
+        >
+        <span class="price-separator">-</span>
+        <input 
+          type="number" 
+          id="rent_max" 
+          name="rent_max" 
+          placeholder="Max" 
+          value="{{ rent_max }}"
+          min="0"
+          class="filter-input price-input"
+        >
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label for="location">Location (Neighborhood/ZIP):</label>
+      <input 
+        type="text" 
+        id="location" 
+        name="location" 
+        placeholder="e.g., Manhattan, Brooklyn, 10001" 
+        value="{{ location }}"
+        class="filter-input"
+      >
+    </div>
+
+    <!-- Line 2: Move-in Date, Move-out Date -->
+    <div class="filter-group">
+      <label for="move_in_date">Move-in Date:</label>
+      <input 
+        type="date" 
+        id="move_in_date" 
+        name="move_in_date" 
+        value="{{ move_in_date }}"
+        class="filter-input"
+      >
+    </div>
+
+    <div class="filter-group">
+      <label for="move_out_date">Move-out Date:</label>
+      <input 
+        type="date" 
+        id="move_out_date" 
+        name="move_out_date" 
+        value="{{ move_out_date }}"
+        class="filter-input"
+      >
+    </div>
+
+    <!-- Amenities Filter -->
+    <div class="filter-group filter-amenities-group">
+      <label>Amenities:</label>
+      <div class="amenities-checkboxes">
+        {% for value, label in amenity_choices %}
+        <label class="amenity-checkbox-label">
+          <input 
+            type="checkbox" 
+            name="amenities" 
+            value="{{ value }}"
+            {% if value in amenities %}checked{% endif %}
+            class="amenity-checkbox"
+          >
+          <span>{{ label }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="filter-buttons">
+      <button type="submit" class="btn-search">Search</button>
+      {% if has_filters %}
+      <a href="{% url 'public_listings' %}" class="btn-reset">Reset Filters</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
 
 {% if listings %}
+<div class="search-results-header">
+  <p class="results-count">Found {{ listings.count }} listing{{ listings.count|pluralize }}</p>
+</div>
 <div class="listings-grid">
 	{% for listing in listings %}
 	<div class="listing-card">
@@ -54,11 +164,27 @@
 	{% endfor %}
 </div>
 {% else %}
-<div class="empty-state">
-	<p class="empty-state-text">
-		No listings available at the moment. Check back later!
-	</p>
+<!-- No Results Message -->
+<div class="search-no-results">
+  <div class="no-results-icon">🏠</div>
+  <h3 class="no-results-title">No listings found</h3>
+  <p class="no-results-message">
+    {% if has_filters %}
+      We couldn't find any listings matching your filters. Try adjusting your search criteria.
+    {% else %}
+      No listings are currently available.
+    {% endif %}
+  </p>
+  {% if has_filters %}
+  <a href="{% url 'public_listings' %}" class="btn-reset-large">
+    Reset Filters and Try Again
+  </a>
+  {% endif %}
 </div>
 {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'listings/js/search_listings.js' %}"></script>
 {% endblock %}

@@ -9,6 +9,7 @@ class ItemForm(forms.ModelForm):
         fields = [
             "title",
             "description",
+            "category",
             "condition",
             "price",
             "pickup_location",
@@ -29,6 +30,7 @@ class ItemForm(forms.ModelForm):
                     "class": "form-control",
                 }
             ),
+            "category": forms.Select(attrs={"class": "form-control"}),
             "condition": forms.Select(attrs={"class": "form-control"}),
             "price": forms.NumberInput(
                 attrs={
@@ -60,6 +62,7 @@ class ItemForm(forms.ModelForm):
         labels = {
             "title": "Item Title *",
             "description": "Description *",
+            "category": "Category *",
             "condition": "Condition *",
             "price": "Price ($) *",
             "pickup_location": "Pickup Location *",

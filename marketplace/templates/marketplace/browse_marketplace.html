@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Marketplace - CampusNest{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'marketplace/css/browse_marketplace.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-card">
+  <h2 class="browse-title">Marketplace</h2>
+  <p class="browse-subtitle">Browse and search for items from fellow students</p>
+
+  <!-- Search and Filter Section -->
+  <div class="browse-filters-container">
+    <form method="GET" class="browse-filters-form" id="filterForm">
+      <!-- Keyword Search -->
+      <div class="filter-group">
+        <label for="keyword">Search by keyword:</label>
+        <input 
+          type="text" 
+          id="keyword" 
+          name="keyword" 
+          placeholder="Search items..." 
+          value="{{ keyword }}"
+          class="filter-input"
+        >
+      </div>
+
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <label for="category">Category:</label>
+        <select id="category" name="category" class="filter-select">
+          <option value="">All Categories</option>
+          {% for value, label in categories %}
+          <option value="{{ value }}" {% if category == value %}selected{% endif %}>
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Price Range Filter -->
+      <div class="filter-group filter-price-group">
+        <label>Price Range:</label>
+        <div class="price-inputs">
+          <input 
+            type="number" 
+            id="price_min" 
+            name="price_min" 
+            placeholder="Min" 
+            value="{{ price_min }}"
+            min="0"
+            class="filter-input price-input"
+          >
+          <span class="price-separator">-</span>
+          <input 
+            type="number" 
+            id="price_max" 
+            name="price_max" 
+            placeholder="Max" 
+            value="{{ price_max }}"
+            min="0"
+            class="filter-input price-input"
+          >
+        </div>
+      </div>
+
+      <!-- Filter Buttons -->
+      <div class="filter-buttons">
+        <button type="submit" class="btn-search">Search</button>
+        {% if has_filters %}
+        <a href="{% url 'browse_marketplace' %}" class="btn-reset">Reset Filters</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Section -->
+  {% if items %}
+  <div class="browse-results-header">
+    <p class="results-count">Found {{ items.count }} item{{ items.count|pluralize }}</p>
+  </div>
+
+  <div class="browse-items-grid">
+    {% for item in items %}
+    <div class="browse-item-card">
+      <!-- Item Image -->
+      <div class="browse-item-image-container">
+        {% if item.images.first %}
+        <img src="{{ item.images.first.image.url }}" alt="{{ item.title }}" class="browse-item-image">
+        {% else %}
+        <div class="browse-item-no-image">
+          No Image
+        </div>
+        {% endif %}
+        <span class="browse-item-category-badge">{{ item.get_category_display }}</span>
+      </div>
+
+      <!-- Item Details -->
+      <div class="browse-item-details">
+        <h3 class="browse-item-title">{{ item.title }}</h3>
+        
+        <p class="browse-item-price">${{ item.price }}</p>
+
+        <p class="browse-item-condition">
+          <strong>Condition:</strong> {{ item.get_condition_display }}
+        </p>
+
+        <p class="browse-item-seller">
+          <strong>Seller:</strong> {{ item.owner_name }}
+        </p>
+
+        <p class="browse-item-location">
+          <strong>Pickup:</strong> {{ item.pickup_location }}
+        </p>
+
+        <p class="browse-item-posted">
+          Posted: {{ item.created_at|date:"M d, Y" }}
+        </p>
+
+        <!-- View Details Button -->
+        <a href="{% url 'view_item' item.id %}" class="btn-view-details">
+          View Details
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <!-- No Results Message -->
+  <div class="browse-no-results">
+    <div class="no-results-icon">🔍</div>
+    <h3 class="no-results-title">No items found</h3>
+    <p class="no-results-message">
+      {% if has_filters %}
+        We couldn't find any items matching your filters. Try adjusting your search criteria.
+      {% else %}
+        No items are currently available in the marketplace.
+      {% endif %}
+    </p>
+    {% if has_filters %}
+    <a href="{% url 'browse_marketplace' %}" class="btn-reset-large">
+      Reset Filters and Try Again
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'marketplace/js/browse_marketplace.js' %}"></script>
+{% endblock %}

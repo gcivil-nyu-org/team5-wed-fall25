@@ -45,6 +45,11 @@
       </div>
 
       <div class="item-detail-group">
+        <strong class="item-detail-label">Category:</strong>
+        <p class="item-detail-value">{{ item.get_category_display }}</p>
+      </div>
+
+      <div class="item-detail-group">
         <strong class="item-detail-label">Condition:</strong>
         <p class="item-detail-value">{{ item.get_condition_display }}</p>
       </div>
@@ -92,23 +97,30 @@
   </div>
 
   <div class="item-actions-container">
-    {% if not item.is_sold %}
-    <a href="{% url 'edit_item' item.id %}" class="btn-edit-item">
-      Edit Item
-    </a>
-    <form method="POST" action="{% url 'mark_as_sold' item.id %}" class="mark-sold-form">
-      {% csrf_token %}
-      <button type="submit" class="btn-mark-as-sold">
-          Mark as Sold
-      </button>
-    </form>
+    {% if is_owner %}
+      {% if not item.is_sold %}
+      <a href="{% url 'edit_item' item.id %}" class="btn-edit-item">
+        Edit Item
+      </a>
+      <form method="POST" action="{% url 'mark_as_sold' item.id %}" class="mark-sold-form">
+        {% csrf_token %}
+        <button type="submit" class="btn-mark-as-sold">
+            Mark as Sold
+        </button>
+      </form>
+      {% endif %}
+      <a href="{% url 'delete_item' item.id %}" class="btn-delete-item">
+        Delete Item
+      </a>
+      <a href="{% url 'my_items' %}" class="btn-back-to-items">
+        Back to My Items
+      </a>
+    {% else %}
+      <!-- Buyer viewing item from another user -->
+      <a href="{% url 'browse_marketplace' %}" class="btn-back-to-items">
+        Back to Marketplace
+      </a>
     {% endif %}
-    <a href="{% url 'delete_item' item.id %}" class="btn-delete-item">
-      Delete Item
-    </a>
-    <a href="{% url 'my_items' %}" class="btn-back-to-items">
-      Back to My Items
-    </a>
   </div>
 </div>
 {% endblock %}

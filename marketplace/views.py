@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib import messages
+from django.db.models import Q
 from .forms import ItemForm
 from .models import Item, ItemImage
+from .constants import ITEM_CATEGORY_CHOICES
 
 
 def send_item_confirmation_email(user_email, item_title, action="posted"):
@@ -179,9 +181,13 @@ def create_item(request):
 
 @login_required
 def view_item(request, item_id):
-    """View a single item"""
-    item = get_object_or_404(Item, id=item_id, user=request.user)
-    return render(request, "marketplace/view_item.html", {"item": item})
+    """View a single item - allows viewing any item, not just user's own"""
+    item = get_object_or_404(Item, id=item_id)
+    # Check if this is the user's own item for edit/delete permissions
+    is_owner = item.user == request.user
+    return render(
+        request, "marketplace/view_item.html", {"item": item, "is_owner": is_owner}
+    )
 
 
 @login_required
@@ -219,3 +225,58 @@ def mark_as_sold(request, item_id):
         return redirect("my_items")
 
     return redirect("view_item", item_id=item.id)
+
+
+@login_required
+def browse_marketplace(request):
+    """Browse and search marketplace items with filters"""
+    items = (
+        Item.objects.filter(is_active=True, is_sold=False)
+        .select_related("user")
+        .prefetch_related("images")
+        .order_by("-created_at")
+    )
+
+    # Get filter parameters
+    keyword = request.GET.get("keyword", "").strip()
+    category = request.GET.get("category", "").strip()
+    price_min = request.GET.get("price_min", "").strip()
+    price_max = request.GET.get("price_max", "").strip()
+
+    # Apply keyword filter
+    if keyword:
+        items = items.filter(
+            Q(title__icontains=keyword) | Q(description__icontains=keyword)
+        )
+
+    # Apply category filter
+    if category:
+        items = items.filter(category=category)
+
+    # Apply price filters
+    if price_min:
+        try:
+            items = items.filter(price__gte=float(price_min))
+        except ValueError:
+            messages.warning(request, "Invalid minimum price entered.")
+
+    if price_max:
+        try:
+            items = items.filter(price__lte=float(price_max))
+        except ValueError:
+            messages.warning(request, "Invalid maximum price entered.")
+
+    # Get all categories for filter dropdown
+    categories = ITEM_CATEGORY_CHOICES
+
+    context = {
+        "items": items,
+        "categories": categories,
+        "keyword": keyword,
+        "category": category,
+        "price_min": price_min,
+        "price_max": price_max,
+        "has_filters": bool(keyword or category or price_min or price_max),
+    }
+
+    return render(request, "marketplace/browse_marketplace.html", context)

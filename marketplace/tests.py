@@ -184,6 +184,7 @@ class ItemFormTests(TestCase):
             "title": "Valid Item",
             "description": "This is a valid description with more than 20 characters",
             "condition": "good",
+            "category": "other",
             "price": "50.00",
             "pickup_location": "Bobst Library",
             "owner_name": "Test Owner",
@@ -317,6 +318,7 @@ class CreateItemViewTests(TestCase):
             "title": "Test Item",
             "description": "This is a test item description with at least 20 characters",
             "condition": "good",
+            "category": "other",
             "price": "50.00",
             "pickup_location": "Bobst Library",
             "owner_name": "Test User",
@@ -591,12 +593,13 @@ class ViewItemViewTests(TestCase):
         self.assertEqual(response.context["item"], self.item)
 
     def test_view_item_not_owner(self):
-        """Test user cannot view other user's item"""
+        """Test user can view other user's item but cannot edit/delete"""
         self.client.login(email="test2@nyu.edu", password="testpw0rd")
         url = reverse("view_item", kwargs={"item_id": self.item.id})
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)  # Changed from 404
+        self.assertFalse(response.context["is_owner"])  # Add this check
 
     def test_view_item_not_found(self):
         """Test viewing non-existent item returns 404"""
@@ -655,6 +658,7 @@ class EditItemViewTests(TestCase):
             "title": "Updated Title",
             "description": "Updated description with sufficient length for validation",
             "condition": "like_new",
+            "category": "other",
             "price": "75.00",
             "pickup_location": "Updated Location",
             "owner_name": "Updated Owner",
@@ -677,6 +681,7 @@ class EditItemViewTests(TestCase):
             "title": self.item.title,
             "description": self.item.description,
             "condition": self.item.condition,
+            "category": "other",
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
             "owner_name": self.item.owner_name,
@@ -699,6 +704,7 @@ class EditItemViewTests(TestCase):
             "title": self.item.title,
             "description": self.item.description,
             "condition": self.item.condition,
+            "category": "other",
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
             "owner_name": self.item.owner_name,
@@ -719,6 +725,7 @@ class EditItemViewTests(TestCase):
             "title": self.item.title,
             "description": self.item.description,
             "condition": self.item.condition,
+            "category": "other",
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
             "owner_name": self.item.owner_name,
@@ -740,6 +747,7 @@ class EditItemViewTests(TestCase):
             "title": self.item.title,
             "description": self.item.description,
             "condition": self.item.condition,
+            "category": "other",
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
             "owner_name": self.item.owner_name,

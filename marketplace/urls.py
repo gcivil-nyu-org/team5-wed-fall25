@@ -10,6 +10,7 @@ def marketplace_home(request):
 
 urlpatterns = [
     path("", marketplace_home, name="marketplace_home"),
+    path("browse/", views.browse_marketplace, name="browse_marketplace"),
     path("my-items/", views.my_items, name="my_items"),
     path("create/", views.create_item, name="create_item"),
     path("<int:item_id>/", views.view_item, name="view_item"),

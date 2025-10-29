@@ -125,18 +125,30 @@ flake8 .
 **listings/** - Housing Listings
 - CRUD operations for housing listings
 - Multi-image support via `ListingImage` model
-- Amenities: predefined choices + custom amenities field
+- Amenities: predefined choices + custom amenities field (centralized in `listings/constants.py`)
 - Date validation: prevents past dates for availability
 - Track edit history (`is_edited`, `updated_at`)
 - Active/inactive status
+- **Search & Filtering:**
+  - Keyword search (title, description, address)
+  - Budget range filtering (min/max rent)
+  - Location filtering (neighborhood/ZIP code)
+  - Move-in and move-out date filtering
+  - Amenities filtering (multiple selection)
+  - Filter persistence after search
 
 **marketplace/** - Buy/Sell Items
 - CRUD operations for marketplace items
 - Multi-image support via `ItemImage` model
-- Condition choices: new, like_new, good, fair, poor
+- Condition choices: new, like_new, good, fair, poor (centralized in `marketplace/constants.py`)
 - Sold status tracking
 - Contact details and pickup location
 - Track edit history (`is_edited`, `updated_at`)
+- **Browse & Filtering:**
+  - Keyword search (title, description)
+  - Category filtering (dropdown)
+  - Price range filtering (min/max)
+  - Filter persistence after search
 
 **messaging/** - Real-Time Messaging System
 - Thread-based conversations about housing listings
@@ -199,13 +211,14 @@ messaging.Thread
 /accounts/password-reset/   → Password reset request
 /accounts/password-reset-confirm/ → Password reset confirmation
 
-/listings/browse/           → Browse all active listings (public)
+/listings/browse/           → Browse & search all active listings (with filters)
 /listings/my-listings/      → User's listings
 /listings/create/           → Create listing
 /listings/<id>/             → View listing
 /listings/<id>/edit/        → Edit listing
 /listings/<id>/delete/      → Delete listing
 
+/marketplace/browse/        → Browse & search all items (with filters)
 /marketplace/my-items/      → User's items
 /marketplace/create/        → Create item
 /marketplace/<id>/          → View item
@@ -381,8 +394,11 @@ Order matters for template/static file discovery:
 
 ### Available Commands
 ```bash
-# Create test users with random preferences (profiles app)
-python manage.py create_test_users --count 10
+# Create test users (no listings or marketplace items)
+python manage.py create_test_users --users 5
+
+# Create test users with listings and marketplace items
+python manage.py create_test_listings --users 5 --listings 5 --items 5
 
 # Clean static files and Python cache (CampusNest app)
 python manage.py cleanstatic                    # Clean staticfiles/ with confirmation
@@ -707,6 +723,61 @@ def other_party(thread, user):
 1. **MESSAGING_INTEGRATION.md** - Complete integration guide
 2. **MESSAGING_ENHANCEMENTS.md** - UI/UX improvements and AJAX polling details
 
+## Constants Files
+
+### Centralized Constants
+To avoid duplication and ensure consistency across the codebase, constants are centralized:
+
+**listings/constants.py:**
+```python
+AMENITY_CHOICES = [
+    ("furnished", "Furnished"),
+    ("utilities", "Utilities Included"),
+    ("wifi", "WiFi"),
+    ("laundry", "Laundry"),
+    ("elevator", "Elevator"),
+    ("pets", "Pets Allowed"),
+    ("ac", "Air Conditioning"),
+]
+```
+
+**marketplace/constants.py:**
+```python
+ITEM_CATEGORY_CHOICES = [...]
+ITEM_CONDITION_CHOICES = [...]
+```
+
+**Usage:**
+- Import constants in models, forms, and views
+- Use in management commands for test data generation
+- Reference in templates via context variables
+
+## Housing Search Filter Details
+
+### Filter Behavior
+
+**Move-in/Move-out Date Filtering:**
+- Filters listings where: `availability_start <= move_in_date` AND `availability_end >= move_out_date`
+- Ensures listing is available for the entire duration the student needs
+- Both dates are optional (can filter by just one)
+
+**Amenities Filtering:**
+- Multiple amenities can be selected
+- Shows listings that have ALL selected amenities
+- Amenities stored as comma-separated strings in database
+
+**Filter Layout (3-column grid):**
+- Row 1: Keyword | Budget Range | Location
+- Row 2: Move-in Date | Move-out Date
+- Row 3: Amenities (full width)
+- Row 4: Search & Reset buttons (full width)
+
+### Filter Input Styling
+- White background with dark text (#1a1a1a) at all times
+- Removed step attribute from price inputs to allow any value
+- Filter values persist after search via template context
+- Autofill protection prevents browser from changing colors
+
 ## Common Gotchas
 
 1. **Static files not loading:** Ensure `STATICFILES_DIRS` is configured in settings.py
@@ -719,3 +790,5 @@ def other_party(thread, user):
 8. **Duplicate thread errors:** Ensure user ordering is canonical (user_a.id < user_b.id) before creating threads
 9. **Messages not polling:** Check JavaScript console for errors; ensure thread.js is loaded
 10. **AJAX 403 errors:** User might not be a participant in the thread (authorization check failing)
+11. **Filter values not persisting:** Ensure template context includes filter parameters (keyword, rent_min, rent_max, location, move_in_date, move_out_date, amenities)
+12. **Amenities not showing in filter:** Verify AMENITY_CHOICES is imported from listings/constants.py in views.py
