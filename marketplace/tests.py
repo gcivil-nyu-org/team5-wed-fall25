@@ -87,7 +87,7 @@ class ItemModelTests(TestCase):
                 price=Decimal("25.00"),
                 pickup_location="Test Location",
                 owner_name="Test Owner",
-                )
+            )
             self.assertEqual(item.condition, condition)
 
     def test_item_str(self):
