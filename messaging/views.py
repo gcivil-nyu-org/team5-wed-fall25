@@ -8,6 +8,7 @@ from django.http import HttpResponseForbidden, HttpResponseNotAllowed, JsonRespo
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from listings.models import Listing
+from marketplace.models import Item
 from .models import Message, Thread
 
 User = get_user_model()
@@ -81,30 +82,8 @@ def thread_view(request, thread_id):
     )
 
 
-@login_required
-def start_thread(request):
-    """
-    Creates (or finds) a thread between request.user and the listing owner,
-    posts the initial message, and redirects to the thread page.
-    """
-    # Don't reference listing_id unless we actually have a POST payload
-    if request.method != "POST":
-        # Nothing to do – go back to inbox (avoids undefined listing_id).
-        return redirect("messaging:inbox")
-
-    body = (request.POST.get("body") or "").strip()
-    listing_id = request.POST.get("listing_id")
-    recipient_id = request.POST.get("recipient_id")
-
-    # Basic input checks
-    if not listing_id or not recipient_id:
-        messages.error(request, "Invalid request.")
-        return redirect("public_listings")
-
-    if not body:
-        messages.error(request, "Message cannot be empty.")
-        return redirect("view_listing", listing_id=listing_id)
-
+def _create_thread_for_listing(request, listing_id, recipient_id, body):
+    """Helper function to create a thread for a listing."""
     listing = get_object_or_404(Listing, pk=listing_id)
 
     if str(listing.user_id) != str(recipient_id):
@@ -115,20 +94,73 @@ def start_thread(request):
         messages.error(request, "You cannot message yourself about your own listing.")
         return redirect("view_listing", listing_id=listing_id)
 
-    # Canonicalize participant ordering (user_a < user_b by id)
     user_a, user_b = (request.user, listing.user)
     if user_a.id > user_b.id:
         user_a, user_b = user_b, user_a
 
     thread, _created = Thread.objects.get_or_create(
-        listing=listing,
-        user_a=user_a,
-        user_b=user_b,
+        listing=listing, item=None, user_a=user_a, user_b=user_b
     )
 
     Message.objects.create(thread=thread, sender=request.user, body=body)
     messages.success(request, "Message sent.")
     return redirect("messaging:thread", thread_id=thread.id)
+
+
+def _create_thread_for_item(request, item_id, recipient_id, body):
+    """Helper function to create a thread for a marketplace item."""
+    item = get_object_or_404(Item, pk=item_id)
+
+    if str(item.user_id) != str(recipient_id):
+        messages.error(request, "Invalid recipient.")
+        return redirect("view_item", item_id=item_id)
+
+    if request.user.id == item.user_id:
+        messages.error(request, "You cannot message yourself about your own item.")
+        return redirect("view_item", item_id=item_id)
+
+    user_a, user_b = (request.user, item.user)
+    if user_a.id > user_b.id:
+        user_a, user_b = user_b, user_a
+
+    thread, _created = Thread.objects.get_or_create(
+        listing=None, item=item, user_a=user_a, user_b=user_b
+    )
+
+    Message.objects.create(thread=thread, sender=request.user, body=body)
+    messages.success(request, "Message sent.")
+    return redirect("messaging:thread", thread_id=thread.id)
+
+
+@login_required
+def start_thread(request):
+    """
+    Creates (or finds) a thread between request.user and the listing/item owner,
+    posts the initial message, and redirects to the thread page.
+    """
+    if request.method != "POST":
+        return redirect("messaging:inbox")
+
+    body = (request.POST.get("body") or "").strip()
+    listing_id = request.POST.get("listing_id")
+    item_id = request.POST.get("item_id")
+    recipient_id = request.POST.get("recipient_id")
+
+    if (not listing_id and not item_id) or not recipient_id:
+        messages.error(request, "Invalid request.")
+        return redirect("public_listings")
+
+    if not body:
+        messages.error(request, "Message cannot be empty.")
+        if listing_id:
+            return redirect("view_listing", listing_id=listing_id)
+        else:
+            return redirect("view_item", item_id=item_id)
+
+    if listing_id:
+        return _create_thread_for_listing(request, listing_id, recipient_id, body)
+    else:
+        return _create_thread_for_item(request, item_id, recipient_id, body)
 
 
 @login_required

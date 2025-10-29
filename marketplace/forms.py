@@ -13,8 +13,6 @@ class ItemForm(forms.ModelForm):
             "condition",
             "price",
             "pickup_location",
-            "owner_name",
-            "contact_details",
         ]
         widgets = {
             "title": forms.TextInput(
@@ -46,18 +44,6 @@ class ItemForm(forms.ModelForm):
                     "class": "form-control",
                 }
             ),
-            "owner_name": forms.TextInput(
-                attrs={
-                    "placeholder": "Your name",
-                    "class": "form-control",
-                }
-            ),
-            "contact_details": forms.TextInput(
-                attrs={
-                    "placeholder": "Phone number or email",
-                    "class": "form-control",
-                }
-            ),
         }
         labels = {
             "title": "Item Title *",
@@ -66,8 +52,6 @@ class ItemForm(forms.ModelForm):
             "condition": "Condition *",
             "price": "Price ($) *",
             "pickup_location": "Pickup Location *",
-            "owner_name": "Your Name *",
-            "contact_details": "Contact (Phone/Email) *",
         }
 
     def clean_price(self):
@@ -83,9 +67,3 @@ class ItemForm(forms.ModelForm):
         if len(description) < 20:
             raise ValidationError("Description must be at least 20 characters long.")
         return description
-
-    def clean_contact_details(self):
-        contact = self.cleaned_data.get("contact_details", "")
-        if len(contact) < 5:
-            raise ValidationError("Please provide valid contact details.")
-        return contact

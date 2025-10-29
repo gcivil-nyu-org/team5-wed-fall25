@@ -49,10 +49,17 @@
                         <div class="conversation-info">
                             <h3 class="conversation-name">{{ other.first_name|default:other.username }}</h3>
                             <p class="conversation-listing">
-                                <svg class="listing-icon" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                                </svg>
-                                {{ t.listing.title }}
+                                {% if t.listing %}
+                                    <svg class="listing-icon" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                                    </svg>
+                                    {{ t.listing.title }}
+                                {% else %}
+                                    <svg class="listing-icon" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+                                    </svg>
+                                    {{ t.item.title }}
+                                {% endif %}
                             </p>
                         </div>
                     </div>
@@ -95,7 +102,7 @@
                 </svg>
             </div>
             <h3 class="empty-state-title">No Messages Yet</h3>
-            <p class="empty-state-text">Your inbox is empty. Start a conversation by contacting a listing owner or connecting with a potential roommate.</p>
+            <p class="empty-state-text">Your inbox is empty. Start a conversation by contacting a listing owner, marketplace seller, or connecting with a potential roommate.</p>
             <div class="empty-state-actions">
                 <a href="{% url 'public_listings' %}" class="empty-state-btn primary">
                     <svg class="btn-icon" fill="currentColor" viewBox="0 0 20 20">
@@ -103,11 +110,11 @@
                     </svg>
                     Browse Listings
                 </a>
-                <a href="{% url 'roommate_search' %}" class="empty-state-btn secondary">
+                <a href="{% url 'browse_marketplace' %}" class="empty-state-btn secondary">
                     <svg class="btn-icon" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
                     </svg>
-                    Find Roommates
+                    Browse Marketplace
                 </a>
             </div>
         </div>
