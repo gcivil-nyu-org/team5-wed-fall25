@@ -1253,3 +1253,284 @@ class HelperFunctionTests(TestCase):
         result = validate_image_files([large_file], form)
         self.assertTrue(result)
         self.assertIn("exceeds 5MB size limit", str(form.errors))
+
+
+class PublicListingsViewTests(TestCase):
+    """Test the public listings browse/search/filter view"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        from profiles.models import Profile
+
+        Profile.objects.create(user=self.user1, university="nyu")
+        Profile.objects.create(user=self.user2, university="nyu")
+
+        # Create multiple listings with different attributes
+        self.listing1 = Listing.objects.create(
+            user=self.user1,
+            title="Cheap Studio in Manhattan",
+            description="Cozy studio apartment",
+            address="123 Broadway, Manhattan, NY 10001",
+            rent=1200,
+            amenities="wifi,laundry",
+            availability_start=timezone.now().date(),
+            availability_end=(timezone.now() + timedelta(days=180)).date(),
+            is_active=True,
+        )
+
+        self.listing2 = Listing.objects.create(
+            user=self.user2,
+            title="Luxury 2BR in Brooklyn",
+            description="Spacious two bedroom apartment",
+            address="456 Smith St, Brooklyn, NY 11201",
+            rent=2500,
+            amenities="furnished,wifi,laundry,elevator",
+            availability_start=(timezone.now() + timedelta(days=30)).date(),
+            availability_end=(timezone.now() + timedelta(days=365)).date(),
+            is_active=True,
+        )
+
+        self.listing3 = Listing.objects.create(
+            user=self.user1,
+            title="Queens Apartment Near Subway",
+            description="Great location near subway",
+            address="789 Queens Blvd, Queens, NY 11375",
+            rent=1800,
+            amenities="pets,ac",
+            availability_start=timezone.now().date(),
+            availability_end=(timezone.now() + timedelta(days=365)).date(),
+            is_active=True,
+        )
+
+        # Inactive listing (should not appear in results)
+        self.inactive_listing = Listing.objects.create(
+            user=self.user1,
+            title="Inactive Listing",
+            description="Should not appear",
+            address="999 Test St",
+            rent=1000,
+            availability_start=timezone.now().date(),
+            availability_end=(timezone.now() + timedelta(days=365)).date(),
+            is_active=False,
+        )
+
+    def test_public_listings_requires_login(self):
+        """Test that public listings view requires authentication"""
+        response = self.client.get(reverse("public_listings"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
+    def test_public_listings_shows_all_active(self):
+        """Test that all active listings are displayed"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+        response = self.client.get(reverse("public_listings"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("listings", response.context)
+        self.assertEqual(response.context["listings"].count(), 3)
+        self.assertNotIn(self.inactive_listing, response.context["listings"])
+
+    def test_keyword_search(self):
+        """Test keyword search in title, description, and address"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Search for "Brooklyn"
+        response = self.client.get(reverse("public_listings"), {"keyword": "Brooklyn"})
+        listings = response.context["listings"]
+        self.assertEqual(listings.count(), 1)
+        self.assertIn(self.listing2, listings)
+
+        # Search for "studio"
+        response = self.client.get(reverse("public_listings"), {"keyword": "studio"})
+        listings = response.context["listings"]
+        self.assertEqual(listings.count(), 1)
+        self.assertIn(self.listing1, listings)
+
+    def test_rent_min_filter(self):
+        """Test filtering by minimum rent"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(reverse("public_listings"), {"rent_min": "1500"})
+        listings = response.context["listings"]
+        self.assertEqual(listings.count(), 2)
+        self.assertIn(self.listing2, listings)
+        self.assertIn(self.listing3, listings)
+        self.assertNotIn(self.listing1, listings)
+
+    def test_rent_max_filter(self):
+        """Test filtering by maximum rent"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(reverse("public_listings"), {"rent_max": "2000"})
+        listings = response.context["listings"]
+        self.assertEqual(listings.count(), 2)
+        self.assertIn(self.listing1, listings)
+        self.assertIn(self.listing3, listings)
+        self.assertNotIn(self.listing2, listings)
+
+    def test_rent_range_filter(self):
+        """Test filtering by rent range (min and max)"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("public_listings"),
+            {"rent_min": "1500", "rent_max": "2000"},
+        )
+        listings = response.context["listings"]
+        self.assertEqual(listings.count(), 1)
+        self.assertIn(self.listing3, listings)
+
+    def test_location_filter(self):
+        """Test filtering by location"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("public_listings"), {"location": "Manhattan"}
+        )
+        listings = response.context["listings"]
+        self.assertEqual(listings.count(), 1)
+        self.assertIn(self.listing1, listings)
+
+    def test_move_in_date_filter(self):
+        """Test filtering by move-in date"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Want to move in immediately - should show listings available now
+        move_in = timezone.now().date().strftime("%Y-%m-%d")
+        response = self.client.get(
+            reverse("public_listings"), {"move_in_date": move_in}
+        )
+        listings = response.context["listings"]
+        # listing1 and listing3 are available now, listing2 starts in 30 days
+        self.assertEqual(listings.count(), 2)
+        self.assertIn(self.listing1, listings)
+        self.assertIn(self.listing3, listings)
+
+    def test_move_out_date_filter(self):
+        """Test filtering by move-out date"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Want to move out in 200 days
+        move_out = (timezone.now() + timedelta(days=200)).date().strftime("%Y-%m-%d")
+        response = self.client.get(
+            reverse("public_listings"), {"move_out_date": move_out}
+        )
+        listings = response.context["listings"]
+        # listing2 and listing3 are available for 200+ days
+        self.assertGreaterEqual(listings.count(), 2)
+
+    def test_amenities_filter_single(self):
+        """Test filtering by single amenity"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("public_listings"), {"amenities": ["furnished"]}
+        )
+        listings = response.context["listings"]
+        self.assertEqual(listings.count(), 1)
+        self.assertIn(self.listing2, listings)
+
+    def test_amenities_filter_multiple(self):
+        """Test filtering by multiple amenities (AND logic)"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("public_listings"),
+            {"amenities": ["wifi", "laundry"]},
+        )
+        listings = response.context["listings"]
+        # Both listing1 and listing2 have wifi and laundry
+        self.assertEqual(listings.count(), 2)
+
+    def test_combined_filters(self):
+        """Test multiple filters applied together"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("public_listings"),
+            {
+                "keyword": "apartment",
+                "rent_min": "1000",
+                "rent_max": "2000",
+                "location": "Queens",
+            },
+        )
+        listings = response.context["listings"]
+        self.assertEqual(listings.count(), 1)
+        self.assertIn(self.listing3, listings)
+
+    def test_invalid_rent_values(self):
+        """Test that invalid rent values show warning"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Invalid rent_min
+        response = self.client.get(reverse("public_listings"), {"rent_min": "invalid"})
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("Invalid minimum rent" in str(m) for m in messages))
+
+        # Invalid rent_max
+        response = self.client.get(
+            reverse("public_listings"), {"rent_max": "not_a_number"}
+        )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("Invalid maximum rent" in str(m) for m in messages))
+
+    def test_invalid_date_format(self):
+        """Test that invalid date format shows warning"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("public_listings"), {"move_in_date": "not-a-date"}
+        )
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("Invalid date format" in str(m) for m in messages))
+
+    def test_filter_persistence(self):
+        """Test that filter values persist in context"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("public_listings"),
+            {
+                "keyword": "test",
+                "rent_min": "1000",
+                "rent_max": "2000",
+                "location": "Brooklyn",
+                "amenities": ["wifi", "laundry"],
+            },
+        )
+
+        self.assertEqual(response.context["keyword"], "test")
+        self.assertEqual(response.context["rent_min"], "1000")
+        self.assertEqual(response.context["rent_max"], "2000")
+        self.assertEqual(response.context["location"], "Brooklyn")
+        self.assertIn("wifi", response.context["amenities"])
+        self.assertTrue(response.context["has_filters"])
+
+    def test_no_filters_applied(self):
+        """Test has_filters is False when no filters applied"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(reverse("public_listings"))
+        self.assertFalse(response.context["has_filters"])
+
+    def test_amenity_choices_in_context(self):
+        """Test that amenity choices are available in context"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(reverse("public_listings"))
+        self.assertIn("amenity_choices", response.context)
+        self.assertIsNotNone(response.context["amenity_choices"])

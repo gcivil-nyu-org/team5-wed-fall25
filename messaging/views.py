@@ -99,21 +99,21 @@ def start_thread(request):
     # Basic input checks
     if not listing_id or not recipient_id:
         messages.error(request, "Invalid request.")
-        return redirect("listings:public_listings")
+        return redirect("public_listings")
 
     if not body:
         messages.error(request, "Message cannot be empty.")
-        return redirect("listings:view_listing", listing_id=listing_id)
+        return redirect("view_listing", listing_id=listing_id)
 
     listing = get_object_or_404(Listing, pk=listing_id)
 
     if str(listing.user_id) != str(recipient_id):
         messages.error(request, "Invalid recipient.")
-        return redirect("listings:view_listing", listing_id=listing_id)
+        return redirect("view_listing", listing_id=listing_id)
 
     if request.user.id == listing.user_id:
         messages.error(request, "You cannot message yourself about your own listing.")
-        return redirect("listings:view_listing", listing_id=listing_id)
+        return redirect("view_listing", listing_id=listing_id)
 
     # Canonicalize participant ordering (user_a < user_b by id)
     user_a, user_b = (request.user, listing.user)
