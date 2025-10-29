@@ -1058,3 +1058,291 @@ class MarketplaceHomeViewTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse("my_items"))
+
+
+class BrowseMarketplaceViewTests(TestCase):
+    """Test the browse marketplace view with search and filtering"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        from profiles.models import Profile
+
+        Profile.objects.create(user=self.user1, university="nyu")
+        Profile.objects.create(user=self.user2, university="nyu")
+
+        # Create multiple items with different attributes
+        self.item1 = Item.objects.create(
+            user=self.user1,
+            owner_name="User One",
+            title="Cheap Desk Lamp",
+            description="Great condition desk lamp",
+            category="furniture",
+            condition="good",
+            price=25.00,
+            contact_details="user1@nyu.edu",
+            pickup_location="Manhattan",
+            is_active=True,
+            is_sold=False,
+        )
+
+        self.item2 = Item.objects.create(
+            user=self.user2,
+            owner_name="User Two",
+            title="MacBook Pro Laptop",
+            description="2020 MacBook Pro in excellent condition",
+            category="electronics",
+            condition="like_new",
+            price=1200.00,
+            contact_details="user2@nyu.edu",
+            pickup_location="Brooklyn",
+            is_active=True,
+            is_sold=False,
+        )
+
+        self.item3 = Item.objects.create(
+            user=self.user1,
+            owner_name="User One",
+            title="Calculus Textbook",
+            description="Used textbook for Calc 1",
+            category="books",
+            condition="good",
+            price=50.00,
+            contact_details="user1@nyu.edu",
+            pickup_location="Queens",
+            is_active=True,
+            is_sold=False,
+        )
+
+        # Sold item (should not appear in results)
+        self.sold_item = Item.objects.create(
+            user=self.user1,
+            owner_name="User One",
+            title="Sold Item",
+            description="Already sold",
+            category="furniture",
+            condition="good",
+            price=100.00,
+            contact_details="user1@nyu.edu",
+            pickup_location="Manhattan",
+            is_active=True,
+            is_sold=True,
+        )
+
+        # Inactive item (should not appear in results)
+        self.inactive_item = Item.objects.create(
+            user=self.user1,
+            owner_name="User One",
+            title="Inactive Item",
+            description="Not active",
+            category="furniture",
+            condition="good",
+            price=100.00,
+            contact_details="user1@nyu.edu",
+            pickup_location="Manhattan",
+            is_active=False,
+            is_sold=False,
+        )
+
+    def test_browse_marketplace_requires_login(self):
+        """Test that browse marketplace requires authentication"""
+        response = self.client.get(reverse("browse_marketplace"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
+    def test_browse_shows_all_active_unsold(self):
+        """Test that all active unsold items are displayed"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+        response = self.client.get(reverse("browse_marketplace"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("items", response.context)
+        items = response.context["items"]
+        self.assertEqual(items.count(), 3)
+        self.assertIn(self.item1, items)
+        self.assertIn(self.item2, items)
+        self.assertIn(self.item3, items)
+        self.assertNotIn(self.sold_item, items)
+        self.assertNotIn(self.inactive_item, items)
+
+    def test_keyword_search(self):
+        """Test keyword search in title and description"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Search for "laptop"
+        response = self.client.get(
+            reverse("browse_marketplace"), {"keyword": "laptop"}
+        )
+        items = response.context["items"]
+        self.assertEqual(items.count(), 1)
+        self.assertIn(self.item2, items)
+
+        # Search for "textbook"
+        response = self.client.get(
+            reverse("browse_marketplace"), {"keyword": "textbook"}
+        )
+        items = response.context["items"]
+        self.assertEqual(items.count(), 1)
+        self.assertIn(self.item3, items)
+
+    def test_category_filter(self):
+        """Test filtering by category"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("browse_marketplace"), {"category": "electronics"}
+        )
+        items = response.context["items"]
+        self.assertEqual(items.count(), 1)
+        self.assertIn(self.item2, items)
+
+    def test_price_min_filter(self):
+        """Test filtering by minimum price"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("browse_marketplace"), {"price_min": "50"}
+        )
+        items = response.context["items"]
+        self.assertEqual(items.count(), 2)
+        self.assertIn(self.item2, items)
+        self.assertIn(self.item3, items)
+        self.assertNotIn(self.item1, items)
+
+    def test_price_max_filter(self):
+        """Test filtering by maximum price"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("browse_marketplace"), {"price_max": "100"}
+        )
+        items = response.context["items"]
+        self.assertEqual(items.count(), 2)
+        self.assertIn(self.item1, items)
+        self.assertIn(self.item3, items)
+        self.assertNotIn(self.item2, items)
+
+    def test_price_range_filter(self):
+        """Test filtering by price range (min and max)"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("browse_marketplace"),
+            {"price_min": "30", "price_max": "100"},
+        )
+        items = response.context["items"]
+        self.assertEqual(items.count(), 1)
+        self.assertIn(self.item3, items)
+
+    def test_combined_filters(self):
+        """Test multiple filters applied together"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("browse_marketplace"),
+            {
+                "keyword": "desk",
+                "category": "furniture",
+                "price_min": "10",
+                "price_max": "50",
+            },
+        )
+        items = response.context["items"]
+        self.assertEqual(items.count(), 1)
+        self.assertIn(self.item1, items)
+
+    def test_invalid_price_values(self):
+        """Test that invalid price values show warning"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Invalid price_min
+        response = self.client.get(
+            reverse("browse_marketplace"), {"price_min": "invalid"}
+        )
+        messages_list = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("Invalid minimum price" in str(m) for m in messages_list))
+
+        # Invalid price_max
+        response = self.client.get(
+            reverse("browse_marketplace"), {"price_max": "not_a_number"}
+        )
+        messages_list = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("Invalid maximum price" in str(m) for m in messages_list))
+
+    def test_filter_persistence(self):
+        """Test that filter values persist in context"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("browse_marketplace"),
+            {
+                "keyword": "test",
+                "category": "electronics",
+                "price_min": "50",
+                "price_max": "500",
+            },
+        )
+
+        self.assertEqual(response.context["keyword"], "test")
+        self.assertEqual(response.context["category"], "electronics")
+        self.assertEqual(response.context["price_min"], "50")
+        self.assertEqual(response.context["price_max"], "500")
+        self.assertTrue(response.context["has_filters"])
+
+    def test_no_filters_applied(self):
+        """Test has_filters is False when no filters applied"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(reverse("browse_marketplace"))
+        self.assertFalse(response.context["has_filters"])
+
+    def test_categories_in_context(self):
+        """Test that category choices are available in context"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(reverse("browse_marketplace"))
+        self.assertIn("categories", response.context)
+        self.assertIsNotNone(response.context["categories"])
+
+    def test_keyword_case_insensitive(self):
+        """Test that keyword search is case-insensitive"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Search for "LAPTOP" in uppercase
+        response = self.client.get(
+            reverse("browse_marketplace"), {"keyword": "LAPTOP"}
+        )
+        items = response.context["items"]
+        self.assertEqual(items.count(), 1)
+        self.assertIn(self.item2, items)
+
+    def test_empty_keyword_shows_all(self):
+        """Test that empty keyword shows all items"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(reverse("browse_marketplace"), {"keyword": ""})
+        items = response.context["items"]
+        self.assertEqual(items.count(), 3)
+
+    def test_no_results_found(self):
+        """Test behavior when no items match filters"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("browse_marketplace"),
+            {"keyword": "nonexistent item that does not exist"},
+        )
+        items = response.context["items"]
+        self.assertEqual(items.count(), 0)
