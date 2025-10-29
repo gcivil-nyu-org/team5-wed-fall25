@@ -228,49 +228,53 @@ def mark_as_sold(request, item_id):
 @login_required
 def browse_marketplace(request):
     """Browse and search marketplace items with filters"""
-    items = Item.objects.filter(is_active=True, is_sold=False).select_related('user').prefetch_related('images').order_by('-created_at')
+    items = (
+        Item.objects.filter(is_active=True, is_sold=False)
+        .select_related("user")
+        .prefetch_related("images")
+        .order_by("-created_at")
+    )
     
     # Get filter parameters
-    keyword = request.GET.get('keyword', '').strip()
-    category = request.GET.get('category', '').strip()
-    price_min = request.GET.get('price_min', '').strip()
-    price_max = request.GET.get('price_max', '').strip()
-    
+    keyword = request.GET.get("keyword", "").strip()
+    category = request.GET.get("category", "").strip()
+    price_min = request.GET.get("price_min", "").strip()
+    price_max = request.GET.get("price_max", "").strip()
+
     # Apply keyword filter
     if keyword:
         items = items.filter(
-            Q(title__icontains=keyword) | 
-            Q(description__icontains=keyword)
+            Q(title__icontains=keyword) | Q(description__icontains=keyword)
         )
-    
+
     # Apply category filter
     if category:
         items = items.filter(category=category)
-    
+
     # Apply price filters
     if price_min:
         try:
             items = items.filter(price__gte=float(price_min))
         except ValueError:
             messages.warning(request, "Invalid minimum price entered.")
-    
+
     if price_max:
         try:
             items = items.filter(price__lte=float(price_max))
         except ValueError:
             messages.warning(request, "Invalid maximum price entered.")
-    
+
     # Get all categories for filter dropdown
     categories = ITEM_CATEGORY_CHOICES
     
     context = {
-        'items': items,
-        'categories': categories,
-        'keyword': keyword,
-        'category': category,
-        'price_min': price_min,
-        'price_max': price_max,
-        'has_filters': bool(keyword or category or price_min or price_max),
+        "items": items,
+        "categories": categories,
+        "keyword": keyword,
+        "category": category,
+        "price_min": price_min,
+        "price_max": price_max,
+        "has_filters": bool(keyword or category or price_min or price_max),
     }
     
-    return render(request, 'marketplace/browse_marketplace.html', context)
+    return render(request, "marketplace/browse_marketplace.html", context)

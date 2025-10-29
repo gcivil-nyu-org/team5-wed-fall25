@@ -159,18 +159,21 @@ class Command(BaseCommand):
                 rent = random.choice([800, 1000, 1200, 1500, 1800, 2000])
                 address = f"{random.randint(100, 9999)} {random.choice(['Main', 'Park', 'Broadway', 'Madison', 'Fifth'])} St, {random.choice(NEIGHBORHOODS)}, NY {random.choice(ZIPCODES)}"
                 
-                availability_start = timezone.now().date() + timedelta(days=random.randint(1, 30))
-                availability_end = availability_start + timedelta(days=random.randint(90, 365))
+                availability_start = timezone.now().date() + timedelta(
+                    days=random.randint(1, 30)
+                )
+                availability_end = availability_start + timedelta(
+                    days=random.randint(90, 365)
+                )
 
                 # Randomly select 1-3 amenities for this listing
                 selected_amenities = random.sample(AMENITIES, k=random.randint(1, 3))
-                amenities_str = ','.join(selected_amenities)
-                
+                amenities_str = ",".join(selected_amenities)
+
                 listing = Listing.objects.create(
                     user=user,
-                    title=f"{title} #{j+1}",
-                    description=f"Beautiful {random.choice(['studio', '1-bedroom', '2-bedroom'])} apartment. "
-                                f"Perfect for students!",
+                    title=f"{title} #{j + 1}",
+                    description=f"Beautiful {random.choice(['studio', '1-bedroom', '2-bedroom'])} apartment. Perfect for students!",
                     address=address,
                     rent=rent,
                     amenities=amenities_str,
@@ -199,9 +202,8 @@ class Command(BaseCommand):
 
                 item = Item.objects.create(
                     user=user,
-                    title=f"{item_name} #{k+1}",
-                    description=f"Great {item_name.lower()} in {condition} condition. "
-                               f"Perfect for students! Willing to negotiate on price.",
+                    title=f"{item_name} #{k + 1}",
+                    description=f"Great {item_name.lower()} in {condition} condition. Perfect for students! Willing to negotiate on price.",
                     price=price,
                     condition=condition,
                     category=category,
@@ -230,6 +232,6 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.WARNING(
                 f"\nAll test users have password: testpass123\n"
-                f"You can login with any username to view listings and profiles."
+                f"You can login with any username to view listings and profiles.\n"
             )
         )
