@@ -5,6 +5,7 @@ from datetime import timedelta
 from profiles.models import Profile
 from listings.models import Listing, ListingImage
 from marketplace.models import Item, ItemImage
+from marketplace.constants import ITEM_CATEGORY_CHOICES
 import random
 from io import BytesIO
 from PIL import Image
@@ -60,7 +61,8 @@ MARKETPLACE_ITEMS = [
 ]
 
 ITEM_CONDITIONS = ["like_new", "good", "fair", "used"]
-ITEM_CATEGORIES = ["furniture", "electronics", "textbooks", "clothing", "other"]
+# Item categories are imported from marketplace.constants.ITEM_CATEGORY_CHOICES
+ITEM_CATEGORIES = [choice[0] for choice in ITEM_CATEGORY_CHOICES]  # Extract just the values
 
 
 def generate_placeholder_image():
@@ -181,6 +183,7 @@ class Command(BaseCommand):
                 item_name = random.choice(MARKETPLACE_ITEMS)
                 price = random.choice([10, 25, 50, 75, 100, 150, 200, 300, 500])
                 condition = random.choice(ITEM_CONDITIONS)
+                category = random.choice(ITEM_CATEGORIES)  # Uses values from marketplace.constants
 
                 item = Item.objects.create(
                     user=user,
@@ -189,6 +192,7 @@ class Command(BaseCommand):
                                f"Perfect for students! Willing to negotiate on price.",
                     price=price,
                     condition=condition,
+                    category=category,
                     pickup_location=f"{random.choice(NEIGHBORHOODS)}, NY",
                     owner_name=f"{user.first_name} {user.last_name}",
                     contact_details=user.email,

@@ -28,14 +28,19 @@
 				{% if user.is_authenticated %}
 				<span class="nav-user">👋 {{ user.first_name|default:user.username }}</span>
 				<a href="{% url 'view_profile' %}">My Profile</a>
-				
-				<a href="{% url 'my_items' %}">My Items</a>
 				<a href="{% url 'messaging:inbox' %}">Messages</a>
 				<div class="nav-dropdown">
 					<a href="#" class="dropdown-toggle">House Listings ▼</a>
 					<div class="dropdown-menu">
 						<a href="{% url 'public_listings' %}">Browse Listings</a>
 						<a href="{% url 'my_listings' %}">My Listings</a>
+					</div>
+				</div>
+				<div class="nav-dropdown">
+					<a href="#" class="dropdown-toggle">Marketplace Items ▼</a>
+					<div class="dropdown-menu">
+						<a href="{% url 'browse_marketplace' %}">Browse Marketplace</a>
+						<a href="{% url 'my_items' %}">My Items</a>
 					</div>
 				</div>
 				<div class="nav-dropdown">
