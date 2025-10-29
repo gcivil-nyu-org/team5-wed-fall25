@@ -804,3 +804,65 @@ class SendMessageForbiddenTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 403)
+
+
+class GetNewMessagesWithProfilePhotoTests(TestCase):
+    """Test get_new_messages with profile photo"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            first_name="User",
+            last_name="One",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        # Create profile with photo for user1
+        photo = SimpleUploadedFile(
+            "test.jpg", b"file_content", content_type="image/jpeg"
+        )
+        Profile.objects.create(user=self.user1, university="nyu", profile_photo=photo)
+        Profile.objects.create(user=self.user2, university="nyu")
+
+        self.listing = Listing.objects.create(
+            user=self.user1,
+            title="Test Apartment",
+            description="Test",
+            address="123 Test St",
+            rent=1000,
+            availability_start=timezone.now().date(),
+            availability_end=(timezone.now() + timezone.timedelta(days=365)).date(),
+        )
+
+        self.thread = Thread.objects.create(
+            listing=self.listing, user_a=self.user1, user_b=self.user2
+        )
+
+    def test_get_new_messages_includes_profile_photo(self):
+        """Test that profile photo URL is included in message data"""
+        Message.objects.create(thread=self.thread, sender=self.user1, body="Test")
+
+        self.client.login(username="user2@nyu.edu", password="TestPassword123!")
+        response = self.client.get(
+            reverse(
+                "messaging:get_new_messages", kwargs={"thread_id": self.thread.id}
+            ),
+            {"last_message_id": 0},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data["messages"]), 1)
+        # Check that profile_photo_url is present and not None
+        self.assertIsNotNone(data["messages"][0]["profile_photo_url"])

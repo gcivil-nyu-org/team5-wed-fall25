@@ -437,3 +437,31 @@ class TerminateUserSessionsTests(TestCase):
         # Verify only user1's session was deleted
         self.assertFalse(Session.objects.filter(pk=session_key1).exists())
         self.assertTrue(Session.objects.filter(pk=session_key2).exists())
+
+
+class RegistrationFormTests(TestCase):
+    """Test RegistrationForm validation"""
+
+    def test_form_with_duplicate_email(self):
+        """Test that form rejects duplicate email"""
+        # Create existing user
+        User.objects.create_user(
+            email="existing@nyu.edu",
+            username="existing",
+            password="TestPassword123!",
+        )
+
+        from accounts.forms import RegistrationForm
+
+        form_data = {
+            "email": "existing@nyu.edu",
+            "username": "newuser",
+            "first_name": "New",
+            "last_name": "User",
+            "password1": "TestPassword123!",
+            "password2": "TestPassword123!",
+        }
+        form = RegistrationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("email", form.errors)
+        self.assertIn("already registered", str(form.errors["email"]))

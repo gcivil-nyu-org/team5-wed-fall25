@@ -120,6 +120,24 @@ class ProfileModelTests(TestCase):
             "🤷 No Preference",
         )
 
+    def test_preference_display_all_types(self):
+        """Test get_preference_display_with_icon for all preference types"""
+        # Test pets preference
+        self.profile.pet_preference = "no_pets"
+        self.profile.save()
+        pets_display = self.profile.get_preference_display_with_icon("pets")
+        self.assertIn("No Pets", pets_display)
+
+        # Test cleanliness preference
+        self.profile.cleanliness_preference = "very_clean"
+        self.profile.save()
+        cleanliness_display = self.profile.get_preference_display_with_icon("cleanliness")
+        self.assertIn("Very Clean", cleanliness_display)
+
+        # Test invalid preference type returns empty string
+        invalid_display = self.profile.get_preference_display_with_icon("invalid_type")
+        self.assertEqual(invalid_display, "")
+
 
 class ProfileViewTests(TestCase):
     def setUp(self):
@@ -988,3 +1006,60 @@ class ConnectionRequestEdgeCasesTests(TestCase):
         )
         # Check only one request exists (rejected one)
         self.assertEqual(ConnectionRequest.objects.count(), 1)
+
+
+class ProfileFormValidationTests(TestCase):
+    """Test ProfileForm validation"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="test@nyu.edu",
+            username="testuser",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+    def test_budget_min_greater_than_max(self):
+        """Test that form rejects budget_min > budget_max"""
+        from profiles.forms import ProfileForm
+
+        form_data = {
+            "university": "nyu",
+            "budget_min": 2000,
+            "budget_max": 1000,  # Less than min
+        }
+        form = ProfileForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("Minimum budget cannot be greater", str(form.errors))
+
+    def test_profile_photo_too_large(self):
+        """Test that form rejects photos > 5MB"""
+        from profiles.forms import ProfileForm
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from io import BytesIO
+        from PIL import Image
+
+        # Create a valid but large image file (> 5MB)
+        image = Image.new('RGB', (2000, 2000), color='red')
+        image_io = BytesIO()
+        image.save(image_io, format='JPEG', quality=100)
+
+        # Pad it to make it larger than 5MB
+        image_data = image_io.getvalue()
+        padding = b'x' * (6 * 1024 * 1024 - len(image_data))
+
+        large_file = SimpleUploadedFile(
+            "large.jpg",
+            image_data + padding,
+            content_type="image/jpeg"
+        )
+        # Set the size attribute that the form checks
+        large_file.size = len(image_data + padding)
+
+        form = ProfileForm(
+            data={"university": "nyu"},
+            files={"profile_photo": large_file}
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("profile_photo", form.errors)
+        self.assertIn("5MB", str(form.errors["profile_photo"]))
