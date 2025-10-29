@@ -338,7 +338,7 @@ class Command(BaseCommand):
         )
         self.stdout.write(
             self.style.WARNING(
-                f"\nAll test users have password: testpass123\n"
-                f"You can login with any username to view listings and profiles.\n"
+                "\nAll test users have password: testpass123\n"
+                "You can login with any username to view listings and profiles.\n"
             )
         )

@@ -194,7 +194,7 @@ def my_listings(request):
 
 
 @login_required
-def public_listings(request):
+def public_listings(request):  # noqa: C901
     """Display all active listings including user's own with search and filtering"""
     listings = (
         Listing.objects.filter(is_active=True)
