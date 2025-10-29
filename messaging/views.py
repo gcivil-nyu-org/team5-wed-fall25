@@ -101,7 +101,7 @@ def start_thread(request):
     # Basic input checks - must have either listing_id or item_id
     if (not listing_id and not item_id) or not recipient_id:
         messages.error(request, "Invalid request.")
-        return redirect("messaging:inbox")
+        return redirect("public_listings")
 
     if not body:
         messages.error(request, "Message cannot be empty.")
