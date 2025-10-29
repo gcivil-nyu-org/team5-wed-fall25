@@ -1182,9 +1182,7 @@ class BrowseMarketplaceViewTests(TestCase):
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
 
         # Search for "laptop"
-        response = self.client.get(
-            reverse("browse_marketplace"), {"keyword": "laptop"}
-        )
+        response = self.client.get(reverse("browse_marketplace"), {"keyword": "laptop"})
         items = response.context["items"]
         self.assertEqual(items.count(), 1)
         self.assertIn(self.item2, items)
@@ -1212,9 +1210,7 @@ class BrowseMarketplaceViewTests(TestCase):
         """Test filtering by minimum price"""
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
 
-        response = self.client.get(
-            reverse("browse_marketplace"), {"price_min": "50"}
-        )
+        response = self.client.get(reverse("browse_marketplace"), {"price_min": "50"})
         items = response.context["items"]
         self.assertEqual(items.count(), 2)
         self.assertIn(self.item2, items)
@@ -1225,9 +1221,7 @@ class BrowseMarketplaceViewTests(TestCase):
         """Test filtering by maximum price"""
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
 
-        response = self.client.get(
-            reverse("browse_marketplace"), {"price_max": "100"}
-        )
+        response = self.client.get(reverse("browse_marketplace"), {"price_max": "100"})
         items = response.context["items"]
         self.assertEqual(items.count(), 2)
         self.assertIn(self.item1, items)
@@ -1321,9 +1315,7 @@ class BrowseMarketplaceViewTests(TestCase):
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
 
         # Search for "LAPTOP" in uppercase
-        response = self.client.get(
-            reverse("browse_marketplace"), {"keyword": "LAPTOP"}
-        )
+        response = self.client.get(reverse("browse_marketplace"), {"keyword": "LAPTOP"})
         items = response.context["items"]
         self.assertEqual(items.count(), 1)
         self.assertIn(self.item2, items)

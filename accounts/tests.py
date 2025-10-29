@@ -161,6 +161,7 @@ class LoginViewTests(TestCase):
 
         # Create profile for verified user (required for view_profile redirect)
         from profiles.models import Profile
+
         Profile.objects.create(user=self.verified_user, university="nyu")
 
     def test_login_view_get(self):
@@ -257,9 +258,7 @@ class ResendVerificationViewTests(TestCase):
 
     def test_resend_verification_nonexistent_email(self):
         """Test resending verification to non-existent email"""
-        response = self.client.post(
-            self.resend_url, {"email": "nonexistent@nyu.edu"}
-        )
+        response = self.client.post(self.resend_url, {"email": "nonexistent@nyu.edu"})
         self.assertEqual(response.status_code, 200)
 
     def test_resend_verification_with_session_email(self):
@@ -302,9 +301,7 @@ class PasswordResetRequestViewTests(TestCase):
 
     def test_password_reset_nonexistent_user(self):
         """Test password reset for non-existent user (no info leak)"""
-        response = self.client.post(
-            self.reset_url, {"email": "nonexistent@nyu.edu"}
-        )
+        response = self.client.post(self.reset_url, {"email": "nonexistent@nyu.edu"})
         self.assertRedirects(response, self.reset_url)
         # No email should be sent but same message shown
         self.assertEqual(len(mail.outbox), 0)
@@ -325,9 +322,7 @@ class PasswordResetConfirmViewTests(TestCase):
         """Test GET request to password reset confirm with valid token"""
         token = default_token_generator.make_token(self.user)
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
-        url = reverse(
-            "password_reset_confirm", kwargs={"uidb64": uid, "token": token}
-        )
+        url = reverse("password_reset_confirm", kwargs={"uidb64": uid, "token": token})
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -338,9 +333,7 @@ class PasswordResetConfirmViewTests(TestCase):
         """Test password reset with valid token and password"""
         token = default_token_generator.make_token(self.user)
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
-        url = reverse(
-            "password_reset_confirm", kwargs={"uidb64": uid, "token": token}
-        )
+        url = reverse("password_reset_confirm", kwargs={"uidb64": uid, "token": token})
 
         response = self.client.post(
             url,
@@ -381,9 +374,7 @@ class PasswordResetConfirmViewTests(TestCase):
         # Reset password using a different client
         token = default_token_generator.make_token(self.user)
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
-        url = reverse(
-            "password_reset_confirm", kwargs={"uidb64": uid, "token": token}
-        )
+        url = reverse("password_reset_confirm", kwargs={"uidb64": uid, "token": token})
 
         new_client = Client()
         response = new_client.post(

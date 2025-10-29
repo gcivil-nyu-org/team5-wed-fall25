@@ -93,9 +93,7 @@ class ThreadModelTests(TestCase):
         thread = Thread.objects.create(
             listing=self.listing, user_a=self.user1, user_b=self.user2
         )
-        expected = (
-            f"Thread(listing={self.listing.id}, users=({self.user1.id},{self.user2.id}))"
-        )
+        expected = f"Thread(listing={self.listing.id}, users=({self.user1.id},{self.user2.id}))"
         self.assertEqual(str(thread), expected)
 
 
@@ -181,9 +179,7 @@ class MessageModelTests(TestCase):
 
     def test_message_str_representation(self):
         """Test string representation of message"""
-        msg = Message.objects.create(
-            thread=self.thread, sender=self.user1, body="Test"
-        )
+        msg = Message.objects.create(thread=self.thread, sender=self.user1, body="Test")
         str_repr = str(msg)
         self.assertIn(f"thread={self.thread.id}", str_repr)
         self.assertIn(f"from={self.user1.id}", str_repr)
@@ -351,7 +347,9 @@ class ThreadViewTests(TestCase):
         )
 
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
-        self.client.get(reverse("messaging:thread", kwargs={"thread_id": self.thread.id}))
+        self.client.get(
+            reverse("messaging:thread", kwargs={"thread_id": self.thread.id})
+        )
 
         msg.refresh_from_db()
         self.assertTrue(msg.is_read)
@@ -516,7 +514,7 @@ class StartThreadViewTests(TestCase):
         """Test starting thread with wrong recipient"""
         self.client.login(username="user2@nyu.edu", password="TestPassword123!")
 
-        response = self.client.post(
+        self.client.post(
             reverse("messaging:start_thread"),
             {
                 "listing_id": self.listing.id,
@@ -587,7 +585,7 @@ class SendMessageViewTests(TestCase):
         """Test sending empty message fails"""
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
 
-        response = self.client.post(
+        self.client.post(
             reverse("messaging:send", kwargs={"thread_id": self.thread.id}),
             {"body": ""},
         )
@@ -642,9 +640,7 @@ class GetNewMessagesViewTests(TestCase):
     def test_get_new_messages_requires_login(self):
         """Test AJAX endpoint requires authentication"""
         response = self.client.get(
-            reverse(
-                "messaging:get_new_messages", kwargs={"thread_id": self.thread.id}
-            )
+            reverse("messaging:get_new_messages", kwargs={"thread_id": self.thread.id})
         )
         self.assertEqual(response.status_code, 302)
 
@@ -652,9 +648,7 @@ class GetNewMessagesViewTests(TestCase):
         """Test non-participants get 403"""
         self.client.login(username="user3@nyu.edu", password="TestPassword123!")
         response = self.client.get(
-            reverse(
-                "messaging:get_new_messages", kwargs={"thread_id": self.thread.id}
-            )
+            reverse("messaging:get_new_messages", kwargs={"thread_id": self.thread.id})
         )
         self.assertEqual(response.status_code, 403)
 
@@ -669,9 +663,7 @@ class GetNewMessagesViewTests(TestCase):
 
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
         response = self.client.get(
-            reverse(
-                "messaging:get_new_messages", kwargs={"thread_id": self.thread.id}
-            ),
+            reverse("messaging:get_new_messages", kwargs={"thread_id": self.thread.id}),
             {"last_message_id": msg1.id},
         )
 
@@ -689,9 +681,7 @@ class GetNewMessagesViewTests(TestCase):
 
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
         self.client.get(
-            reverse(
-                "messaging:get_new_messages", kwargs={"thread_id": self.thread.id}
-            ),
+            reverse("messaging:get_new_messages", kwargs={"thread_id": self.thread.id}),
             {"last_message_id": 0},
         )
 
@@ -704,9 +694,7 @@ class GetNewMessagesViewTests(TestCase):
 
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
         response = self.client.get(
-            reverse(
-                "messaging:get_new_messages", kwargs={"thread_id": self.thread.id}
-            ),
+            reverse("messaging:get_new_messages", kwargs={"thread_id": self.thread.id}),
             {"last_message_id": "invalid"},
         )
 
@@ -855,9 +843,7 @@ class GetNewMessagesWithProfilePhotoTests(TestCase):
 
         self.client.login(username="user2@nyu.edu", password="TestPassword123!")
         response = self.client.get(
-            reverse(
-                "messaging:get_new_messages", kwargs={"thread_id": self.thread.id}
-            ),
+            reverse("messaging:get_new_messages", kwargs={"thread_id": self.thread.id}),
             {"last_message_id": 0},
         )
 

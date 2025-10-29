@@ -131,7 +131,9 @@ class ProfileModelTests(TestCase):
         # Test cleanliness preference
         self.profile.cleanliness_preference = "very_clean"
         self.profile.save()
-        cleanliness_display = self.profile.get_preference_display_with_icon("cleanliness")
+        cleanliness_display = self.profile.get_preference_display_with_icon(
+            "cleanliness"
+        )
         self.assertIn("Very Clean", cleanliness_display)
 
         # Test invalid preference type returns empty string
@@ -955,7 +957,9 @@ class ConnectionRequestEdgeCasesTests(TestCase):
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
 
         response = self.client.post(
-            reverse("send_connection_request", kwargs={"user_id": self.user_no_profile.id}),
+            reverse(
+                "send_connection_request", kwargs={"user_id": self.user_no_profile.id}
+            ),
             {"message": "Test message"},
         )
 
@@ -1040,25 +1044,22 @@ class ProfileFormValidationTests(TestCase):
         from PIL import Image
 
         # Create a valid but large image file (> 5MB)
-        image = Image.new('RGB', (2000, 2000), color='red')
+        image = Image.new("RGB", (2000, 2000), color="red")
         image_io = BytesIO()
-        image.save(image_io, format='JPEG', quality=100)
+        image.save(image_io, format="JPEG", quality=100)
 
         # Pad it to make it larger than 5MB
         image_data = image_io.getvalue()
-        padding = b'x' * (6 * 1024 * 1024 - len(image_data))
+        padding = b"x" * (6 * 1024 * 1024 - len(image_data))
 
         large_file = SimpleUploadedFile(
-            "large.jpg",
-            image_data + padding,
-            content_type="image/jpeg"
+            "large.jpg", image_data + padding, content_type="image/jpeg"
         )
         # Set the size attribute that the form checks
         large_file.size = len(image_data + padding)
 
         form = ProfileForm(
-            data={"university": "nyu"},
-            files={"profile_photo": large_file}
+            data={"university": "nyu"}, files={"profile_photo": large_file}
         )
         self.assertFalse(form.is_valid())
         self.assertIn("profile_photo", form.errors)

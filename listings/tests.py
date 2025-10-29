@@ -1348,17 +1348,13 @@ class PublicListingsViewTests(TestCase):
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
 
         # Search for "Brooklyn"
-        response = self.client.get(
-            reverse("public_listings"), {"keyword": "Brooklyn"}
-        )
+        response = self.client.get(reverse("public_listings"), {"keyword": "Brooklyn"})
         listings = response.context["listings"]
         self.assertEqual(listings.count(), 1)
         self.assertIn(self.listing2, listings)
 
         # Search for "studio"
-        response = self.client.get(
-            reverse("public_listings"), {"keyword": "studio"}
-        )
+        response = self.client.get(reverse("public_listings"), {"keyword": "studio"})
         listings = response.context["listings"]
         self.assertEqual(listings.count(), 1)
         self.assertIn(self.listing1, listings)
@@ -1367,9 +1363,7 @@ class PublicListingsViewTests(TestCase):
         """Test filtering by minimum rent"""
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
 
-        response = self.client.get(
-            reverse("public_listings"), {"rent_min": "1500"}
-        )
+        response = self.client.get(reverse("public_listings"), {"rent_min": "1500"})
         listings = response.context["listings"]
         self.assertEqual(listings.count(), 2)
         self.assertIn(self.listing2, listings)
@@ -1380,9 +1374,7 @@ class PublicListingsViewTests(TestCase):
         """Test filtering by maximum rent"""
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
 
-        response = self.client.get(
-            reverse("public_listings"), {"rent_max": "2000"}
-        )
+        response = self.client.get(reverse("public_listings"), {"rent_max": "2000"})
         listings = response.context["listings"]
         self.assertEqual(listings.count(), 2)
         self.assertIn(self.listing1, listings)
@@ -1485,9 +1477,7 @@ class PublicListingsViewTests(TestCase):
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
 
         # Invalid rent_min
-        response = self.client.get(
-            reverse("public_listings"), {"rent_min": "invalid"}
-        )
+        response = self.client.get(reverse("public_listings"), {"rent_min": "invalid"})
         messages = list(get_messages(response.wsgi_request))
         self.assertTrue(any("Invalid minimum rent" in str(m) for m in messages))
 
