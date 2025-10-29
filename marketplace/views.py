@@ -185,7 +185,9 @@ def view_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)
     # Check if this is the user's own item for edit/delete permissions
     is_owner = item.user == request.user
-    return render(request, "marketplace/view_item.html", {"item": item, "is_owner": is_owner})
+    return render(
+        request, "marketplace/view_item.html", {"item": item, "is_owner": is_owner}
+    )
 
 
 @login_required
@@ -234,7 +236,7 @@ def browse_marketplace(request):
         .prefetch_related("images")
         .order_by("-created_at")
     )
-    
+
     # Get filter parameters
     keyword = request.GET.get("keyword", "").strip()
     category = request.GET.get("category", "").strip()
@@ -266,7 +268,7 @@ def browse_marketplace(request):
 
     # Get all categories for filter dropdown
     categories = ITEM_CATEGORY_CHOICES
-    
+
     context = {
         "items": items,
         "categories": categories,
@@ -276,5 +278,5 @@ def browse_marketplace(request):
         "price_max": price_max,
         "has_filters": bool(keyword or category or price_min or price_max),
     }
-    
+
     return render(request, "marketplace/browse_marketplace.html", context)

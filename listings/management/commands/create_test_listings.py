@@ -15,13 +15,41 @@ from django.core.files.base import ContentFile
 User = get_user_model()
 
 FIRST_NAMES = [
-    "Alex", "Jordan", "Casey", "Morgan", "Riley", "Taylor", "Jamie", "Avery",
-    "Sam", "Quinn", "Blake", "Drew", "Reese", "Dakota", "Skylar", "Sage",
+    "Alex",
+    "Jordan",
+    "Casey",
+    "Morgan",
+    "Riley",
+    "Taylor",
+    "Jamie",
+    "Avery",
+    "Sam",
+    "Quinn",
+    "Blake",
+    "Drew",
+    "Reese",
+    "Dakota",
+    "Skylar",
+    "Sage",
 ]
 
 LAST_NAMES = [
-    "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
-    "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas",
+    "Smith",
+    "Johnson",
+    "Williams",
+    "Brown",
+    "Jones",
+    "Garcia",
+    "Miller",
+    "Davis",
+    "Rodriguez",
+    "Martinez",
+    "Hernandez",
+    "Lopez",
+    "Gonzalez",
+    "Wilson",
+    "Anderson",
+    "Thomas",
 ]
 
 UNIVERSITIES = ["NYU", "Columbia", "CUNY", "Pace", "Fordham", "The New School"]
@@ -44,42 +72,117 @@ LISTING_TITLES = [
 ]
 
 NEIGHBORHOODS = [
-    "Manhattan", "Brooklyn", "Queens", "Astoria", "Williamsburg", "Park Slope",
-    "Upper West Side", "East Village", "Long Island City", "Sunset Park",
+    "Manhattan",
+    "Brooklyn",
+    "Queens",
+    "Astoria",
+    "Williamsburg",
+    "Park Slope",
+    "Upper West Side",
+    "East Village",
+    "Long Island City",
+    "Sunset Park",
 ]
 
 ZIPCODES = [
-    "10001", "10002", "10003", "10004", "10005", "10006", "10007", "10009",
-    "10010", "10011", "10012", "10013", "10014", "10016", "10017", "10018",
-    "10019", "10020", "10021", "10022", "10023", "10024", "10025", "10026",
-    "10027", "10028", "10029", "10030", "10031", "10032", "10033", "10034",
-    "10035", "10036", "10037", "10038", "10039", "10040", "11201", "11202",
-    "11203", "11204", "11205", "11206", "11207", "11208", "11209", "11210",
+    "10001",
+    "10002",
+    "10003",
+    "10004",
+    "10005",
+    "10006",
+    "10007",
+    "10009",
+    "10010",
+    "10011",
+    "10012",
+    "10013",
+    "10014",
+    "10016",
+    "10017",
+    "10018",
+    "10019",
+    "10020",
+    "10021",
+    "10022",
+    "10023",
+    "10024",
+    "10025",
+    "10026",
+    "10027",
+    "10028",
+    "10029",
+    "10030",
+    "10031",
+    "10032",
+    "10033",
+    "10034",
+    "10035",
+    "10036",
+    "10037",
+    "10038",
+    "10039",
+    "10040",
+    "11201",
+    "11202",
+    "11203",
+    "11204",
+    "11205",
+    "11206",
+    "11207",
+    "11208",
+    "11209",
+    "11210",
 ]
 
 # Amenities are imported from listings.constants.AMENITY_CHOICES
 AMENITIES = [choice[0] for choice in AMENITY_CHOICES]  # Extract just the values
 
 MARKETPLACE_ITEMS = [
-    "Used Desk", "Bookshelf", "Desk Chair", "Twin Bed Frame", "Mattress",
-    "Nightstand", "Dresser", "Lamp", "Rug", "Curtains", "Textbooks",
-    "Laptop", "Monitor", "Keyboard", "Mouse", "Headphones", "Speaker",
-    "Microwave", "Mini Fridge", "Coffee Maker", "Blender", "Toaster",
-    "Bicycle", "Skateboard", "Backpack", "Suitcase", "Shoes", "Jacket",
+    "Used Desk",
+    "Bookshelf",
+    "Desk Chair",
+    "Twin Bed Frame",
+    "Mattress",
+    "Nightstand",
+    "Dresser",
+    "Lamp",
+    "Rug",
+    "Curtains",
+    "Textbooks",
+    "Laptop",
+    "Monitor",
+    "Keyboard",
+    "Mouse",
+    "Headphones",
+    "Speaker",
+    "Microwave",
+    "Mini Fridge",
+    "Coffee Maker",
+    "Blender",
+    "Toaster",
+    "Bicycle",
+    "Skateboard",
+    "Backpack",
+    "Suitcase",
+    "Shoes",
+    "Jacket",
 ]
 
 ITEM_CONDITIONS = ["like_new", "good", "fair", "used"]
 # Item categories are imported from marketplace.constants.ITEM_CATEGORY_CHOICES
-ITEM_CATEGORIES = [choice[0] for choice in ITEM_CATEGORY_CHOICES]  # Extract just the values
+ITEM_CATEGORIES = [
+    choice[0] for choice in ITEM_CATEGORY_CHOICES
+]  # Extract just the values
 
 
 def generate_placeholder_image():
     """Generate a simple placeholder image"""
-    img = Image.new('RGB', (400, 300), color=(73, 109, 137))
+    img = Image.new("RGB", (400, 300), color=(73, 109, 137))
     img_io = BytesIO()
-    img.save(img_io, 'JPEG')
+    img.save(img_io, "JPEG")
     img_io.seek(0)
-    return ContentFile(img_io.read(), name='placeholder.jpg')
+    return ContentFile(img_io.read(), name="placeholder.jpg")
 
 
 class Command(BaseCommand):
@@ -158,7 +261,7 @@ class Command(BaseCommand):
                 title = random.choice(LISTING_TITLES)
                 rent = random.choice([800, 1000, 1200, 1500, 1800, 2000])
                 address = f"{random.randint(100, 9999)} {random.choice(['Main', 'Park', 'Broadway', 'Madison', 'Fifth'])} St, {random.choice(NEIGHBORHOODS)}, NY {random.choice(ZIPCODES)}"
-                
+
                 availability_start = timezone.now().date() + timedelta(
                     days=random.randint(1, 30)
                 )
@@ -184,7 +287,9 @@ class Command(BaseCommand):
 
                 # Add a placeholder image
                 image = ListingImage.objects.create(listing=listing)
-                image.image.save('placeholder.jpg', generate_placeholder_image(), save=True)
+                image.image.save(
+                    "placeholder.jpg", generate_placeholder_image(), save=True
+                )
 
                 created_listings += 1
                 self.stdout.write(
@@ -198,7 +303,9 @@ class Command(BaseCommand):
                 item_name = random.choice(MARKETPLACE_ITEMS)
                 price = random.choice([10, 25, 50, 75, 100, 150, 200, 300, 500])
                 condition = random.choice(ITEM_CONDITIONS)
-                category = random.choice(ITEM_CATEGORIES)  # Uses values from marketplace.constants
+                category = random.choice(
+                    ITEM_CATEGORIES
+                )  # Uses values from marketplace.constants
 
                 item = Item.objects.create(
                     user=user,
@@ -215,13 +322,13 @@ class Command(BaseCommand):
 
                 # Add a placeholder image
                 image = ItemImage.objects.create(item=item)
-                image.image.save('placeholder.jpg', generate_placeholder_image(), save=True)
+                image.image.save(
+                    "placeholder.jpg", generate_placeholder_image(), save=True
+                )
 
                 created_items += 1
                 self.stdout.write(
-                    self.style.SUCCESS(
-                        f"  ✓ Created item: {item.title} (${price})"
-                    )
+                    self.style.SUCCESS(f"  ✓ Created item: {item.title} (${price})")
                 )
 
         self.stdout.write(
