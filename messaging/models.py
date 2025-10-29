@@ -4,11 +4,15 @@ from django.db import models
 from django.db.models import F, Q
 from django.utils import timezone
 from listings.models import Listing
+from marketplace.models import Item
 
 
 class Thread(models.Model):
     listing = models.ForeignKey(
-        Listing, on_delete=models.CASCADE, related_name="threads"
+        Listing, on_delete=models.CASCADE, related_name="threads", null=True, blank=True
+    )
+    item = models.ForeignKey(
+        Item, on_delete=models.CASCADE, related_name="threads", null=True, blank=True
     )
     user_a = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="threads_a"
@@ -25,6 +29,10 @@ class Thread(models.Model):
                 fields=["listing", "user_a", "user_b"],
                 name="unique_thread_per_listing_pair",
             ),
+            models.UniqueConstraint(
+                fields=["item", "user_a", "user_b"],
+                name="unique_thread_per_item_pair",
+            ),
             models.CheckConstraint(
                 check=~Q(user_a=F("user_b")), name="prevent_self_thread"
             ),
@@ -32,6 +40,8 @@ class Thread(models.Model):
         indexes = [
             models.Index(fields=["listing", "user_a"]),
             models.Index(fields=["listing", "user_b"]),
+            models.Index(fields=["item", "user_a"]),
+            models.Index(fields=["item", "user_b"]),
             models.Index(fields=["updated_at"]),
         ]
 
@@ -43,8 +53,15 @@ class Thread(models.Model):
     def other_participant(self, user):
         return self.user_b if user.id == self.user_a_id else self.user_a
 
+    def get_related_object(self):
+        """Return the listing or item associated with this thread."""
+        return self.listing if self.listing else self.item
+
     def __str__(self):
-        return f"Thread(listing={self.listing_id}, users=({self.user_a_id},{self.user_b_id}))"
+        if self.listing:
+            return f"Thread(listing={self.listing_id}, users=({self.user_a_id},{self.user_b_id}))"
+        else:
+            return f"Thread(item={self.item_id}, users=({self.user_a_id},{self.user_b_id}))"
 
 
 class Message(models.Model):

@@ -5,6 +5,9 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'marketplace/css/view_item.css' %}">
+{% if not is_owner %}
+<link rel="stylesheet" href="{% static 'marketplace/css/message_modal.css' %}">
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -117,10 +120,41 @@
       </a>
     {% else %}
       <!-- Buyer viewing item from another user -->
+      <button onclick="showMessageForm()" class="btn-edit-item message-modal-trigger">
+        Contact Seller
+      </button>
       <a href="{% url 'browse_marketplace' %}" class="btn-back-to-items">
         Back to Marketplace
       </a>
     {% endif %}
   </div>
 </div>
+
+<!-- Message Form Modal (for non-owners) -->
+{% if not is_owner %}
+<div id="messageModal" class="message-modal-overlay">
+  <div class="message-modal-container">
+    <h3 class="message-modal-heading">Send Message to {{ item.user.first_name|default:item.user.username }}</h3>
+    <form method="post" action="{% url 'messaging:start_thread' %}" class="message-modal-form">
+      {% csrf_token %}
+      <input type="hidden" name="item_id" value="{{ item.id }}">
+      <input type="hidden" name="recipient_id" value="{{ item.user.id }}">
+      <div class="form-group">
+        <label for="message_body">Your message:</label>
+        <textarea id="message_body" name="body" rows="4" required placeholder="Hi, I'm interested in your item..."></textarea>
+      </div>
+      <div class="message-modal-actions">
+        <button type="submit" class="btn-edit-item message-modal-submit">Send Message</button>
+        <button type="button" onclick="hideMessageForm()" class="btn-back-to-items message-modal-cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if not is_owner %}
+<script src="{% static 'marketplace/js/message_modal.js' %}"></script>
+{% endif %}
 {% endblock %}
