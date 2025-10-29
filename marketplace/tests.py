@@ -34,7 +34,6 @@ class ItemModelTests(TestCase):
             price=Decimal("50.00"),
             pickup_location="Bobst Library",
             owner_name="Test User",
-            contact_details="test@nyu.edu",
         )
 
     def test_create_item_success(self):
@@ -51,7 +50,6 @@ class ItemModelTests(TestCase):
         self.assertEqual(item.price, Decimal("50.00"))
         self.assertEqual(item.pickup_location, "Bobst Library")
         self.assertEqual(item.owner_name, "Test User")
-        self.assertEqual(item.contact_details, "test@nyu.edu")
         self.assertEqual(Item.objects.filter(user=self.user).count(), 1)
 
     def test_item_defaults(self):
@@ -68,7 +66,6 @@ class ItemModelTests(TestCase):
             price=Decimal("100.00"),
             pickup_location="Silver Center",
             owner_name="Another User",
-            contact_details="test2@nyu.edu",
         )
         after = timezone.now()
 
@@ -90,8 +87,7 @@ class ItemModelTests(TestCase):
                 price=Decimal("25.00"),
                 pickup_location="Test Location",
                 owner_name="Test Owner",
-                contact_details="contact@test.com",
-            )
+                )
             self.assertEqual(item.condition, condition)
 
     def test_item_str(self):
@@ -108,7 +104,6 @@ class ItemModelTests(TestCase):
             price=Decimal("75.00"),
             pickup_location="Kimmel Center",
             owner_name="Test User",
-            contact_details="test@nyu.edu",
         )
         items = list(Item.objects.all())
         self.assertEqual(items[0], item2)
@@ -142,7 +137,6 @@ class ItemImageModelTests(TestCase):
             price=Decimal("50.00"),
             pickup_location="Bobst Library",
             owner_name="Test User",
-            contact_details="test@nyu.edu",
         )
 
     def test_create_item_image(self):
@@ -188,7 +182,6 @@ class ItemFormTests(TestCase):
             "price": "50.00",
             "pickup_location": "Bobst Library",
             "owner_name": "Test Owner",
-            "contact_details": "test@nyu.edu",
         }
 
     def test_valid_form(self):
@@ -262,26 +255,6 @@ class ItemFormTests(TestCase):
         form = ItemForm(data=data)
         self.assertTrue(form.is_valid())
 
-    def test_contact_details_validation_too_short(self):
-        """Test contact details validation rejects short input"""
-        from .forms import ItemForm
-
-        data = {**self.valid_data, "contact_details": "abc"}
-        form = ItemForm(data=data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("contact_details", form.errors)
-        self.assertIn(
-            "Please provide valid contact details.", form.errors["contact_details"]
-        )
-
-    def test_contact_details_validation_minimum_length(self):
-        """Test contact details validation accepts minimum valid length"""
-        from .forms import ItemForm
-
-        data = {**self.valid_data, "contact_details": "a" * 5}
-        form = ItemForm(data=data)
-        self.assertTrue(form.is_valid())
-
     def test_required_fields(self):
         """Test all required fields are validated"""
         from .forms import ItemForm
@@ -293,7 +266,6 @@ class ItemFormTests(TestCase):
             "price",
             "pickup_location",
             "owner_name",
-            "contact_details",
         ]
         for field in required_fields:
             with self.subTest(field=field):
@@ -322,7 +294,6 @@ class CreateItemViewTests(TestCase):
             "price": "50.00",
             "pickup_location": "Bobst Library",
             "owner_name": "Test User",
-            "contact_details": "test@nyu.edu",
         }
 
     def test_create_item_success(self):
@@ -466,7 +437,6 @@ class MyItemsViewTests(TestCase):
             price=Decimal("25.00"),
             pickup_location="Location 1",
             owner_name="Owner 1",
-            contact_details="contact1@test.com",
         )
         item2 = Item.objects.create(
             user=self.user,
@@ -476,7 +446,6 @@ class MyItemsViewTests(TestCase):
             price=Decimal("50.00"),
             pickup_location="Location 2",
             owner_name="Owner 2",
-            contact_details="contact2@test.com",
         )
 
         response = self.client.get(self.my_items_url)
@@ -499,7 +468,6 @@ class MyItemsViewTests(TestCase):
             price=Decimal("25.00"),
             pickup_location="Location 1",
             owner_name="Owner 1",
-            contact_details="contact1@test.com",
         )
         item2 = Item.objects.create(
             user=self.user,
@@ -509,7 +477,6 @@ class MyItemsViewTests(TestCase):
             price=Decimal("50.00"),
             pickup_location="Location 2",
             owner_name="Owner 2",
-            contact_details="contact2@test.com",
         )
 
         response = self.client.get(self.my_items_url)
@@ -528,7 +495,6 @@ class MyItemsViewTests(TestCase):
             price=Decimal("25.00"),
             pickup_location="My Location",
             owner_name="My Name",
-            contact_details="my@test.com",
         )
         other_item = Item.objects.create(
             user=self.user2,
@@ -538,7 +504,6 @@ class MyItemsViewTests(TestCase):
             price=Decimal("25.00"),
             pickup_location="Other Location",
             owner_name="Other Name",
-            contact_details="other@test.com",
         )
 
         response = self.client.get(self.my_items_url)
@@ -579,7 +544,6 @@ class ViewItemViewTests(TestCase):
             price=Decimal("50.00"),
             pickup_location="Test Location",
             owner_name="Test Owner",
-            contact_details="test@test.com",
         )
 
     def test_view_item_success(self):
@@ -634,7 +598,6 @@ class EditItemViewTests(TestCase):
             price=Decimal("50.00"),
             pickup_location="Original Location",
             owner_name="Original Owner",
-            contact_details="original@test.com",
         )
         image = create_image()
         self.item_image = ItemImage.objects.create(item=self.item, image=image)
@@ -662,7 +625,6 @@ class EditItemViewTests(TestCase):
             "price": "75.00",
             "pickup_location": "Updated Location",
             "owner_name": "Updated Owner",
-            "contact_details": "updated@test.com",
         }
         response = self.client.post(url, data)
 
@@ -685,7 +647,6 @@ class EditItemViewTests(TestCase):
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
             "owner_name": self.item.owner_name,
-            "contact_details": self.item.contact_details,
             "images": new_images,
         }
         self.client.post(url, data)
@@ -708,7 +669,6 @@ class EditItemViewTests(TestCase):
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
             "owner_name": self.item.owner_name,
-            "contact_details": self.item.contact_details,
             "removed_images": str(self.item_image.id),
         }
         self.client.post(url, data)
@@ -729,7 +689,6 @@ class EditItemViewTests(TestCase):
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
             "owner_name": self.item.owner_name,
-            "contact_details": self.item.contact_details,
             "removed_images": str(self.item_image.id),
         }
         response = self.client.post(url, data)
@@ -751,7 +710,6 @@ class EditItemViewTests(TestCase):
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
             "owner_name": self.item.owner_name,
-            "contact_details": self.item.contact_details,
             "removed_images": str(self.item_image.id),
             "images": [new_image],
         }
@@ -794,7 +752,6 @@ class DeleteItemViewTests(TestCase):
             price=Decimal("50.00"),
             pickup_location="Test Location",
             owner_name="Test Owner",
-            contact_details="test@test.com",
         )
 
     def test_delete_item_get_confirmation(self):
@@ -873,7 +830,6 @@ class MarkAsSoldViewTests(TestCase):
             price=Decimal("50.00"),
             pickup_location="Test Location",
             owner_name="Test Owner",
-            contact_details="test@test.com",
         )
 
     def test_mark_as_sold_success(self):
@@ -975,7 +931,6 @@ class HelperFunctionTests(TestCase):
             "price": "50.00",
             "pickup_location": "Bobst Library",
             "owner_name": "Test Owner",
-            "contact_details": "test@nyu.edu",
         }
         form = ItemForm(data=valid_data)
         files = [create_image() for _ in range(3)]
@@ -994,7 +949,6 @@ class HelperFunctionTests(TestCase):
             "price": "50.00",
             "pickup_location": "Bobst Library",
             "owner_name": "Test Owner",
-            "contact_details": "test@nyu.edu",
         }
         form = ItemForm(data=valid_data)
         files = [create_image() for _ in range(11)]
@@ -1013,7 +967,6 @@ class HelperFunctionTests(TestCase):
             "price": "50.00",
             "pickup_location": "Bobst Library",
             "owner_name": "Test Owner",
-            "contact_details": "test@nyu.edu",
         }
         form = ItemForm(data=valid_data)
         text_file = SimpleUploadedFile(
@@ -1034,7 +987,6 @@ class HelperFunctionTests(TestCase):
             "price": "50.00",
             "pickup_location": "Bobst Library",
             "owner_name": "Test Owner",
-            "contact_details": "test@nyu.edu",
         }
         form = ItemForm(data=valid_data)
         large_file = SimpleUploadedFile(
@@ -1092,7 +1044,6 @@ class BrowseMarketplaceViewTests(TestCase):
             category="furniture",
             condition="good",
             price=25.00,
-            contact_details="user1@nyu.edu",
             pickup_location="Manhattan",
             is_active=True,
             is_sold=False,
@@ -1106,7 +1057,6 @@ class BrowseMarketplaceViewTests(TestCase):
             category="electronics",
             condition="like_new",
             price=1200.00,
-            contact_details="user2@nyu.edu",
             pickup_location="Brooklyn",
             is_active=True,
             is_sold=False,
@@ -1120,7 +1070,6 @@ class BrowseMarketplaceViewTests(TestCase):
             category="books",
             condition="good",
             price=50.00,
-            contact_details="user1@nyu.edu",
             pickup_location="Queens",
             is_active=True,
             is_sold=False,
@@ -1135,7 +1084,6 @@ class BrowseMarketplaceViewTests(TestCase):
             category="furniture",
             condition="good",
             price=100.00,
-            contact_details="user1@nyu.edu",
             pickup_location="Manhattan",
             is_active=True,
             is_sold=True,
@@ -1150,7 +1098,6 @@ class BrowseMarketplaceViewTests(TestCase):
             category="furniture",
             condition="good",
             price=100.00,
-            contact_details="user1@nyu.edu",
             pickup_location="Manhattan",
             is_active=False,
             is_sold=False,

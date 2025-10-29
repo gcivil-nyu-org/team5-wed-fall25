@@ -73,11 +73,6 @@
       </div>
 
       <div class="item-detail-group">
-        <strong class="item-detail-label">Contact:</strong>
-        <p class="item-detail-value">{{ item.contact_details }}</p>
-      </div>
-
-      <div class="item-detail-group">
         <strong class="item-detail-label">Posted:</strong>
         <p class="item-detail-value">{{ item.created_at|date:"F d, Y" }}</p>
         {% if item.is_edited %}
