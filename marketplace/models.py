@@ -18,7 +18,6 @@ class Item(models.Model):
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
     pickup_location = models.CharField(max_length=300)
-    owner_name = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_edited = models.BooleanField(default=False)

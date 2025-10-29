@@ -33,7 +33,6 @@ class ItemModelTests(TestCase):
             condition="good",
             price=Decimal("50.00"),
             pickup_location="Bobst Library",
-            owner_name="Test User",
         )
 
     def test_create_item_success(self):
@@ -49,7 +48,6 @@ class ItemModelTests(TestCase):
         self.assertEqual(item.condition, "good")
         self.assertEqual(item.price, Decimal("50.00"))
         self.assertEqual(item.pickup_location, "Bobst Library")
-        self.assertEqual(item.owner_name, "Test User")
         self.assertEqual(Item.objects.filter(user=self.user).count(), 1)
 
     def test_item_defaults(self):
@@ -65,7 +63,6 @@ class ItemModelTests(TestCase):
             condition="new",
             price=Decimal("100.00"),
             pickup_location="Silver Center",
-            owner_name="Another User",
         )
         after = timezone.now()
 
@@ -86,7 +83,6 @@ class ItemModelTests(TestCase):
                 condition=condition,
                 price=Decimal("25.00"),
                 pickup_location="Test Location",
-                owner_name="Test Owner",
             )
             self.assertEqual(item.condition, condition)
 
@@ -103,7 +99,6 @@ class ItemModelTests(TestCase):
             condition="new",
             price=Decimal("75.00"),
             pickup_location="Kimmel Center",
-            owner_name="Test User",
         )
         items = list(Item.objects.all())
         self.assertEqual(items[0], item2)
@@ -136,7 +131,6 @@ class ItemImageModelTests(TestCase):
             condition="good",
             price=Decimal("50.00"),
             pickup_location="Bobst Library",
-            owner_name="Test User",
         )
 
     def test_create_item_image(self):
@@ -181,7 +175,6 @@ class ItemFormTests(TestCase):
             "category": "other",
             "price": "50.00",
             "pickup_location": "Bobst Library",
-            "owner_name": "Test Owner",
         }
 
     def test_valid_form(self):
@@ -265,7 +258,6 @@ class ItemFormTests(TestCase):
             "condition",
             "price",
             "pickup_location",
-            "owner_name",
         ]
         for field in required_fields:
             with self.subTest(field=field):
@@ -293,7 +285,6 @@ class CreateItemViewTests(TestCase):
             "category": "other",
             "price": "50.00",
             "pickup_location": "Bobst Library",
-            "owner_name": "Test User",
         }
 
     def test_create_item_success(self):
@@ -436,7 +427,6 @@ class MyItemsViewTests(TestCase):
             condition="good",
             price=Decimal("25.00"),
             pickup_location="Location 1",
-            owner_name="Owner 1",
         )
         item2 = Item.objects.create(
             user=self.user,
@@ -445,7 +435,6 @@ class MyItemsViewTests(TestCase):
             condition="new",
             price=Decimal("50.00"),
             pickup_location="Location 2",
-            owner_name="Owner 2",
         )
 
         response = self.client.get(self.my_items_url)
@@ -467,7 +456,6 @@ class MyItemsViewTests(TestCase):
             condition="good",
             price=Decimal("25.00"),
             pickup_location="Location 1",
-            owner_name="Owner 1",
         )
         item2 = Item.objects.create(
             user=self.user,
@@ -476,7 +464,6 @@ class MyItemsViewTests(TestCase):
             condition="new",
             price=Decimal("50.00"),
             pickup_location="Location 2",
-            owner_name="Owner 2",
         )
 
         response = self.client.get(self.my_items_url)
@@ -494,7 +481,6 @@ class MyItemsViewTests(TestCase):
             condition="good",
             price=Decimal("25.00"),
             pickup_location="My Location",
-            owner_name="My Name",
         )
         other_item = Item.objects.create(
             user=self.user2,
@@ -503,7 +489,6 @@ class MyItemsViewTests(TestCase):
             condition="good",
             price=Decimal("25.00"),
             pickup_location="Other Location",
-            owner_name="Other Name",
         )
 
         response = self.client.get(self.my_items_url)
@@ -543,7 +528,6 @@ class ViewItemViewTests(TestCase):
             condition="good",
             price=Decimal("50.00"),
             pickup_location="Test Location",
-            owner_name="Test Owner",
         )
 
     def test_view_item_success(self):
@@ -597,7 +581,6 @@ class EditItemViewTests(TestCase):
             condition="good",
             price=Decimal("50.00"),
             pickup_location="Original Location",
-            owner_name="Original Owner",
         )
         image = create_image()
         self.item_image = ItemImage.objects.create(item=self.item, image=image)
@@ -624,7 +607,6 @@ class EditItemViewTests(TestCase):
             "category": "other",
             "price": "75.00",
             "pickup_location": "Updated Location",
-            "owner_name": "Updated Owner",
         }
         response = self.client.post(url, data)
 
@@ -646,7 +628,6 @@ class EditItemViewTests(TestCase):
             "category": "other",
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
-            "owner_name": self.item.owner_name,
             "images": new_images,
         }
         self.client.post(url, data)
@@ -668,7 +649,6 @@ class EditItemViewTests(TestCase):
             "category": "other",
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
-            "owner_name": self.item.owner_name,
             "removed_images": str(self.item_image.id),
         }
         self.client.post(url, data)
@@ -688,7 +668,6 @@ class EditItemViewTests(TestCase):
             "category": "other",
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
-            "owner_name": self.item.owner_name,
             "removed_images": str(self.item_image.id),
         }
         response = self.client.post(url, data)
@@ -709,7 +688,6 @@ class EditItemViewTests(TestCase):
             "category": "other",
             "price": str(self.item.price),
             "pickup_location": self.item.pickup_location,
-            "owner_name": self.item.owner_name,
             "removed_images": str(self.item_image.id),
             "images": [new_image],
         }
@@ -751,7 +729,6 @@ class DeleteItemViewTests(TestCase):
             condition="good",
             price=Decimal("50.00"),
             pickup_location="Test Location",
-            owner_name="Test Owner",
         )
 
     def test_delete_item_get_confirmation(self):
@@ -829,7 +806,6 @@ class MarkAsSoldViewTests(TestCase):
             condition="good",
             price=Decimal("50.00"),
             pickup_location="Test Location",
-            owner_name="Test Owner",
         )
 
     def test_mark_as_sold_success(self):
@@ -930,7 +906,6 @@ class HelperFunctionTests(TestCase):
             "condition": "good",
             "price": "50.00",
             "pickup_location": "Bobst Library",
-            "owner_name": "Test Owner",
         }
         form = ItemForm(data=valid_data)
         files = [create_image() for _ in range(3)]
@@ -948,7 +923,6 @@ class HelperFunctionTests(TestCase):
             "condition": "good",
             "price": "50.00",
             "pickup_location": "Bobst Library",
-            "owner_name": "Test Owner",
         }
         form = ItemForm(data=valid_data)
         files = [create_image() for _ in range(11)]
@@ -966,7 +940,6 @@ class HelperFunctionTests(TestCase):
             "condition": "good",
             "price": "50.00",
             "pickup_location": "Bobst Library",
-            "owner_name": "Test Owner",
         }
         form = ItemForm(data=valid_data)
         text_file = SimpleUploadedFile(
@@ -986,7 +959,6 @@ class HelperFunctionTests(TestCase):
             "condition": "good",
             "price": "50.00",
             "pickup_location": "Bobst Library",
-            "owner_name": "Test Owner",
         }
         form = ItemForm(data=valid_data)
         large_file = SimpleUploadedFile(
@@ -1038,7 +1010,6 @@ class BrowseMarketplaceViewTests(TestCase):
         # Create multiple items with different attributes
         self.item1 = Item.objects.create(
             user=self.user1,
-            owner_name="User One",
             title="Cheap Desk Lamp",
             description="Great condition desk lamp",
             category="furniture",
@@ -1051,7 +1022,6 @@ class BrowseMarketplaceViewTests(TestCase):
 
         self.item2 = Item.objects.create(
             user=self.user2,
-            owner_name="User Two",
             title="MacBook Pro Laptop",
             description="2020 MacBook Pro in excellent condition",
             category="electronics",
@@ -1064,7 +1034,6 @@ class BrowseMarketplaceViewTests(TestCase):
 
         self.item3 = Item.objects.create(
             user=self.user1,
-            owner_name="User One",
             title="Calculus Textbook",
             description="Used textbook for Calc 1",
             category="books",
@@ -1078,7 +1047,6 @@ class BrowseMarketplaceViewTests(TestCase):
         # Sold item (should not appear in results)
         self.sold_item = Item.objects.create(
             user=self.user1,
-            owner_name="User One",
             title="Sold Item",
             description="Already sold",
             category="furniture",
@@ -1092,7 +1060,6 @@ class BrowseMarketplaceViewTests(TestCase):
         # Inactive item (should not appear in results)
         self.inactive_item = Item.objects.create(
             user=self.user1,
-            owner_name="User One",
             title="Inactive Item",
             description="Not active",
             category="furniture",

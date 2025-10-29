@@ -13,7 +13,6 @@ class ItemForm(forms.ModelForm):
             "condition",
             "price",
             "pickup_location",
-            "owner_name",
         ]
         widgets = {
             "title": forms.TextInput(
@@ -45,12 +44,6 @@ class ItemForm(forms.ModelForm):
                     "class": "form-control",
                 }
             ),
-            "owner_name": forms.TextInput(
-                attrs={
-                    "placeholder": "Your name",
-                    "class": "form-control",
-                }
-            ),
         }
         labels = {
             "title": "Item Title *",
@@ -59,7 +52,6 @@ class ItemForm(forms.ModelForm):
             "condition": "Condition *",
             "price": "Price ($) *",
             "pickup_location": "Pickup Location *",
-            "owner_name": "Your Name *",
         }
 
     def clean_price(self):

@@ -107,32 +107,6 @@
     {% endif %}
   </div>
 
-  <!-- Owner Name -->
-  <div class="form-group">
-    <label for="{{ form.owner_name.id_for_label }}">{{ form.owner_name.label }}</label>
-    {{ form.owner_name }}
-    {% if form.owner_name.errors %}
-    <ul class="errorlist">
-      {% for error in form.owner_name.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  </div>
-
-  <!-- Contact Details -->
-  <div class="form-group">
-    <label for="{{ form.contact_details.id_for_label }}">{{ form.contact_details.label }}</label>
-    {{ form.contact_details }}
-    {% if form.contact_details.errors %}
-    <ul class="errorlist">
-      {% for error in form.contact_details.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  </div>
-
   <!-- Current Images -->
   {% if item.images.all %}
   <div class="form-group">

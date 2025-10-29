@@ -107,33 +107,6 @@
     {% endif %}
   </div>
 
-  <!-- Owner Name -->
-  <div class="form-group">
-    <label for="{{ form.owner_name.id_for_label }}">{{ form.owner_name.label }}</label>
-    {{ form.owner_name }}
-    {% if form.owner_name.errors %}
-    <ul class="errorlist">
-      {% for error in form.owner_name.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  </div>
-
-  <!-- Contact Details -->
-  <div class="form-group">
-    <label for="{{ form.contact_details.id_for_label }}">{{ form.contact_details.label }}</label>
-    {{ form.contact_details }}
-    <small class="form-helper-text">Provide your phone number or email so buyers can reach you</small>
-    {% if form.contact_details.errors %}
-    <ul class="errorlist">
-      {% for error in form.contact_details.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  </div>
-
   <!-- Image Upload -->
   <div class="form-group">
     <label for="id_images">Upload Photos * (minimum 1, maximum 10)</label>
