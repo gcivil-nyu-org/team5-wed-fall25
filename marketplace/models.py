@@ -13,10 +13,18 @@ class Item(models.Model):
         ("poor", "Poor"),
     ]
 
+    CATEGORY_CHOICES = [
+        ("furniture", "Furniture"),
+        ("electronics", "Electronics"),
+        ("books", "Books"),
+        ("other", "Other"),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     description = models.TextField(max_length=2000)
     condition = models.CharField(max_length=20, choices=CONDITION_CHOICES)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default="other")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     pickup_location = models.CharField(max_length=300)
     owner_name = models.CharField(max_length=200)
