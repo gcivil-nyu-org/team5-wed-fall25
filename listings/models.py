@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from .constants import AMENITY_CHOICES
 
 
 def validate_future_date(value):
@@ -11,15 +12,7 @@ def validate_future_date(value):
 
 
 class Listing(models.Model):
-    AMENITY_CHOICES = [
-        ("furnished", "Furnished"),
-        ("utilities", "Utilities Included"),
-        ("wifi", "WiFi"),
-        ("laundry", "Laundry"),
-        ("elevator", "Elevator"),
-        ("pets", "Pets Allowed"),
-        ("ac", "Air Conditioning"),
-    ]
+    AMENITY_CHOICES = AMENITY_CHOICES
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
@@ -46,7 +39,7 @@ class Listing(models.Model):
 
     def get_amenities_display(self):
         """Return formatted amenities for display"""
-        amenities_dict = dict(self.AMENITY_CHOICES)
+        amenities_dict = dict(AMENITY_CHOICES)
         amenities_list = self.get_amenities_list()
         display_list = [
             amenities_dict.get(amenity, amenity) for amenity in amenities_list

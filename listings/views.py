@@ -2,8 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib import messages
+from django.db.models import Q
+from datetime import datetime
 from .forms import ListingForm
 from .models import Listing, ListingImage
+from .constants import AMENITY_CHOICES
 
 
 def validate_image_files(files, form):
@@ -192,12 +195,79 @@ def my_listings(request):
 
 @login_required
 def public_listings(request):
-    """Display all active listings from other users"""
+    """Display all active listings including user's own with search and filtering"""
     listings = (
         Listing.objects.filter(is_active=True)
-        .exclude(user=request.user)
         .select_related("user")
         .prefetch_related("images")
         .order_by("-created_at")
     )
-    return render(request, "listings/public_listings.html", {"listings": listings})
+    
+    # Get filter parameters
+    keyword = request.GET.get('keyword', '').strip()
+    rent_min = request.GET.get('rent_min', '').strip()
+    rent_max = request.GET.get('rent_max', '').strip()
+    location = request.GET.get('location', '').strip()
+    move_in_date = request.GET.get('move_in_date', '').strip()
+    move_out_date = request.GET.get('move_out_date', '').strip()
+    amenities = request.GET.getlist('amenities')  # Get list of selected amenities
+    
+    # Apply keyword filter (search in title, description, and address)
+    if keyword:
+        listings = listings.filter(
+            Q(title__icontains=keyword) | 
+            Q(description__icontains=keyword) |
+            Q(address__icontains=keyword)
+        )
+    
+    # Apply rent/budget filters
+    if rent_min:
+        try:
+            listings = listings.filter(rent__gte=float(rent_min))
+        except ValueError:
+            messages.warning(request, "Invalid minimum rent entered.")
+    
+    if rent_max:
+        try:
+            listings = listings.filter(rent__lte=float(rent_max))
+        except ValueError:
+            messages.warning(request, "Invalid maximum rent entered.")
+    
+    # Apply location filter
+    if location:
+        listings = listings.filter(address__icontains=location)
+    
+    # Apply move-in and move-out date filters
+    if move_in_date or move_out_date:
+        try:
+            if move_in_date:
+                move_in = datetime.strptime(move_in_date, '%Y-%m-%d').date()
+                # Listing's availability_start must be <= move_in_date
+                listings = listings.filter(availability_start__lte=move_in)
+            
+            if move_out_date:
+                move_out = datetime.strptime(move_out_date, '%Y-%m-%d').date()
+                # Listing's availability_end must be >= move_out_date
+                listings = listings.filter(availability_end__gte=move_out)
+        except ValueError:
+            messages.warning(request, "Invalid date format.")
+    
+    # Apply amenities filter
+    if amenities:
+        for amenity in amenities:
+            listings = listings.filter(amenities__icontains=amenity)
+    
+    context = {
+        'listings': listings,
+        'keyword': keyword,
+        'rent_min': rent_min,
+        'rent_max': rent_max,
+        'location': location,
+        'move_in_date': move_in_date,
+        'move_out_date': move_out_date,
+        'amenities': amenities,
+        'amenity_choices': AMENITY_CHOICES,
+        'has_filters': bool(keyword or rent_min or rent_max or location or move_in_date or move_out_date or amenities),
+    }
+    
+    return render(request, "listings/public_listings.html", context)

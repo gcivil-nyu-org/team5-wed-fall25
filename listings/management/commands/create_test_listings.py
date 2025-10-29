@@ -6,6 +6,7 @@ from profiles.models import Profile
 from listings.models import Listing, ListingImage
 from marketplace.models import Item, ItemImage
 from marketplace.constants import ITEM_CATEGORY_CHOICES
+from listings.constants import AMENITY_CHOICES
 import random
 from io import BytesIO
 from PIL import Image
@@ -47,10 +48,17 @@ NEIGHBORHOODS = [
     "Upper West Side", "East Village", "Long Island City", "Sunset Park",
 ]
 
-AMENITIES = [
-    "WiFi", "Gym", "Laundry", "Parking", "Doorman", "Rooftop", "Balcony",
-    "Kitchen", "Air Conditioning", "Hardwood Floors", "Pet Friendly", "Furnished",
+ZIPCODES = [
+    "10001", "10002", "10003", "10004", "10005", "10006", "10007", "10009",
+    "10010", "10011", "10012", "10013", "10014", "10016", "10017", "10018",
+    "10019", "10020", "10021", "10022", "10023", "10024", "10025", "10026",
+    "10027", "10028", "10029", "10030", "10031", "10032", "10033", "10034",
+    "10035", "10036", "10037", "10038", "10039", "10040", "11201", "11202",
+    "11203", "11204", "11205", "11206", "11207", "11208", "11209", "11210",
 ]
+
+# Amenities are imported from listings.constants.AMENITY_CHOICES
+AMENITIES = [choice[0] for choice in AMENITY_CHOICES]  # Extract just the values
 
 MARKETPLACE_ITEMS = [
     "Used Desk", "Bookshelf", "Desk Chair", "Twin Bed Frame", "Mattress",
@@ -149,19 +157,23 @@ class Command(BaseCommand):
             for j in range(listings_per_user):
                 title = random.choice(LISTING_TITLES)
                 rent = random.choice([800, 1000, 1200, 1500, 1800, 2000])
-                address = f"{random.randint(100, 9999)} {random.choice(['Main', 'Park', 'Broadway', 'Madison', 'Fifth'])} St, {random.choice(NEIGHBORHOODS)}, NY"
+                address = f"{random.randint(100, 9999)} {random.choice(['Main', 'Park', 'Broadway', 'Madison', 'Fifth'])} St, {random.choice(NEIGHBORHOODS)}, NY {random.choice(ZIPCODES)}"
                 
                 availability_start = timezone.now().date() + timedelta(days=random.randint(1, 30))
                 availability_end = availability_start + timedelta(days=random.randint(90, 365))
 
+                # Randomly select 1-3 amenities for this listing
+                selected_amenities = random.sample(AMENITIES, k=random.randint(1, 3))
+                amenities_str = ','.join(selected_amenities)
+                
                 listing = Listing.objects.create(
                     user=user,
                     title=f"{title} #{j+1}",
                     description=f"Beautiful {random.choice(['studio', '1-bedroom', '2-bedroom'])} apartment. "
-                                f"Amenities: {', '.join(random.sample(AMENITIES, k=random.randint(3, 6)))}. "
                                 f"Perfect for students!",
                     address=address,
                     rent=rent,
+                    amenities=amenities_str,
                     availability_start=availability_start,
                     availability_end=availability_end,
                     is_active=True,
