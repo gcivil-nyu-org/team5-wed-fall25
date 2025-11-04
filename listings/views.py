@@ -7,6 +7,7 @@ from datetime import datetime
 from .forms import ListingForm
 from .models import Listing, ListingImage
 from .constants import AMENITY_CHOICES
+from django.urls import reverse
 
 
 def validate_image_files(files, form):
@@ -179,10 +180,18 @@ def view_listing(request, listing_id):
     if not listing.is_active and not is_owner:
         return get_object_or_404(Listing, id=listing_id, user=request.user)
 
+    share_url = request.build_absolute_uri(reverse("view_listing", args=[listing.id]))
+    share_text = f"Check out this CampusNest listing: {listing.title} — ${listing.rent}/mo at {listing.address}. {share_url}"
+
     return render(
         request,
         "listings/view_listing.html",
-        {"listing": listing, "is_owner": is_owner},
+        {
+            "listing": listing,
+            "is_owner": is_owner,
+            "share_url": share_url,
+            "share_text": share_text,
+        },
     )
 
 

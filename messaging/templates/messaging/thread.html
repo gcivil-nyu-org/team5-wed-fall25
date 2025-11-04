@@ -24,7 +24,8 @@
         </a>
 
         <div class="chat-header-info">
-            <div class="chat-user-avatar">
+            <!-- Avatar: make clickable -->
+            <a href="{% url 'roommate_detail' other.id %}" class="chat-user-avatar" title="View profile">
                 {% if other.profile.profile_photo %}
                     <img src="{{ other.profile.profile_photo.url }}" alt="{{ other.first_name }}" class="chat-avatar-image">
                 {% else %}
@@ -32,10 +33,15 @@
                         {{ other.first_name.0|default:other.username.0|upper }}{{ other.last_name.0|default:""|upper }}
                     </div>
                 {% endif %}
-            </div>
+            </a>
 
             <div class="chat-user-info">
-                <h1 class="chat-user-name">{{ other.first_name|default:other.username }}</h1>
+                <!-- Name: make clickable -->
+                <h1 class="chat-user-name">
+                    <a href="{% url 'roommate_detail' other.id %}" class="profile-link">
+                        {{ other.first_name|default:other.username }}
+                    </a>
+                </h1>
                 <p class="chat-listing-info">
                     {% if thread.listing %}
                         <svg class="listing-icon-small" fill="currentColor" viewBox="0 0 20 20">
@@ -61,7 +67,7 @@
                     <div class="message-row {% if m.sender_id == request.user.id %}message-sent{% else %}message-received{% endif %}" data-message-id="{{ m.id }}">
                         <!-- Avatar (for received messages) -->
                         {% if m.sender_id != request.user.id %}
-                            <div class="message-avatar">
+                            <a href="{% url 'roommate_detail' m.sender.id %}" class="message-avatar" title="View profile">
                                 {% if m.sender.profile.profile_photo %}
                                     <img src="{{ m.sender.profile.profile_photo.url }}" alt="{{ m.sender.first_name }}" class="message-avatar-image">
                                 {% else %}
@@ -69,7 +75,7 @@
                                         {{ m.sender.first_name.0|default:m.sender.username.0|upper }}
                                     </div>
                                 {% endif %}
-                            </div>
+                            </a>
                         {% endif %}
 
                         <!-- Message Bubble -->
