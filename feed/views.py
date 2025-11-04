@@ -2,7 +2,7 @@
 from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render
-from django.db.models import Count, F, Value, CharField, Q
+from django.db.models import Count, Q
 from django.db.models.functions import Greatest
 from listings.models import Listing
 from marketplace.models import Item
@@ -30,7 +30,9 @@ def home_portal(request):
     popular_ids = _popular_listing_ids(limit=4)
     featured = list(Listing.objects.filter(is_active=True, id__in=popular_ids))
     # preserve popular order
-    featured.sort(key=lambda l: popular_ids.index(l.id) if l.id in popular_ids else 999)
+    featured.sort(
+        key=lambda lam: popular_ids.index(lam.id) if lam.id in popular_ids else 999
+    )
 
     if len(featured) < 4:
         needed = 4 - len(featured)
