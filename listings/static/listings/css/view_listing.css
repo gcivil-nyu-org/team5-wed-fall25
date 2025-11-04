@@ -221,6 +221,7 @@
     font-size: 1rem;
 }
 
+
 .btn-back:hover {
     background: var(--color-surface-hover);
     transform: translateY(-1px);
@@ -266,4 +267,64 @@
     .rent-amount {
         font-size: 1.75rem;
     }
+}
+:root{
+  --wa-green:#25D366;
+  --wa-teal:#128C7E;
+  --wa-yellow:#F4CA64;
+  --em-blue:   #1A73E8; 
+  --em-indigo: #0B57D0;
+  --em-accent: #AECBFA;
+}
+
+/* Layout for the two share buttons */
+.share-buttons-container{
+  display:flex;
+  gap:1rem;
+  flex-wrap:wrap;
+}
+
+/* Strong, final override (no dependency on other classes) */
+.view-listing-container .share-buttons-container .btn-share-wa{
+  display:inline-block;
+  padding:0.875rem 3rem;
+  color:#fff !important;
+  border:0 !important;
+  border-radius:12px;
+  font-weight:600;
+  text-decoration:none !important;
+
+  /* use both: a hard-coded gradient + the var()-based one */
+  background: linear-gradient(135deg,#25D366 0%,#128C7E 60%,#F4CA64 100%) !important;
+  background: linear-gradient(135deg,var(--wa-green) 0%,var(--wa-teal) 60%,var(--wa-yellow) 100%) !important;
+
+  box-shadow:0 0 20px rgba(37,211,102,.25);
+  transition:transform .2s, box-shadow .2s, filter .2s;
+}
+.view-listing-container .share-buttons-container .btn-share-wa:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 30px rgba(37,211,102,.4);
+  filter:brightness(1.03);
+}
+
+.view-listing-container .share-buttons-container .btn-share-em{
+  display:inline-block;
+  padding:0.875rem 3rem;
+  color:#fff !important;
+  border:0 !important;
+  border-radius:12px;
+  font-weight:600;
+  text-decoration:none !important;
+
+  /* hard-coded fallback + var() version */
+  background: linear-gradient(135deg,#1A73E8 0%,#0B57D0 60%,#AECBFA 100%) !important;
+  background: linear-gradient(135deg,var(--em-blue) 0%,var(--em-indigo) 60%,var(--em-accent) 100%) !important;
+
+  box-shadow:0 0 20px rgba(26,115,232,.25);
+  transition:transform .2s, box-shadow .2s, filter .2s;
+}
+.view-listing-container .share-buttons-container .btn-share-em:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 30px rgba(26,115,232,.4);
+  filter:brightness(1.03);
 }

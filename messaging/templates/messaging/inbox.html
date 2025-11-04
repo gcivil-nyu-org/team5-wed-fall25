@@ -26,73 +26,78 @@
     </div>
 
     <!-- Conversations List -->
-    {% if rows %}
-        <div class="conversations-grid">
-            {% for t, other, last, unread in rows %}
-                <div class="conversation-card {% if unread %}conversation-unread{% endif %}">
-                    <div class="conversation-header">
-                        <!-- User Avatar -->
-                        <div class="conversation-avatar">
-                            {% if other.profile.profile_photo %}
-                                <img src="{{ other.profile.profile_photo.url }}" alt="{{ other.first_name }}" class="avatar-image">
-                            {% else %}
-                                <div class="avatar-placeholder">
-                                    {{ other.first_name.0|default:other.username.0|upper }}{{ other.last_name.0|default:""|upper }}
-                                </div>
-                            {% endif %}
-                            {% if unread %}
-                                <div class="avatar-badge">{{ unread }}</div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Conversation Info -->
-                        <div class="conversation-info">
-                            <h3 class="conversation-name">{{ other.first_name|default:other.username }}</h3>
-                            <p class="conversation-listing">
-                                {% if t.listing %}
-                                    <svg class="listing-icon" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                                    </svg>
-                                    {{ t.listing.title }}
-                                {% else %}
-                                    <svg class="listing-icon" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-                                    </svg>
-                                    {{ t.item.title }}
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Last Message Preview -->
-                    <div class="conversation-preview">
-                        {% if last %}
-                            <p class="preview-text">
-                                <span class="preview-sender">{{ last.sender.first_name|default:last.sender.username }}:</span>
-                                {{ last.body|truncatechars:80 }}
-                            </p>
-                            <p class="preview-time">
-                                <svg class="time-icon" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                                </svg>
-                                {{ last.created_at|date:"M d, Y • g:i A" }}
-                            </p>
+{% if rows %}
+    <div class="conversations-grid">
+        {% for t, other, last, unread in rows %}
+            <div class="conversation-card {% if unread %}conversation-unread{% endif %}">
+                <div class="conversation-header">
+                    <!-- User Avatar (clickable) -->
+                    <a href="{% url 'roommate_detail' other.id %}" class="conversation-avatar" title="View profile">
+                        {% if other.profile.profile_photo %}
+                            <img src="{{ other.profile.profile_photo.url }}" alt="{{ other.first_name }}" class="avatar-image">
                         {% else %}
-                            <p class="preview-text preview-empty">No messages yet. Start the conversation!</p>
+                            <div class="avatar-placeholder">
+                                {{ other.first_name.0|default:other.username.0|upper }}{{ other.last_name.0|default:""|upper }}
+                            </div>
                         {% endif %}
-                    </div>
-
-                    <!-- Action Button -->
-                    <a href="{% url 'messaging:thread' t.id %}" class="conversation-action-btn">
-                        <span>Open Conversation</span>
-                        <svg class="action-arrow" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                        </svg>
+                        {% if unread %}
+                            <div class="avatar-badge">{{ unread }}</div>
+                        {% endif %}
                     </a>
+
+                    <!-- Conversation Info -->
+                    <div class="conversation-info">
+                        <h3 class="conversation-name">
+                            <a href="{% url 'roommate_detail' other.id %}" class="profile-link">
+                                {{ other.first_name|default:other.username }}
+                            </a>
+                        </h3>
+                        <p class="conversation-listing">
+                            {% if t.listing %}
+                                <svg class="listing-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                                </svg>
+                                {{ t.listing.title }}
+                            {% else %}
+                                <svg class="listing-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+                                </svg>
+                                {{ t.item.title }}
+                            {% endif %}
+                        </p>
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
-    {% else %}
+
+                <!-- Last Message Preview -->
+                <div class="conversation-preview">
+                    {% if last %}
+                        <p class="preview-text">
+                            <span class="preview-sender">{{ last.sender.first_name|default:last.sender.username }}:</span>
+                            {{ last.body|truncatechars:80 }}
+                        </p>
+                        <p class="preview-time">
+                            <svg class="time-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                            </svg>
+                            {{ last.created_at|date:"M d, Y • g:i A" }}
+                        </p>
+                    {% else %}
+                        <p class="preview-text preview-empty">No messages yet. Start the conversation!</p>
+                    {% endif %}
+                </div>
+
+                <!-- Action Button -->
+                <a href="{% url 'messaging:thread' t.id %}" class="conversation-action-btn">
+                    <span>Open Conversation</span>
+                    <svg class="action-arrow" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+
         <!-- Empty State -->
         <div class="inbox-empty-state">
             <div class="empty-state-icon">

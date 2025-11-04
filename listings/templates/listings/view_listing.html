@@ -99,6 +99,18 @@
   </div>
 
   <!-- Action Buttons -->
+  <div class="share-buttons-container">
+    <a href="https://wa.me/?text={{ share_text|urlencode }}" class="btn-share-wa" target="_blank"
+      rel="noopener" >
+      Share on WhatsApp
+    </a>
+  
+    <a href="mailto:?subject={{ 'Check out this CampusNest listing'|urlencode }}&body={{ share_text|urlencode }}"
+     class="btn-share-em" >
+      Share via Email
+    </a>
+  </div>
+  <br>
   <div class="action-buttons-container">
     {% if is_owner %}
     <a href="{% url 'edit_listing' listing.id %}" class="btn-edit">

@@ -250,3 +250,23 @@
         margin: 0 auto;
     }
 }
+
+
+.btn-share-wa{
+  display:inline-block;
+  padding:0.875rem 3rem;
+  background-color:var(--wa-green) !important; /* fallback */
+  background-image:linear-gradient(135deg, var(--wa-green) 0%, var(--wa-teal) 60%, var(--wa-yellow) 100%) !important;
+  color:#fff !important;
+  border:0 !important;
+  border-radius:12px;
+  font-weight:600;
+  text-decoration:none !important;
+  box-shadow:0 0 20px rgba(37,211,102,.25);
+  transition:transform .2s, box-shadow .2s, filter .2s;
+}
+.btn-share-wa:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 30px rgba(37,211,102,.4);
+  filter:brightness(1.03);
+}
