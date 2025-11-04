@@ -1,0 +1,79 @@
+.home-cta { display:flex; gap:.5rem; flex-wrap:wrap; }
+
+.stats-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+  gap: .75rem;
+  margin: 1rem 0 1.5rem;
+}
+.stat-card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  text-align:center;
+  box-shadow: var(--shadow-sm);
+}
+.stat-value { font-weight:800; font-size:1.6rem; color: var(--color-primary); }
+.stat-label { color: var(--color-text-secondary); font-size:.95rem; }
+
+.panel { margin-top: 1.25rem; }
+.panel-title { margin: 0 0 .25rem; font-size:1.35rem; color: var(--color-primary-light); }
+.panel-subtitle { margin: 0 0 .75rem; color: var(--color-text-secondary); }
+
+.your-stats { display:flex; gap:1rem; flex-wrap:wrap; margin:.5rem 0 1rem; }
+.mini-stat { background: var(--color-surface-elevated); border:1px solid var(--color-border); border-radius: var(--radius-md); padding:.5rem .75rem; }
+.mini-stat span { font-weight:700; margin-left:.25rem; }
+
+.ann-list { list-style:none; padding:0; margin:0; display:grid; gap:.75rem; }
+.ann-item {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: .75rem .9rem;
+}
+.ann-title { font-weight:700; }
+.ann-time { color: var(--color-text-secondary); font-size:.9rem; margin:.15rem 0 .35rem; }
+.ann-body { margin:0 0 .35rem; }
+.ann-link { text-decoration:none; color: var(--color-primary); font-weight:600; }
+.panel-footer { margin-top:.75rem; }
+
+/* ===== Scrolling Ticker (single track, seamless) ===== */
+.ticker{
+  --speed: 30s; /* adjust speed */
+  overflow: hidden;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin: .5rem 0 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.ticker__track{
+  display: flex;
+  width: max-content;          /* shrink to content so -50% works */
+  animation: ticker-scroll var(--speed) linear infinite;
+  will-change: transform;
+}
+
+.ticker__group{
+  display: inline-flex;
+  align-items: center;
+  gap: 1.25rem;
+  white-space: nowrap;
+  padding: .35rem 0.5rem;
+}
+
+.ticker__item{ color: var(--color-text-primary); font-weight: 600; }
+.ticker__sep{ color: var(--color-text-secondary); opacity: .7; }
+
+/* Move one full group width left (track has two identical groups) */
+@keyframes ticker-scroll{
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce){
+  .ticker__track{ animation: none; }
+}

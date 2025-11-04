@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - CampusNest{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'listings/css/my_listings.css' %}">
+<link rel="stylesheet" href="{% static 'listings/css/search_listings.css' %}">
+<link rel="stylesheet" href="{% static 'listings/css/share_buttons.css' %}">
+<link rel="stylesheet" href="{% static 'feed/css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-card listings-search-container">
+
+  <!-- Header -->
+  <div class="search-header">
+    <div class="search-header-content">
+      <h1 class="listings-search-title">Explore</h1>
+      <p class="listings-search-subtitle">Latest homes, marketplace deals, and updates</p>
+    </div>
+
+  </div>
+
+  <!-- Scrolling banner (single moving track) -->
+<div class="ticker" role="region" aria-label="CampusNest updates">
+  <div class="ticker__track">
+    <div class="ticker__group">
+      {% for msg in ticker_items %}
+        <span class="ticker__item">📢 {{ msg }}</span>{% if not forloop.last %}<span class="ticker__sep">•</span>{% endif %}
+      {% endfor %}
+    </div>
+    <!-- duplicate once for seamless loop -->
+    <div class="ticker__group" aria-hidden="true">
+      {% for msg in ticker_items %}
+        <span class="ticker__item">📢 {{ msg }}</span>{% if not forloop.last %}<span class="ticker__sep">•</span>{% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+  <!-- Quick Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.active_listings }}</div>
+      <div class="stat-label">Active Listings</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.new_last_7 }}</div>
+      <div class="stat-label">New This Week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.market_items }}</div>
+      <div class="stat-label">Marketplace Items</div>
+    </div>
+  </div>
+
+  {% if user_stats %}
+  <!-- Your Activity -->
+  <div class="panel">
+    <h2 class="panel-title">👋 Your Activity</h2>
+    <div class="your-stats">
+      <div class="mini-stat"><strong>Unread</strong> <span>{{ user_stats.unread }}</span></div>
+      <div class="mini-stat"><strong>Your Listings</strong> <span>{{ user_stats.my_active_listings }}</span></div>
+      <div class="mini-stat"><strong>Requests</strong> <span>{{ user_stats.pending_conn }}</span></div>
+      <div class="mini-stat"><strong>Favorites</strong> <span>{{ user_stats.favorites }}</span></div>
+    </div>
+
+    {% if user_stats.suggestions %}
+    <h3 class="panel-subtitle">Suggestions for you</h3>
+    <div class="results-grid">
+      {% for l in user_stats.suggestions %}
+      <div class="listing-card">
+        <div class="listing-card-content">
+          {% if l.images.first %}
+            <img src="{{ l.images.first.image.url }}" alt="{{ l.title }}" class="listing-image">
+          {% else %}
+            <div class="listing-no-image">No Image</div>
+          {% endif %}
+          <div class="listing-details">
+            <h3 class="listing-title"><span>{{ l.title }}</span></h3>
+            <p class="listing-info"><strong>Address:</strong> {{ l.address }}</p>
+            <p class="listing-info"><strong>Rent:</strong> <span class="listing-rent">${{ l.rent }}/month</span></p>
+            <div class="listing-actions">
+              <a href="{% url 'view_listing' l.id %}" class="btn-listing btn-view">View Details</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Featured -->
+  <div class="panel">
+    <h2 class="panel-title">⭐ Featured</h2>
+    <p class="panel-subtitle">Popular or freshly posted places</p>
+    <div class="results-grid">
+      {% for l in featured %}
+      <div class="listing-card">
+        <div class="listing-card-content">
+          {% if l.images.first %}
+            <img src="{{ l.images.first.image.url }}" alt="{{ l.title }}" class="listing-image">
+          {% else %}
+            <div class="listing-no-image">No Image</div>
+          {% endif %}
+          <div class="listing-details">
+            <h3 class="listing-title"><span>{{ l.title }}</span></h3>
+            <p class="listing-info"><strong>Address:</strong> {{ l.address }}</p>
+            <p class="listing-info"><strong>Rent:</strong> <span class="listing-rent">${{ l.rent }}/month</span></p>
+            <div class="listing-actions" style="gap:.5rem;">
+              <a href="{% url 'view_listing' l.id %}" class="btn-listing btn-view">View Details</a>
+
+              {% url 'view_listing' l.id as path %}
+              {% with detail_url=request.scheme|add:"://"|add:request.get_host|add:path %}
+
+                {% with base="Check out this CampusNest listing: " %}
+                  {% with wa_msg=base|add:l.title|add:" "|add:detail_url %}
+                    <a href="https://wa.me/?text={{ wa_msg|urlencode }}"
+                       class="btn-share-wa" target="_blank" rel="noopener">WhatsApp</a>
+                  {% endwith %}
+                {% endwith %}
+
+                {% with em_subj="CampusNest listing: "|add:l.title %}
+                  {% with em_body="Have a look: "|add:detail_url %}
+                    <a href="mailto:?subject={{ em_subj|urlencode }}&body={{ em_body|urlencode }}"
+                       class="btn-share-em">Email</a>
+                  {% endwith %}
+                {% endwith %}
+
+              {% endwith %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Latest Listings -->
+  <div class="panel">
+    <h2 class="panel-title">🆕 Latest Listings</h2>
+    <div class="results-grid">
+      {% for l in latest_listings %}
+      <div class="listing-card">
+        <div class="listing-card-content">
+          {% if l.images.first %}
+            <img src="{{ l.images.first.image.url }}" alt="{{ l.title }}" class="listing-image">
+          {% else %}
+            <div class="listing-no-image">No Image</div>
+          {% endif %}
+          <div class="listing-details">
+            <h3 class="listing-title"><span>{{ l.title }}</span></h3>
+            <p class="listing-info"><strong>Address:</strong> {{ l.address }}</p>
+            <p class="listing-info"><strong>Rent:</strong> <span class="listing-rent">${{ l.rent }}/month</span></p>
+            <div class="listing-actions">
+              <a href="{% url 'view_listing' l.id %}" class="btn-listing btn-view">View Details</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="panel-footer">
+      <a href="{% url 'public_listings' %}" class="btn-back">See all listings</a>
+    </div>
+  </div>
+
+  <!-- Latest Marketplace -->
+  <div class="panel">
+    <h2 class="panel-title">🛒 Marketplace</h2>
+    <div class="results-grid">
+      {% for it in latest_items %}
+      <div class="listing-card">
+        <div class="listing-card-content">
+          {% if it.images.first %}
+            <img src="{{ it.images.first.image.url }}" alt="{{ it.title }}" class="listing-image">
+          {% else %}
+            <div class="listing-no-image">No Image</div>
+          {% endif %}
+          <div class="listing-details">
+            <h3 class="listing-title"><span>{{ it.title }}</span></h3>
+            <p class="listing-info"><strong>Price:</strong> <span class="listing-rent">${{ it.price }}</span></p>
+            <div class="listing-actions">
+              <a href="{% url 'view_item' it.id %}" class="btn-listing btn-view">View Item</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="panel-footer">
+      <a href="{% url 'browse_marketplace' %}" class="btn-back">See all items</a>
+    </div>
+  </div>
+
+  <!-- Announcements -->
+  <div class="panel">
+    <h2 class="panel-title">📣 Announcements</h2>
+    {% if announcements %}
+      <ul class="ann-list">
+        {% for a in announcements %}
+          <li class="ann-item">
+            <div class="ann-title">{{ a.title }}</div>
+            <div class="ann-time">{{ a.published_at|date:"M d, Y • g:i A" }}</div>
+            <div class="ann-body">{{ a.body }}</div>
+            {% if a.link_url %}
+              <a class="ann-link" href="{{ a.link_url }}" target="_blank" rel="noopener">Learn more →</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="detail-field-value">No announcements.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
