@@ -28,6 +28,8 @@
 				{% if user.is_authenticated %}
 				<span class="nav-user">👋 {{ user.first_name|default:user.username }}</span>
 				<a href="{% url 'view_profile' %}">My Profile</a>
+				<a href="{% url 'home_portal' %}">Home</a>
+
 				<a href="{% url 'messaging:inbox' %}">Messages</a>
 				<div class="nav-dropdown">
 					<a href="#" class="dropdown-toggle">House Listings ▼</a>
