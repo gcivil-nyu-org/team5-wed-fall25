@@ -1,28 +1,28 @@
 # Core Django packages
 asgiref
-Django==5.2.7
-djangorestframework==3.16.1
-django-cors-headers==4.9.0
-django-storages==1.14.6
-dj-database-url==3.0.1
+Django
+djangorestframework
+django-cors-headers
+django-storages
+dj-database-url
 sqlparse
 
 # Database
-psycopg2-binary==2.9.11
+psycopg2-binary==
 
 # AWS/S3 Storage
 boto3
 botocore
 
 # Web Server
-gunicorn==23.0.0
-whitenoise==6.11.0
+gunicorn
+whitenoise
 
 # Image Processing
-pillow==12.0.0
+pillow
 
 # Environment Variables (choose one - python-dotenv is recommended)
-python-dotenv==1.2.1
+python-dotenv
 
 # we should REMOVE THIS if decouple dependency/requirement
 # since we r using python-dotenv
@@ -30,7 +30,7 @@ python-dotenv==1.2.1
 
 # Security & Encryption
 cryptography
-bcrypt==5.0.0
+bcrypt
 PyNaCl
 cffi
 
@@ -45,16 +45,16 @@ termcolor
 wcwidth
 
 # SSH/Remote Deployment
-fabric==3.2.2
-paramiko==4.0.0
-invoke==2.2.1
+fabric
+paramiko
+invoke
 decorator
 
 # Testing & Code Quality
-coverage==7.11.0
-coveralls==4.0.1
-black==25.9.0
-flake8==7.3.0
+coverage
+coveralls
+black
+flake8
 pycodestyle
 pyflakes
 mccabe
@@ -64,7 +64,7 @@ requests
 certifi
 charset-normalizer
 idna
-urllib3==1.26.20
+urllib3
 
 # Data/Config Parsing
 PyYAML
