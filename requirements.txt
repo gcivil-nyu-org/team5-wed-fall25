@@ -23,7 +23,10 @@ pillow==12.0.0
 
 # Environment Variables (choose one - python-dotenv is recommended)
 python-dotenv==1.2.1
-# decouple  # REMOVE THIS if using python-dotenv
+
+# we should REMOVE THIS if decouple dependency/requirement
+# since we r using python-dotenv
+# decouple  
 
 # Security & Encryption
 cryptography
