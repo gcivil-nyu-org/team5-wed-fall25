@@ -27,6 +27,8 @@ class Listing(models.Model):
     updated_at = models.DateTimeField(auto_now=True)  # Add this field
     is_edited = models.BooleanField(default=False)  # Add this field
     is_active = models.BooleanField(default=True)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.title} - {self.user.username}"

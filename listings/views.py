@@ -1,13 +1,27 @@
+"""
+Updated view functions with geocoding integration.
+
+Key changes:
+1. Import geocode_address utility
+2. Geocode address when creating/editing listings
+3. Store coordinates in database
+4. Pass MAPBOX token to templates for map display
+"""
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.db.models import Q
+from django.conf import settings
 from datetime import datetime
 from .forms import ListingForm
 from .models import Listing, ListingImage
 from .constants import AMENITY_CHOICES
 from django.urls import reverse
+
+# Import the geocoding utility
+from .utils import geocode_address
 
 
 def validate_image_files(files, form):
@@ -62,6 +76,15 @@ def create_listing(request):
         if form.is_valid() and not has_image_error:
             listing = form.save(commit=False)
             listing.user = request.user
+            
+            # **NEW: Geocode the address to get coordinates**
+            # This happens automatically when user submits the form
+            coordinates = geocode_address(listing.address)
+            if coordinates:
+                # Store coordinates for map display
+                listing.longitude = coordinates[0]  # longitude is first in Mapbox format
+                listing.latitude = coordinates[1]   # latitude is second
+            
             listing.save()
 
             # Save all uploaded images
@@ -104,6 +127,15 @@ def edit_listing(request, listing_id):  # noqa: C901
         if form.is_valid() and not has_image_error:
             listing = form.save(commit=False)
             listing.is_edited = True
+            
+            # **NEW: Re-geocode if address changed**
+            # Check if address was modified
+            if 'address' in form.changed_data:
+                coordinates = geocode_address(listing.address)
+                if coordinates:
+                    listing.longitude = coordinates[0]
+                    listing.latitude = coordinates[1]
+            
             listing.save()
 
             _handle_listing_images(files, listing)
@@ -175,6 +207,7 @@ def view_listing(request, listing_id):
     """View listing details. Shows different options based on ownership."""
     listing = get_object_or_404(Listing, id=listing_id)
     is_owner = listing.user == request.user
+    print("mapbox token: ", settings.MAPBOX_ACCESS_TOKEN)
 
     # Only owners can view inactive listings
     if not listing.is_active and not is_owner:
@@ -183,17 +216,19 @@ def view_listing(request, listing_id):
     share_url = request.build_absolute_uri(reverse("view_listing", args=[listing.id]))
     share_text = f"Check out this CampusNest listing: {listing.title} — ${listing.rent}/mo at {listing.address}. {share_url}"
 
-    return render(
-        request,
-        "listings/view_listing.html",
-        {
+    context = {
             "listing": listing,
             "is_owner": is_owner,
             "share_url": share_url,
             "share_text": share_text,
-        },
-    )
+            'mapbox_token': settings.MAPBOX_ACCESS_TOKEN
+        }
 
+    return render(
+        request,
+        "listings/view_listing.html",
+        context,
+    )
 
 @login_required
 def my_listings(request):

@@ -1,0 +1,118 @@
+/* Map Display Styles for Listings */
+
+/* ========================================
+   Map Container
+   ======================================== */
+
+.listing-map-container {
+    margin: 2rem 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+}
+
+.listing-map-title {
+    color: var(--color-text-primary);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.listing-map-title::before {
+    content: '📍';
+    font-size: 1.75rem;
+}
+
+/* The actual map element */
+#listing-map {
+    width: 100%;
+    height: 400px;
+    background: var(--color-surface);
+    position: relative;
+}
+
+/* Loading state */
+.map-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    background: var(--color-surface-elevated);
+    color: var(--color-text-secondary);
+    font-size: 1.125rem;
+}
+
+.map-loading::before {
+    content: '🗺️ ';
+    margin-right: 0.5rem;
+    font-size: 1.5rem;
+}
+
+/* Error state */
+.map-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    background: var(--color-surface-elevated);
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Mapbox popup customization */
+.mapbox-popup {
+    font-family: inherit;
+}
+
+.mapbox-popup-content {
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.mapbox-popup-close-button {
+    color: var(--color-text-primary);
+    font-size: 1.5rem;
+    padding: 0.5rem;
+}
+
+.mapbox-popup-close-button:hover {
+    background: var(--color-surface-hover);
+}
+
+/* Custom marker styling */
+.custom-marker {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233b82f6"><path d="M12 0C7.802 0 4 3.403 4 7.602C4 11.8 7.469 16.812 12 24c4.531-7.188 8-12.2 8-16.398C20 3.403 16.199 0 12 0zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>');
+    background-size: cover;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    #listing-map {
+        height: 300px;
+    }
+    
+    .listing-map-title {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #listing-map {
+        height: 250px;
+    }
+}

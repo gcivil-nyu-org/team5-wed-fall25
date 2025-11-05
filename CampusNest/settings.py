@@ -40,6 +40,9 @@ AWS_DEFAULT_ACL = None  # Bucket has ACLs disabled, use bucket policy instead
 AWS_S3_VERIFY = True
 AWS_QUERYSTRING_AUTH = False
 
+# MAPBOX
+MAPBOX_ACCESS_TOKEN = os.getenv("MAPBOX_ACCESS_TOKEN")
+
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = [
