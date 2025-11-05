@@ -9,7 +9,7 @@ from .models import Item, ItemImage
 from .constants import ITEM_CATEGORY_CHOICES
 
 # Import the geocoding utility
-from  map_utils.python.utils import geocode_address
+from map_utils.python.utils import geocode_address
 
 
 def send_item_confirmation_email(user_email, item_title, action="posted"):
@@ -99,12 +99,12 @@ def handle_item_form_submission(request, item, form, files, removed_image_ids):
 
         # **NEW: Re-geocode if address changed**
         # Check if address was modified
-        if 'address' in form.changed_data:
+        if "address" in form.changed_data:
             coordinates = geocode_address(item.address)
             if coordinates:
                 item.longitude = coordinates[0]
                 item.latitude = coordinates[1]
-        
+
         item.save()
 
         print("updated item: ", item)
@@ -185,7 +185,7 @@ def create_item(request):
             if coordinates:
                 # Store coordinates for map display
                 item.longitude = coordinates[0]  # longitude is first in Mapbox format
-                item.latitude = coordinates[1]   # latitude is second
+                item.latitude = coordinates[1]  # latitude is second
 
             item.save()
 
@@ -211,10 +211,12 @@ def view_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)
     # Check if this is the user's own item for edit/delete permissions
     is_owner = item.user == request.user
-    context = {"item": item, "is_owner": is_owner, 'mapbox_token': settings.MAPBOX_ACCESS_TOKEN}
-    return render(
-        request, "marketplace/view_item.html", context
-    )
+    context = {
+        "item": item,
+        "is_owner": is_owner,
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
+    }
+    return render(request, "marketplace/view_item.html", context)
 
 
 @login_required
