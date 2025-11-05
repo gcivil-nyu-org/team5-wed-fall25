@@ -4,8 +4,9 @@
 {% block title %}{{ item.title }} - CampusNest Marketplace{% endblock %}
 
 {% block extra_css %}
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
 <link rel="stylesheet" href="{% static 'marketplace/css/view_item.css' %}">
-<link rel="stylesheet" href="{% static 'map_utils/css/listing_map.css' %}" />
+<link rel="stylesheet" href="{% static 'map_utils/css/map.css' %}" />
 {% if not is_owner %}
 <link rel="stylesheet" href="{% static 'marketplace/css/message_modal.css' %}">
 {% endif %}
@@ -38,15 +39,10 @@
     {% endif %}
   </div>
 
-  <!-- MAP SECTION - NEW! -->
+  <!-- MAP SECTION -->
   {% if item.latitude and item.longitude %}
   <div class="listing-map-container">
-    <h3 class="listing-map-title">Location</h3>
-    <!-- 
-      Map Display Element
-      - Data attributes pass information from Django to JavaScript
-      - JavaScript reads these attributes to initialize the map
-    -->
+    <h3 class="listing-map-title">Pickup Location</h3>
     <div
       id="listing-map"
       data-mapbox-token="{{ mapbox_token }}"
@@ -87,7 +83,7 @@
 
       <div class="item-detail-group">
         <strong class="item-detail-label">Pickup Location:</strong>
-        <p class="item-detail-value">{{ item.pickup_location }}</p>
+        <p class="item-detail-value">{{ item.address }}</p>
       </div>
 
       <div class="item-detail-group">
