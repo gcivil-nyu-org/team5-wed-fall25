@@ -1,58 +1,88 @@
+# Core Django packages
 asgiref
-awsebcli
+Django
+djangorestframework
+django-cors-headers
+django-storages
+dj-database-url
+sqlparse
+
+# Database
+psycopg2-binary
+
+# AWS/S3 Storage
+boto3
+botocore
+
+# Web Server
+gunicorn
+whitenoise
+
+# Image Processing
+pillow
+
+# Environment Variables (choose one - python-dotenv is recommended)
+python-dotenv
+
+# we should REMOVE THIS if decouple dependency/requirement
+# since we r using python-dotenv
+# decouple  
+
+# Security & Encryption
+cryptography
 bcrypt
-black
+PyNaCl
+cffi
+
+# AWS Elastic Beanstalk CLI (keep if you use 'eb' commands)
+awsebcli
 blessed
 botocore
 cement
-certifi
-cffi
-charset-normalizer
-click
 colorama
+semantic-version
+termcolor
+wcwidth
+
+# SSH/Remote Deployment
+fabric
+paramiko
+invoke
+decorator
+
+# Testing & Code Quality
 coverage
 coveralls
-cryptography
-decorator
-decouple
-deprecated
-dj-database-url
-django
-django-cors-headers
-django-storages
-djangorestframework
-docopt
-boto3
-fabric
+black
 flake8
-gunicorn
-idna
-invoke
-jmespath
-mccabe
-mypy-extensions
-packaging
-paramiko
-pathspec
-pillow
-platformdirs
-psycopg2-binary
 pycodestyle
-pycparser
 pyflakes
-pynacl
-python-dateutil
-python-dotenv
-pytokens
-pyyaml
+mccabe
+
+# HTTP Requests & Utilities
 requests
-semantic-version
+certifi
+charset-normalizer
+idna
+urllib3
+
+# Data/Config Parsing
+PyYAML
+docopt
+
+# Python Utilities
+click
+python-dateutil
 setuptools
 six
-sqlparse
-termcolor
-urllib3
-wcwidth
-whitenoise
 wrapt
+packaging
+pathspec
+platformdirs
+pycparser
+jmespath
+mypy-extensions
 
+# Other (verify if needed)
+deprecated
+pytokens

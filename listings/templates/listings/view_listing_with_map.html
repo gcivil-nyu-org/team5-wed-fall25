@@ -1,26 +1,20 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block title %}{{ listing.title }} - CampusNest{% endblock %}
-
-{% block extra_css %}
+{% extends 'base.html' %} {% load static %} {% block title %}{{ listing.title }}
+- CampusNest{% endblock %} {% block extra_css %}
 <!-- Mapbox GL CSS - Required for map styling -->
-<link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
-<link rel="stylesheet" href="{% static 'listings/css/view_listing.css' %}">
-<link rel="stylesheet" href="{% static 'listings/css/listing_map.css' %}">
+<link
+  href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="{% static 'listings/css/view_listing.css' %}" />
+<link rel="stylesheet" href="{% static 'map_utils/css/map.css' %}" />
 {% if not is_owner %}
-<link rel="stylesheet" href="{% static 'listings/css/message_modal.css' %}">
-{% endif %}
-{% endblock %}
-
-{% block content %}
+<link rel="stylesheet" href="{% static 'listings/css/message_modal.css' %}" />
+{% endif %} {% endblock %} {% block content %}
 <div class="content-card view-listing-container">
   <div class="listing-header">
     <h2 class="listing-title">{{ listing.title }}</h2>
     {% if listing.is_edited %}
-    <span class="edited-badge">
-      EDITED
-    </span>
+    <span class="edited-badge"> EDITED </span>
     {% endif %}
   </div>
 
@@ -29,15 +23,17 @@
     {% if listing.images.all %}
     <div class="image-grid">
       {% for img in listing.images.all %}
-      <img src="{{ img.image.url }}"
-           alt="Photo {{ forloop.counter }}"
-           class="gallery-image">
+      <img
+        src="{{ img.image.url }}"
+        alt="Photo {{ forloop.counter }}"
+        class="gallery-image"
+      />
       {% endfor %}
     </div>
     {% endif %}
   </div>
 
-<!-- MAP SECTION - NEW! -->
+  <!-- MAP SECTION - NEW! -->
   {% if listing.latitude and listing.longitude %}
   <div class="listing-map-container">
     <h3 class="listing-map-title">Location</h3>
@@ -46,8 +42,8 @@
       - Data attributes pass information from Django to JavaScript
       - JavaScript reads these attributes to initialize the map
     -->
-    <div 
-      id="listing-map" 
+    <div
+      id="listing-map"
       data-mapbox-token="{{ mapbox_token }}"
       data-longitude="{{ listing.longitude }}"
       data-latitude="{{ listing.latitude }}"
@@ -81,17 +77,20 @@
 
       <div>
         <strong class="detail-field-label">Availability:</strong>
-        <p class="detail-field-value">{{ listing.availability_start|date:"F d, Y" }} to {{ listing.availability_end|date:"F d, Y" }}</p>
+        <p class="detail-field-value">
+          {{ listing.availability_start|date:"F d, Y" }} to {{
+          listing.availability_end|date:"F d, Y" }}
+        </p>
       </div>
 
       {% if listing.get_amenities_display %}
       <div>
-        <strong class="detail-field-label" style="margin-bottom: 0.75rem;">Amenities:</strong>
+        <strong class="detail-field-label" style="margin-bottom: 0.75rem"
+          >Amenities:</strong
+        >
         <div class="amenities-container">
           {% for amenity in listing.get_amenities_display %}
-          <span class="amenity-badge">
-            ✓ {{ amenity }}
-          </span>
+          <span class="amenity-badge"> ✓ {{ amenity }} </span>
           {% endfor %}
         </div>
       </div>
@@ -100,12 +99,16 @@
       <div class="metadata-grid">
         <div>
           <strong class="detail-field-label">Posted:</strong>
-          <p class="detail-field-value">{{ listing.created_at|date:"F d, Y" }}</p>
+          <p class="detail-field-value">
+            {{ listing.created_at|date:"F d, Y" }}
+          </p>
         </div>
         {% if listing.is_edited %}
         <div>
           <strong class="detail-field-label">Last Updated:</strong>
-          <p class="detail-field-value">{{ listing.updated_at|date:"F d, Y" }}</p>
+          <p class="detail-field-value">
+            {{ listing.updated_at|date:"F d, Y" }}
+          </p>
         </div>
         {% endif %}
       </div>
@@ -124,17 +127,24 @@
   </div>
 
   <!-- Action Buttons -->
-  <!-- <div class="share-buttons-container">
-    <a href="https://wa.me/?text={{ share_text|urlencode }}" class="btn-share-wa" target="_blank"
-      rel="noopener" >
+
+  <div class="share-buttons-container">
+    <a
+      href="https://wa.me/?text={{ share_text|urlencode }}"
+      class="btn-share-wa"
+      target="_blank"
+      rel="noopener"
+    >
       Share on WhatsApp
     </a>
-  
-    <a href="mailto:?subject={{ 'Check out this CampusNest listing'|urlencode }}&body={{ share_text|urlencode }}"
-     class="btn-share-em" >
+
+    <a
+      href="mailto:?subject={{ 'Check out this CampusNest listing'|urlencode }}&body={{ share_text|urlencode }}"
+      class="btn-share-em"
+    >
       Share via Email
     </a>
-  </div> -->
+  </div>
   <br>
   <div class="action-buttons-container">
     {% if is_owner %}
@@ -162,32 +172,48 @@
 {% if not is_owner %}
 <div id="messageModal" class="message-modal-overlay">
   <div class="message-modal-container">
-    <h3 class="message-modal-heading">Send Message to {{ listing.user.first_name|default:listing.user.username }}</h3>
-    <form method="post" action="{% url 'messaging:start_thread' %}" class="message-modal-form">
+    <h3 class="message-modal-heading">
+      Send Message to {{ listing.user.first_name|default:listing.user.username
+      }}
+    </h3>
+    <form
+      method="post"
+      action="{% url 'messaging:start_thread' %}"
+      class="message-modal-form"
+    >
       {% csrf_token %}
-      <input type="hidden" name="listing_id" value="{{ listing.id }}">
-      <input type="hidden" name="recipient_id" value="{{ listing.user.id }}">
+      <input type="hidden" name="listing_id" value="{{ listing.id }}" />
+      <input type="hidden" name="recipient_id" value="{{ listing.user.id }}" />
       <div class="form-group">
         <label for="message_body">Your message:</label>
-        <textarea id="message_body" name="body" rows="4" required placeholder="Hi, I'm interested in your listing..."></textarea>
+        <textarea
+          id="message_body"
+          name="body"
+          rows="4"
+          required
+          placeholder="Hi, I'm interested in your listing..."
+        ></textarea>
       </div>
       <div class="message-modal-actions">
-        <button type="submit" class="btn-edit message-modal-submit">Send Message</button>
-        <button type="button" onclick="hideMessageForm()" class="btn-back message-modal-cancel">Cancel</button>
+        <button type="submit" class="btn-edit message-modal-submit">
+          Send Message
+        </button>
+        <button
+          type="button"
+          onclick="hideMessageForm()"
+          class="btn-back message-modal-cancel"
+        >
+          Cancel
+        </button>
       </div>
     </form>
   </div>
 </div>
-{% endif %}
-{% endblock %}
-
-{% block extra_js %}
-{% if not is_owner %}
+{% endif %} {% endblock %} {% block extra_js %}
 <!-- Mapbox GL JS Library - Required for interactive maps -->
-<script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
 <!-- Our custom map initialization script -->
-<script src="{% static 'listings/js/listing_map.js' %}"></script>
+<script src="{% static 'map_utils/js/listing_map.js' %}"></script>
 {% if not is_owner %}
 <script src="{% static 'listings/js/message_modal.js' %}"></script>
-{% endif %}
-{% endblock %}
+{% endif %} {% endblock %}

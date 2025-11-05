@@ -40,6 +40,9 @@ AWS_DEFAULT_ACL = None  # Bucket has ACLs disabled, use bucket policy instead
 AWS_S3_VERIFY = True
 AWS_QUERYSTRING_AUTH = False
 
+# MAPBOX
+MAPBOX_ACCESS_TOKEN = os.getenv("MAPBOX_ACCESS_TOKEN")
+
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = [
@@ -170,9 +173,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATICFILES_DIRS = [BASE_DIR / "static", "map_utils/static"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -3,14 +3,18 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.db.models import Q
+from django.conf import settings
 from .forms import ItemForm
 from .models import Item, ItemImage
 from .constants import ITEM_CATEGORY_CHOICES
 
+# Import the geocoding utility
+from map_utils.python.utils import geocode_address
+
 
 def send_item_confirmation_email(user_email, item_title, action="posted"):
     """Send confirmation email for item actions (posted, edited, deleted)."""
-    print("inside send_item_confirmation_email, action: ", action)
+    # print("inside send_item_confirmation_email, action: ", action)
     subject_map = {
         "posted": "Your CampusNest Item is Live!",
         "edited": "Your CampusNest Item Has Been Edited",
@@ -85,13 +89,25 @@ def process_item_images(item, files, removed_image_ids):
 
 
 def handle_item_form_submission(request, item, form, files, removed_image_ids):
+    # print("inside handle_item_form_submission, item: ", item)
     """Process valid item form submission."""
     has_image_error = validate_image_requirements(item, files, removed_image_ids, form)
 
     if form.is_valid() and not has_image_error:
         item = form.save(commit=False)
         item.is_edited = True
+
+        # **NEW: Re-geocode if address changed**
+        # Check if address was modified
+        if "address" in form.changed_data:
+            coordinates = geocode_address(item.address)
+            if coordinates:
+                item.longitude = coordinates[0]
+                item.latitude = coordinates[1]
+
         item.save()
+
+        # print("updated item: ", item)
 
         process_item_images(item, files, removed_image_ids)
 
@@ -117,6 +133,7 @@ def validate_create_item_images(files, form):
 
 @login_required
 def edit_item(request, item_id):
+    # print("inside edit_item")
     """Edit an existing item"""
     item = get_object_or_404(Item, id=item_id, user=request.user)
 
@@ -161,6 +178,15 @@ def create_item(request):
         if form.is_valid() and not has_image_error:
             item = form.save(commit=False)
             item.user = request.user
+
+            # **NEW: Geocode the address to get coordinates**
+            # This happens automatically when user submits the form
+            coordinates = geocode_address(item.address)
+            if coordinates:
+                # Store coordinates for map display
+                item.longitude = coordinates[0]  # longitude is first in Mapbox format
+                item.latitude = coordinates[1]  # latitude is second
+
             item.save()
 
             for file in files:
@@ -185,16 +211,19 @@ def view_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)
     # Check if this is the user's own item for edit/delete permissions
     is_owner = item.user == request.user
-    return render(
-        request, "marketplace/view_item.html", {"item": item, "is_owner": is_owner}
-    )
+    context = {
+        "item": item,
+        "is_owner": is_owner,
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
+    }
+    return render(request, "marketplace/view_item.html", context)
 
 
 @login_required
 def delete_item(request, item_id):
     """Delete an item with confirmation"""
     item = get_object_or_404(Item, id=item_id, user=request.user)
-    print("inside delete_item, item: ", item)
+    # print("inside delete_item, item: ", item)
 
     if request.method == "POST":
         item_title = item.title

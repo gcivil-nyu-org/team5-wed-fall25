@@ -1,13 +1,27 @@
+"""
+Updated view functions with geocoding integration.
+
+Key changes:
+1. Import geocode_address utility
+2. Geocode address when creating/editing listings
+3. Store coordinates in database
+4. Pass MAPBOX token to templates for map display
+"""
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.db.models import Q
+from django.conf import settings
 from datetime import datetime
 from .forms import ListingForm
 from .models import Listing, ListingImage
 from .constants import AMENITY_CHOICES
 from django.urls import reverse
+
+# Import the geocoding utility
+from map_utils.python.utils import geocode_address
 
 
 def validate_image_files(files, form):
@@ -29,7 +43,7 @@ def validate_image_files(files, form):
 
 @login_required
 def create_listing(request):
-    # Verify .edu email domain
+    # Restrict to .edu emails
     if not request.user.email.endswith(".edu"):
         messages.error(request, "Only verified .edu email addresses can post listings.")
         return redirect("view_profile")
@@ -39,41 +53,32 @@ def create_listing(request):
         files = request.FILES.getlist("images")
 
         # Validate images
-        has_image_error = False
-        if not files:
-            form.add_error(None, "Please upload at least one image.")
-            has_image_error = True
-        elif len(files) > 10:
-            form.add_error(None, "You can upload a maximum of 10 images.")
-            has_image_error = True
-        else:
-            # Validate file types and size
-            for file in files:
-                if not file.content_type.startswith("image/"):
-                    form.add_error(None, f"{file.name} is not a valid image file.")
-                    has_image_error = True
-                    break
-                # Check file size (max 5MB per image)
-                if file.size > 5 * 1024 * 1024:
-                    form.add_error(None, f"{file.name} exceeds 5MB size limit.")
-                    has_image_error = True
-                    break
+        error_message = validate_images(files)
+        if error_message:
+            form.add_error(None, error_message)
 
-        if form.is_valid() and not has_image_error:
+        if form.is_valid() and not error_message:
             listing = form.save(commit=False)
             listing.user = request.user
+
+            # Geocode address
+            coords = geocode_address(listing.address)
+            if coords:
+                listing.longitude, listing.latitude = coords[0], coords[1]
+
             listing.save()
 
-            # Save all uploaded images
+            # Save uploaded images
             for file in files:
                 ListingImage.objects.create(listing=listing, image=file)
 
             # Send confirmation email
             send_mail(
-                subject="Your CampusNest Listing is Live!",
-                message=f"Your listing '{listing.title}' has been posted successfully. View it at http://127.0.0.1:8000/listings/{listing.id}/",
-                from_email="noreply@campusnest.com",
-                recipient_list=[request.user.email],
+                "Your CampusNest Listing is Live!",
+                f"Your listing '{listing.title}' has been posted successfully. "
+                f"View it at http://127.0.0.1:8000/listings/{listing.id}/",
+                "noreply@campusnest.com",
+                [request.user.email],
                 fail_silently=True,
             )
 
@@ -86,6 +91,21 @@ def create_listing(request):
         form = ListingForm()
 
     return render(request, "listings/create_listing.html", {"form": form})
+
+
+def validate_images(files):
+    """Validate uploaded image files. Returns error message or None."""
+    if not files:
+        return "Please upload at least one image."
+    if len(files) > 10:
+        return "You can upload a maximum of 10 images."
+
+    for file in files:
+        if not file.content_type.startswith("image/"):
+            return f"{file.name} is not a valid image file."
+        if file.size > 5 * 1024 * 1024:  # 5MB limit
+            return f"{file.name} exceeds 5MB size limit."
+    return None
 
 
 @login_required
@@ -104,6 +124,15 @@ def edit_listing(request, listing_id):  # noqa: C901
         if form.is_valid() and not has_image_error:
             listing = form.save(commit=False)
             listing.is_edited = True
+
+            # **NEW: Re-geocode if address changed**
+            # Check if address was modified
+            if "address" in form.changed_data:
+                coordinates = geocode_address(listing.address)
+                if coordinates:
+                    listing.longitude = coordinates[0]
+                    listing.latitude = coordinates[1]
+
             listing.save()
 
             _handle_listing_images(files, listing)
@@ -175,6 +204,7 @@ def view_listing(request, listing_id):
     """View listing details. Shows different options based on ownership."""
     listing = get_object_or_404(Listing, id=listing_id)
     is_owner = listing.user == request.user
+    # print("mapbox token: ", settings.MAPBOX_ACCESS_TOKEN)
 
     # Only owners can view inactive listings
     if not listing.is_active and not is_owner:
@@ -183,15 +213,18 @@ def view_listing(request, listing_id):
     share_url = request.build_absolute_uri(reverse("view_listing", args=[listing.id]))
     share_text = f"Check out this CampusNest listing: {listing.title} — ${listing.rent}/mo at {listing.address}. {share_url}"
 
+    context = {
+        "listing": listing,
+        "is_owner": is_owner,
+        "share_url": share_url,
+        "share_text": share_text,
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
+    }
+
     return render(
         request,
-        "listings/view_listing.html",
-        {
-            "listing": listing,
-            "is_owner": is_owner,
-            "share_url": share_url,
-            "share_text": share_text,
-        },
+        "listings/view_listing_with_map.html",
+        context,
     )
 
 
