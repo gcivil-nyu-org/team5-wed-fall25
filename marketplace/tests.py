@@ -6,7 +6,7 @@ from django.contrib.messages import get_messages
 from io import BytesIO
 from PIL import Image
 from decimal import Decimal
-from .models import Item, ItemImage
+from marketplace.models import Item, ItemImage
 from accounts.models import User
 
 
@@ -32,7 +32,7 @@ class ItemModelTests(TestCase):
             description="This is a test item description with at least 20 characters",
             condition="good",
             price=Decimal("50.00"),
-            pickup_location="Bobst Library",
+            address="Bobst Library",
         )
 
     def test_create_item_success(self):
@@ -47,7 +47,7 @@ class ItemModelTests(TestCase):
         )
         self.assertEqual(item.condition, "good")
         self.assertEqual(item.price, Decimal("50.00"))
-        self.assertEqual(item.pickup_location, "Bobst Library")
+        self.assertEqual(item.address, "Bobst Library")
         self.assertEqual(Item.objects.filter(user=self.user).count(), 1)
 
     def test_item_defaults(self):
@@ -62,7 +62,7 @@ class ItemModelTests(TestCase):
             description="This is another test item description",
             condition="new",
             price=Decimal("100.00"),
-            pickup_location="Silver Center",
+            address="Silver Center",
         )
         after = timezone.now()
 
@@ -82,7 +82,7 @@ class ItemModelTests(TestCase):
                 description="Test description with sufficient length",
                 condition=condition,
                 price=Decimal("25.00"),
-                pickup_location="Test Location",
+                address="Test Location",
             )
             self.assertEqual(item.condition, condition)
 
@@ -98,7 +98,7 @@ class ItemModelTests(TestCase):
             description="This is a newer test item description",
             condition="new",
             price=Decimal("75.00"),
-            pickup_location="Kimmel Center",
+            address="Kimmel Center",
         )
         items = list(Item.objects.all())
         self.assertEqual(items[0], item2)
@@ -118,6 +118,20 @@ class ItemModelTests(TestCase):
         self.item.refresh_from_db()
         self.assertGreater(self.item.updated_at, original_updated)
 
+    def test_latitude_longitude_defaults(self):
+        """Test latitude and longitude default to None"""
+        self.assertIsNone(self.item.latitude)
+        self.assertIsNone(self.item.longitude)
+
+    def test_latitude_longitude_can_be_set(self):
+        """Test latitude and longitude can be set"""
+        self.item.latitude = 40.7128
+        self.item.longitude = -74.0060
+        self.item.save()
+        self.item.refresh_from_db()
+        self.assertEqual(self.item.latitude, 40.7128)
+        self.assertEqual(self.item.longitude, -74.0060)
+
 
 class ItemImageModelTests(TestCase):
     def setUp(self):
@@ -130,7 +144,7 @@ class ItemImageModelTests(TestCase):
             description="This is a test item description with at least 20 characters",
             condition="good",
             price=Decimal("50.00"),
-            pickup_location="Bobst Library",
+            address="Bobst Library",
         )
 
     def test_create_item_image(self):
@@ -174,19 +188,19 @@ class ItemFormTests(TestCase):
             "condition": "good",
             "category": "other",
             "price": "50.00",
-            "pickup_location": "Bobst Library",
+            "address": "Bobst Library",
         }
 
     def test_valid_form(self):
         """Test form with valid data"""
-        from .forms import ItemForm
+        from marketplace.forms import ItemForm
 
         form = ItemForm(data=self.valid_data)
         self.assertTrue(form.is_valid())
 
     def test_price_validation_negative(self):
         """Test price validation rejects negative values"""
-        from .forms import ItemForm
+        from marketplace.forms import ItemForm
 
         data = {**self.valid_data, "price": "-10.00"}
         form = ItemForm(data=data)
@@ -196,7 +210,7 @@ class ItemFormTests(TestCase):
 
     def test_price_validation_zero(self):
         """Test price validation rejects zero"""
-        from .forms import ItemForm
+        from marketplace.forms import ItemForm
 
         data = {**self.valid_data, "price": "0.00"}
         form = ItemForm(data=data)
@@ -206,7 +220,7 @@ class ItemFormTests(TestCase):
 
     def test_price_validation_too_high(self):
         """Test price validation rejects unrealistic high values"""
-        from .forms import ItemForm
+        from marketplace.forms import ItemForm
 
         data = {**self.valid_data, "price": "100001.00"}
         form = ItemForm(data=data)
@@ -218,7 +232,7 @@ class ItemFormTests(TestCase):
 
     def test_price_validation_valid_edge_cases(self):
         """Test price validation accepts valid edge cases"""
-        from .forms import ItemForm
+        from marketplace.forms import ItemForm
 
         test_cases = ["0.01", "100.00", "99999.99", "100000.00"]
         for price in test_cases:
@@ -229,7 +243,7 @@ class ItemFormTests(TestCase):
 
     def test_description_validation_too_short(self):
         """Test description validation rejects short descriptions"""
-        from .forms import ItemForm
+        from marketplace.forms import ItemForm
 
         data = {**self.valid_data, "description": "Too short"}
         form = ItemForm(data=data)
@@ -242,7 +256,7 @@ class ItemFormTests(TestCase):
 
     def test_description_validation_minimum_length(self):
         """Test description validation accepts minimum valid length"""
-        from .forms import ItemForm
+        from marketplace.forms import ItemForm
 
         data = {**self.valid_data, "description": "a" * 20}
         form = ItemForm(data=data)
@@ -250,14 +264,14 @@ class ItemFormTests(TestCase):
 
     def test_required_fields(self):
         """Test all required fields are validated"""
-        from .forms import ItemForm
+        from marketplace.forms import ItemForm
 
         required_fields = [
             "title",
             "description",
             "condition",
             "price",
-            "pickup_location",
+            "address",
         ]
         for field in required_fields:
             with self.subTest(field=field):
@@ -284,7 +298,7 @@ class CreateItemViewTests(TestCase):
             "condition": "good",
             "category": "other",
             "price": "50.00",
-            "pickup_location": "Bobst Library",
+            "address": "Bobst Library",
         }
 
     def test_create_item_success(self):
@@ -426,7 +440,7 @@ class MyItemsViewTests(TestCase):
             description="Description for item 1 with sufficient length",
             condition="good",
             price=Decimal("25.00"),
-            pickup_location="Location 1",
+            address="Location 1",
         )
         item2 = Item.objects.create(
             user=self.user,
@@ -434,7 +448,7 @@ class MyItemsViewTests(TestCase):
             description="Description for item 2 with sufficient length",
             condition="new",
             price=Decimal("50.00"),
-            pickup_location="Location 2",
+            address="Location 2",
         )
 
         response = self.client.get(self.my_items_url)
@@ -455,7 +469,7 @@ class MyItemsViewTests(TestCase):
             description="Description for old item with sufficient length",
             condition="good",
             price=Decimal("25.00"),
-            pickup_location="Location 1",
+            address="Location 1",
         )
         item2 = Item.objects.create(
             user=self.user,
@@ -463,7 +477,7 @@ class MyItemsViewTests(TestCase):
             description="Description for new item with sufficient length",
             condition="new",
             price=Decimal("50.00"),
-            pickup_location="Location 2",
+            address="Location 2",
         )
 
         response = self.client.get(self.my_items_url)
@@ -480,7 +494,7 @@ class MyItemsViewTests(TestCase):
             description="Description for my item with sufficient length",
             condition="good",
             price=Decimal("25.00"),
-            pickup_location="My Location",
+            address="My Location",
         )
         other_item = Item.objects.create(
             user=self.user2,
@@ -488,7 +502,7 @@ class MyItemsViewTests(TestCase):
             description="Description for other item with sufficient length",
             condition="good",
             price=Decimal("25.00"),
-            pickup_location="Other Location",
+            address="Other Location",
         )
 
         response = self.client.get(self.my_items_url)
@@ -527,7 +541,7 @@ class ViewItemViewTests(TestCase):
             description="Test description with sufficient length",
             condition="good",
             price=Decimal("50.00"),
-            pickup_location="Test Location",
+            address="Test Location",
         )
 
     def test_view_item_success(self):
@@ -546,8 +560,8 @@ class ViewItemViewTests(TestCase):
         url = reverse("view_item", kwargs={"item_id": self.item.id})
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)  # Changed from 404
-        self.assertFalse(response.context["is_owner"])  # Add this check
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["is_owner"])
 
     def test_view_item_not_found(self):
         """Test viewing non-existent item returns 404"""
@@ -580,7 +594,7 @@ class EditItemViewTests(TestCase):
             description="Original description with sufficient length",
             condition="good",
             price=Decimal("50.00"),
-            pickup_location="Original Location",
+            address="Original Location",
         )
         image = create_image()
         self.item_image = ItemImage.objects.create(item=self.item, image=image)
@@ -606,7 +620,7 @@ class EditItemViewTests(TestCase):
             "condition": "like_new",
             "category": "other",
             "price": "75.00",
-            "pickup_location": "Updated Location",
+            "address": "Updated Location",
         }
         response = self.client.post(url, data)
 
@@ -627,7 +641,7 @@ class EditItemViewTests(TestCase):
             "condition": self.item.condition,
             "category": "other",
             "price": str(self.item.price),
-            "pickup_location": self.item.pickup_location,
+            "address": self.item.address,
             "images": new_images,
         }
         self.client.post(url, data)
@@ -648,7 +662,7 @@ class EditItemViewTests(TestCase):
             "condition": self.item.condition,
             "category": "other",
             "price": str(self.item.price),
-            "pickup_location": self.item.pickup_location,
+            "address": self.item.address,
             "removed_images": str(self.item_image.id),
         }
         self.client.post(url, data)
@@ -667,7 +681,7 @@ class EditItemViewTests(TestCase):
             "condition": self.item.condition,
             "category": "other",
             "price": str(self.item.price),
-            "pickup_location": self.item.pickup_location,
+            "address": self.item.address,
             "removed_images": str(self.item_image.id),
         }
         response = self.client.post(url, data)
@@ -687,7 +701,7 @@ class EditItemViewTests(TestCase):
             "condition": self.item.condition,
             "category": "other",
             "price": str(self.item.price),
-            "pickup_location": self.item.pickup_location,
+            "address": self.item.address,
             "removed_images": str(self.item_image.id),
             "images": [new_image],
         }
@@ -728,7 +742,7 @@ class DeleteItemViewTests(TestCase):
             description="Test description with sufficient length",
             condition="good",
             price=Decimal("50.00"),
-            pickup_location="Test Location",
+            address="Test Location",
         )
 
     def test_delete_item_get_confirmation(self):
@@ -805,7 +819,7 @@ class MarkAsSoldViewTests(TestCase):
             description="Test description with sufficient length",
             condition="good",
             price=Decimal("50.00"),
-            pickup_location="Test Location",
+            address="Test Location",
         )
 
     def test_mark_as_sold_success(self):
@@ -869,43 +883,43 @@ class HelperFunctionTests(TestCase):
 
     def test_parse_removed_image_ids_valid(self):
         """Test parsing valid comma-separated IDs"""
-        from .views import parse_removed_image_ids
+        from marketplace.views import parse_removed_image_ids
 
         result = parse_removed_image_ids("1,2,3")
         self.assertEqual(result, [1, 2, 3])
 
     def test_parse_removed_image_ids_with_spaces(self):
         """Test parsing IDs with spaces"""
-        from .views import parse_removed_image_ids
+        from marketplace.views import parse_removed_image_ids
 
         result = parse_removed_image_ids("1, 2, 3")
         self.assertEqual(result, [1, 2, 3])
 
     def test_parse_removed_image_ids_empty(self):
         """Test parsing empty string"""
-        from .views import parse_removed_image_ids
+        from marketplace.views import parse_removed_image_ids
 
         result = parse_removed_image_ids("")
         self.assertEqual(result, [])
 
     def test_parse_removed_image_ids_none(self):
         """Test parsing None"""
-        from .views import parse_removed_image_ids
+        from marketplace.views import parse_removed_image_ids
 
         result = parse_removed_image_ids(None)
         self.assertEqual(result, [])
 
     def test_validate_uploaded_files_valid(self):
         """Test validating valid image files"""
-        from .views import validate_uploaded_files
-        from .forms import ItemForm
+        from marketplace.views import validate_uploaded_files
+        from marketplace.forms import ItemForm
 
         valid_data = {
             "title": "Valid Item",
             "description": "This is a valid description with more than 20 characters",
             "condition": "good",
             "price": "50.00",
-            "pickup_location": "Bobst Library",
+            "address": "Bobst Library",
         }
         form = ItemForm(data=valid_data)
         files = [create_image() for _ in range(3)]
@@ -914,15 +928,15 @@ class HelperFunctionTests(TestCase):
 
     def test_validate_uploaded_files_too_many(self):
         """Test validating more than 10 files"""
-        from .views import validate_uploaded_files
-        from .forms import ItemForm
+        from marketplace.views import validate_uploaded_files
+        from marketplace.forms import ItemForm
 
         valid_data = {
             "title": "Valid Item",
             "description": "This is a valid description with more than 20 characters",
             "condition": "good",
             "price": "50.00",
-            "pickup_location": "Bobst Library",
+            "address": "Bobst Library",
         }
         form = ItemForm(data=valid_data)
         files = [create_image() for _ in range(11)]
@@ -931,15 +945,15 @@ class HelperFunctionTests(TestCase):
 
     def test_validate_uploaded_files_invalid_type(self):
         """Test validating non-image file"""
-        from .views import validate_uploaded_files
-        from .forms import ItemForm
+        from marketplace.views import validate_uploaded_files
+        from marketplace.forms import ItemForm
 
         valid_data = {
             "title": "Valid Item",
             "description": "This is a valid description with more than 20 characters",
             "condition": "good",
             "price": "50.00",
-            "pickup_location": "Bobst Library",
+            "address": "Bobst Library",
         }
         form = ItemForm(data=valid_data)
         text_file = SimpleUploadedFile(
@@ -950,15 +964,15 @@ class HelperFunctionTests(TestCase):
 
     def test_validate_uploaded_files_too_large(self):
         """Test validating oversized file"""
-        from .views import validate_uploaded_files
-        from .forms import ItemForm
+        from marketplace.views import validate_uploaded_files
+        from marketplace.forms import ItemForm
 
         valid_data = {
             "title": "Valid Item",
             "description": "This is a valid description with more than 20 characters",
             "condition": "good",
             "price": "50.00",
-            "pickup_location": "Bobst Library",
+            "address": "Bobst Library",
         }
         form = ItemForm(data=valid_data)
         large_file = SimpleUploadedFile(
@@ -1015,7 +1029,7 @@ class BrowseMarketplaceViewTests(TestCase):
             category="furniture",
             condition="good",
             price=25.00,
-            pickup_location="Manhattan",
+            address="Manhattan",
             is_active=True,
             is_sold=False,
         )
@@ -1027,7 +1041,7 @@ class BrowseMarketplaceViewTests(TestCase):
             category="electronics",
             condition="like_new",
             price=1200.00,
-            pickup_location="Brooklyn",
+            address="Brooklyn",
             is_active=True,
             is_sold=False,
         )
@@ -1039,7 +1053,7 @@ class BrowseMarketplaceViewTests(TestCase):
             category="books",
             condition="good",
             price=50.00,
-            pickup_location="Queens",
+            address="Queens",
             is_active=True,
             is_sold=False,
         )
@@ -1052,7 +1066,7 @@ class BrowseMarketplaceViewTests(TestCase):
             category="furniture",
             condition="good",
             price=100.00,
-            pickup_location="Manhattan",
+            address="Manhattan",
             is_active=True,
             is_sold=True,
         )
@@ -1065,7 +1079,7 @@ class BrowseMarketplaceViewTests(TestCase):
             category="furniture",
             condition="good",
             price=100.00,
-            pickup_location="Manhattan",
+            address="Manhattan",
             is_active=False,
             is_sold=False,
         )

@@ -14,7 +14,7 @@ from map_utils.python.utils import geocode_address
 
 def send_item_confirmation_email(user_email, item_title, action="posted"):
     """Send confirmation email for item actions (posted, edited, deleted)."""
-    print("inside send_item_confirmation_email, action: ", action)
+    # print("inside send_item_confirmation_email, action: ", action)
     subject_map = {
         "posted": "Your CampusNest Item is Live!",
         "edited": "Your CampusNest Item Has Been Edited",
@@ -89,7 +89,7 @@ def process_item_images(item, files, removed_image_ids):
 
 
 def handle_item_form_submission(request, item, form, files, removed_image_ids):
-    print("inside handle_item_form_submission, item: ", item)
+    # print("inside handle_item_form_submission, item: ", item)
     """Process valid item form submission."""
     has_image_error = validate_image_requirements(item, files, removed_image_ids, form)
 
@@ -107,7 +107,7 @@ def handle_item_form_submission(request, item, form, files, removed_image_ids):
 
         item.save()
 
-        print("updated item: ", item)
+        # print("updated item: ", item)
 
         process_item_images(item, files, removed_image_ids)
 
@@ -133,7 +133,7 @@ def validate_create_item_images(files, form):
 
 @login_required
 def edit_item(request, item_id):
-    print("inside edit_item")
+    # print("inside edit_item")
     """Edit an existing item"""
     item = get_object_or_404(Item, id=item_id, user=request.user)
 
@@ -223,7 +223,7 @@ def view_item(request, item_id):
 def delete_item(request, item_id):
     """Delete an item with confirmation"""
     item = get_object_or_404(Item, id=item_id, user=request.user)
-    print("inside delete_item, item: ", item)
+    # print("inside delete_item, item: ", item)
 
     if request.method == "POST":
         item_title = item.title
