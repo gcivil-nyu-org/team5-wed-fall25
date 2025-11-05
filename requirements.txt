@@ -8,7 +8,7 @@ dj-database-url
 sqlparse
 
 # Database
-psycopg2-binary==
+psycopg2-binary
 
 # AWS/S3 Storage
 boto3
