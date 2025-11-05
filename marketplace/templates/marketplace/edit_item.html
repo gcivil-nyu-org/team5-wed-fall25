@@ -96,11 +96,11 @@
 
   <!-- Pickup Location -->
   <div class="form-group">
-    <label for="{{ form.pickup_location.id_for_label }}">{{ form.pickup_location.label }}</label>
-    {{ form.pickup_location }}
-    {% if form.pickup_location.errors %}
+    <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+    {{ form.address }}
+    {% if form.address.errors %}
     <ul class="errorlist">
-      {% for error in form.pickup_location.errors %}
+      {% for error in form.address.errors %}
       <li>{{ error }}</li>
       {% endfor %}
     </ul>

@@ -285,7 +285,7 @@
 }
 
 /* Strong, final override (no dependency on other classes) */
-.view-listing-container .share-buttons-container .btn-share-wa{
+ .view-listing-container .share-buttons-container .btn-share-wa{
   display:inline-block;
   padding:0.875rem 3rem;
   color:#fff !important;
@@ -300,7 +300,7 @@
 
   box-shadow:0 0 20px rgba(37,211,102,.25);
   transition:transform .2s, box-shadow .2s, filter .2s;
-}
+} 
 .view-listing-container .share-buttons-container .btn-share-wa:hover{
   transform:translateY(-2px);
   box-shadow:0 0 30px rgba(37,211,102,.4);

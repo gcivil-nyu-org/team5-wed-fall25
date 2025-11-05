@@ -21,7 +21,7 @@ from .constants import AMENITY_CHOICES
 from django.urls import reverse
 
 # Import the geocoding utility
-from .utils import geocode_address
+from  map_utils.python.utils import geocode_address
 
 
 def validate_image_files(files, form):
@@ -207,7 +207,7 @@ def view_listing(request, listing_id):
     """View listing details. Shows different options based on ownership."""
     listing = get_object_or_404(Listing, id=listing_id)
     is_owner = listing.user == request.user
-    print("mapbox token: ", settings.MAPBOX_ACCESS_TOKEN)
+    # print("mapbox token: ", settings.MAPBOX_ACCESS_TOKEN)
 
     # Only owners can view inactive listings
     if not listing.is_active and not is_owner:
@@ -226,7 +226,7 @@ def view_listing(request, listing_id):
 
     return render(
         request,
-        "listings/view_listing.html",
+        "listings/view_listing_with_map.html",
         context,
     )
 
