@@ -86,14 +86,47 @@ class ListingForm(forms.ModelForm):
         rent = self.cleaned_data.get("rent")
         if rent is not None and rent <= 0:
             raise ValidationError("Rent must be a positive value.")
+        if rent is not None and rent < 100:
+            raise ValidationError(
+                "Rent must be at least $100/month. Please enter a realistic rent amount."
+            )
         if rent is not None and rent > 100000:
             raise ValidationError("Rent amount seems unrealistic. Please verify.")
         return rent
 
+    def clean_title(self):
+        title = self.cleaned_data.get("title", "").strip()
+        if not title:
+            raise ValidationError("Title is required.")
+        if len(title) < 5:
+            raise ValidationError("Title must be at least 5 characters long.")
+        if len(title) > 200:
+            raise ValidationError("Title cannot exceed 200 characters.")
+        return title
+
+    def clean_address(self):
+        address = self.cleaned_data.get("address", "").strip()
+        if not address:
+            raise ValidationError("Address is required.")
+        if len(address) < 10:
+            raise ValidationError(
+                "Please enter a complete address (at least 10 characters)."
+            )
+        # Check if address contains basic components (street number, street name, city/state)
+        if "," not in address:
+            raise ValidationError(
+                "Please enter a complete address including street, city, and state (e.g., '123 Main St, Brooklyn, NY 11201')."
+            )
+        return address
+
     def clean_description(self):
-        description = self.cleaned_data.get("description", "")
+        description = self.cleaned_data.get("description", "").strip()
+        if not description:
+            raise ValidationError("Description is required.")
         if len(description) < 20:
             raise ValidationError("Description must be at least 20 characters long.")
+        if len(description) > 2000:
+            raise ValidationError("Description cannot exceed 2000 characters.")
         return description
 
     def clean_availability_start(self):

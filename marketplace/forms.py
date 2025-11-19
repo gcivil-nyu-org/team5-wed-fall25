@@ -54,16 +54,44 @@ class ItemForm(forms.ModelForm):
             "address": "Pickup Location *",
         }
 
+    def clean_title(self):
+        title = self.cleaned_data.get("title", "").strip()
+        if not title:
+            raise ValidationError("Title is required.")
+        if len(title) < 3:
+            raise ValidationError("Title must be at least 3 characters long.")
+        if len(title) > 200:
+            raise ValidationError("Title cannot exceed 200 characters.")
+        return title
+
     def clean_price(self):
         price = self.cleaned_data.get("price")
         if price is not None and price <= 0:
             raise ValidationError("Price must be a positive value.")
+        if price is not None and price < 0.50:
+            raise ValidationError(
+                "Price must be at least $0.50. Please enter a realistic price."
+            )
         if price is not None and price > 100000:
             raise ValidationError("Price amount seems unrealistic. Please verify.")
         return price
 
     def clean_description(self):
-        description = self.cleaned_data.get("description", "")
+        description = self.cleaned_data.get("description", "").strip()
+        if not description:
+            raise ValidationError("Description is required.")
         if len(description) < 20:
             raise ValidationError("Description must be at least 20 characters long.")
+        if len(description) > 2000:
+            raise ValidationError("Description cannot exceed 2000 characters.")
         return description
+
+    def clean_address(self):
+        address = self.cleaned_data.get("address", "").strip()
+        if not address:
+            raise ValidationError("Pickup location is required.")
+        if len(address) < 5:
+            raise ValidationError(
+                "Please enter a complete pickup location (at least 5 characters)."
+            )
+        return address

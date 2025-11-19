@@ -395,7 +395,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "-100.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -409,7 +409,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "0.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -423,7 +423,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "150000.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -437,7 +437,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Too short",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -451,7 +451,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "12345678901234567890",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -465,7 +465,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "availability_start": past_date,
             "availability_end": self.future_end,
@@ -480,7 +480,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": past_date,
@@ -494,7 +494,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "availability_start": self.future_end,
             "availability_end": self.future_start,
@@ -509,7 +509,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "availability_start": same_date,
             "availability_end": same_date,
@@ -523,7 +523,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "amenities": [],
             "availability_start": self.future_start,
@@ -537,7 +537,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "custom_amenities": "  Balcony  ,  Dishwasher  ,  Pool  ",
             "availability_start": self.future_start,
@@ -554,7 +554,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "custom_amenities": "Balcony,  ,  , Dishwasher",
             "availability_start": self.future_start,
@@ -572,7 +572,7 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "amenities": ["furnished", "wifi", "laundry"],
             "availability_start": self.future_start,
@@ -794,7 +794,7 @@ class EditListingViewTests(TestCase):
         self.listing = Listing.objects.create(
             user=self.user,
             title="Original Title",
-            address="123 Main St",
+            address="123 Main St, Brooklyn, NY",
             rent=Decimal("1500.00"),
             description="Original description with at least 20 characters",
             amenities="furnished,wifi",
@@ -887,7 +887,7 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "123 Main St",  # Same address
+            "address": "123 Main St, Brooklyn, NY",  # Same address
             "rent": "1600.00",
             "keep_existing_images": "on",
             "availability_start": self.future_start,
@@ -907,7 +907,7 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave",
+            "address": "456 Oak Ave, Manhattan, NY",
             "rent": "2000.00",
             "keep_existing_images": "on",
             "availability_start": self.future_start,
@@ -929,7 +929,7 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave",
+            "address": "456 Oak Ave, Manhattan, NY",
             "rent": "2000.00",
             "keep_existing_images": "on",
             "availability_start": self.future_start,
@@ -951,7 +951,7 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave",
+            "address": "456 Oak Ave, Manhattan, NY",
             "rent": "2000.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -973,7 +973,7 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave",
+            "address": "456 Oak Ave, Manhattan, NY",
             "rent": "2000.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -1009,7 +1009,7 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave",
+            "address": "456 Oak Ave, Manhattan, NY",
             "rent": "2000.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -1041,7 +1041,7 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave",
+            "address": "456 Oak Ave, Manhattan, NY",
             "rent": "2000.00",
             "keep_existing_images": "on",
             "availability_start": self.future_start,
@@ -1328,7 +1328,7 @@ class HelperFunctionTests(TestCase):
         form_data = {
             "title": "Test",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -1346,7 +1346,7 @@ class HelperFunctionTests(TestCase):
         form_data = {
             "title": "Test",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -1367,7 +1367,7 @@ class HelperFunctionTests(TestCase):
         form_data = {
             "title": "Test",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -1388,7 +1388,7 @@ class HelperFunctionTests(TestCase):
         form_data = {
             "title": "Test",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St",
+            "address": "123 Test St, Brooklyn, NY",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,

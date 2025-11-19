@@ -22,7 +22,7 @@
                     <div class="connection-request-grid">
                         <!-- Profile Photo -->
                         <div class="connection-request-photo-container">
-                            {% if request.from_user.profile.profile_photo %}
+                            {% if request.from_user.profile and request.from_user.profile.profile_photo %}
                                 <img src="{{ request.from_user.profile.profile_photo.url }}"
                                      alt="{{ request.from_user.first_name }}"
                                      class="connection-request-photo">
@@ -36,7 +36,13 @@
                         <!-- Request Details -->
                         <div>
                             <h3 class="connection-request-name">{{ request.from_user.first_name }} {{ request.from_user.last_name }}</h3>
-                            <p class="connection-request-university">{{ request.from_user.profile.get_university_display }}</p>
+                            <p class="connection-request-university">
+                                {% if request.from_user.profile %}
+                                    {{ request.from_user.profile.get_university_display }}
+                                {% else %}
+                                    <span style="color: var(--color-muted); font-style: italic;">Profile Incomplete</span>
+                                {% endif %}
+                            </p>
 
                             {% if request.message %}
                                 <div class="connection-request-message">
@@ -58,10 +64,16 @@
 
                         <!-- Action Buttons -->
                         <div class="connection-request-actions">
-                            <a href="{% url 'roommate_detail' request.from_user.id %}"
-                               class="connection-request-view-profile">
-                                View Profile
-                            </a>
+                            {% if request.from_user.profile %}
+                                <a href="{% url 'roommate_detail' request.from_user.id %}"
+                                   class="connection-request-view-profile">
+                                    View Profile
+                                </a>
+                            {% else %}
+                                <span class="connection-request-view-profile" style="opacity: 0.5; cursor: not-allowed; background: var(--color-muted);">
+                                    No Profile
+                                </span>
+                            {% endif %}
 
                             {% if request.status == 'pending' %}
                                 <form method="post" action="{% url 'respond_to_request' request.id %}" class="connection-request-response-form">
