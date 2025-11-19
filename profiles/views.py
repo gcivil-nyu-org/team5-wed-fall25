@@ -205,7 +205,9 @@ def send_connection_request(request, user_id):
 
     # Check if sender has a profile
     if not hasattr(request.user, "profile"):
-        messages.error(request, "Please complete your profile before sending connection requests.")
+        messages.error(
+            request, "Please complete your profile before sending connection requests."
+        )
         return redirect("create_profile")
 
     # Check if recipient has a profile
