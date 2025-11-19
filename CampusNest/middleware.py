@@ -21,9 +21,7 @@ class NoCacheMiddleware:
         # Add no-cache headers for authenticated users
         if request.user.is_authenticated:
             add_never_cache_headers(response)
-            response["Cache-Control"] = (
-                "no-cache, no-store, must-revalidate, private"
-            )
+            response["Cache-Control"] = "no-cache, no-store, must-revalidate, private"
             response["Pragma"] = "no-cache"
             response["Expires"] = "0"
 
