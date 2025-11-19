@@ -134,7 +134,20 @@ def roommate_search(request):
 @login_required
 def roommate_detail(request, user_id):
     """Display full roommate profile details"""
-    profile = get_object_or_404(Profile, user_id=user_id, visibility=True)
+    # Check if user exists
+    user = get_object_or_404(User, id=user_id)
+
+    # Check if user has a profile
+    if not hasattr(user, "profile"):
+        messages.error(request, "This user has not completed their profile yet.")
+        return redirect("roommate_search")
+
+    # Check if profile is visible
+    if not user.profile.visibility:
+        messages.error(request, "This profile is not visible.")
+        return redirect("roommate_search")
+
+    profile = user.profile
 
     # Prevent viewing own profile
     if profile.user == request.user:
@@ -190,7 +203,12 @@ def send_connection_request(request, user_id):
         messages.error(request, "You cannot send a request to yourself.")
         return redirect("roommate_search")
 
-    # Check if profile exists
+    # Check if sender has a profile
+    if not hasattr(request.user, "profile"):
+        messages.error(request, "Please complete your profile before sending connection requests.")
+        return redirect("create_profile")
+
+    # Check if recipient has a profile
     if not hasattr(to_user, "profile"):
         messages.error(request, "This user does not have a profile.")
         return redirect("roommate_search")

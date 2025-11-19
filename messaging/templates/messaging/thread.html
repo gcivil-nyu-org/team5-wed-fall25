@@ -26,7 +26,7 @@
         <div class="chat-header-info">
             <!-- Avatar: make clickable -->
             <a href="{% url 'roommate_detail' other.id %}" class="chat-user-avatar" title="View profile">
-                {% if other.profile.profile_photo %}
+                {% if other.profile and other.profile.profile_photo %}
                     <img src="{{ other.profile.profile_photo.url }}" alt="{{ other.first_name }}" class="chat-avatar-image">
                 {% else %}
                     <div class="chat-avatar-placeholder">
@@ -68,7 +68,7 @@
                         <!-- Avatar (for received messages) -->
                         {% if m.sender_id != request.user.id %}
                             <a href="{% url 'roommate_detail' m.sender.id %}" class="message-avatar" title="View profile">
-                                {% if m.sender.profile.profile_photo %}
+                                {% if m.sender.profile and m.sender.profile.profile_photo %}
                                     <img src="{{ m.sender.profile.profile_photo.url }}" alt="{{ m.sender.first_name }}" class="message-avatar-image">
                                 {% else %}
                                     <div class="message-avatar-placeholder">
@@ -93,7 +93,7 @@
                         <!-- Avatar (for sent messages) -->
                         {% if m.sender_id == request.user.id %}
                             <div class="message-avatar">
-                                {% if request.user.profile.profile_photo %}
+                                {% if request.user.profile and request.user.profile.profile_photo %}
                                     <img src="{{ request.user.profile.profile_photo.url }}" alt="You" class="message-avatar-image">
                                 {% else %}
                                     <div class="message-avatar-placeholder">
