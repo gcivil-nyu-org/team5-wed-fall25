@@ -211,11 +211,22 @@ class LogoutViewTests(TestCase):
         )
 
     def test_logout(self):
-        """Test user logout"""
+        """Test user logout with GET request"""
         self.client.login(username="test@nyu.edu", password="TestPassword123!")
         response = self.client.get(self.logout_url)
         self.assertRedirects(response, reverse("login"))
         self.assertFalse(response.wsgi_request.user.is_authenticated)
+        # Check cache-control headers
+        self.assertIn("no-cache", response["Cache-Control"])
+
+    def test_logout_post(self):
+        """Test user logout with POST request (preferred method)"""
+        self.client.login(username="test@nyu.edu", password="TestPassword123!")
+        response = self.client.post(self.logout_url)
+        self.assertRedirects(response, reverse("login"))
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
+        # Check cache-control headers
+        self.assertIn("no-cache", response["Cache-Control"])
 
 
 class ResendVerificationViewTests(TestCase):

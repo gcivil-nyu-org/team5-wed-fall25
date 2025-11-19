@@ -56,7 +56,10 @@
 				{% if user.is_staff %}
 				<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
 				{% endif %}
-				<a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+				<form method="post" action="{% url 'logout' %}" style="display: inline-block; margin: 0;">
+					{% csrf_token %}
+					<button type="submit" class="logout-btn">Logout</button>
+				</form>
 				{% else %}
 				<a href="{% url 'login' %}">Login</a>
 				<a href="{% url 'register' %}">Register</a>

@@ -9,6 +9,8 @@ from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from django.contrib.sessions.models import Session
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import never_cache
 
 from .forms import RegistrationForm
 from .models import User
@@ -128,13 +130,22 @@ def user_login(request):
     return render(request, "accounts/login.html", {"form": form})
 
 
+@never_cache
+@require_http_methods(["GET", "POST"])
 def user_logout(request):
     """
     Handle user logout
+    Supports both GET and POST methods, but POST is preferred for security.
+    Adds cache-control headers to prevent back button access.
     """
     logout(request)
     messages.success(request, "You have been logged out successfully.")
-    return redirect("login")
+    response = redirect("login")
+    # Ensure the redirect response also has no-cache headers
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate, private"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 def resend_verification(request):
