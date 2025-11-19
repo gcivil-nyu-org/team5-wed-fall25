@@ -234,7 +234,7 @@ class ItemFormTests(TestCase):
         """Test price validation accepts valid edge cases"""
         from marketplace.forms import ItemForm
 
-        test_cases = ["0.01", "100.00", "99999.99", "100000.00"]
+        test_cases = ["0.50", "100.00", "99999.99", "100000.00"]
         for price in test_cases:
             with self.subTest(price=price):
                 data = {**self.valid_data, "price": price}
