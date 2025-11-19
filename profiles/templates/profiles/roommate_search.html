@@ -153,13 +153,13 @@
                             <!-- Key Preferences (Icons) -->
                             <div class="preference-icons">
                                 <span title="{{ profile.get_smoking_preference_display }}" class="preference-icon">
-                                    {{ profile.get_preference_display_with_icon.smoking|default:"🚭" }}
+                                    {% if profile.smoking_preference == "smoker" %}🚬{% elif profile.smoking_preference == "occasionally" %}😶‍🌫️{% else %}🚭{% endif %}
                                 </span>
                                 <span title="{{ profile.get_pet_preference_display }}" class="preference-icon">
-                                    {{ profile.get_preference_display_with_icon.pets|default:"🐾" }}
+                                    {% if profile.pet_preference == "cats" %}🐱{% elif profile.pet_preference == "dogs" %}🐕{% elif profile.pet_preference == "other" %}🐾{% elif profile.pet_preference == "no_pets" %}🚫{% else %}🤷{% endif %}
                                 </span>
                                 <span title="{{ profile.get_cleanliness_preference_display }}" class="preference-icon">
-                                    {{ profile.get_preference_display_with_icon.cleanliness|default:"✨" }}
+                                    {% if profile.cleanliness_preference == "very_clean" %}✨{% elif profile.cleanliness_preference == "clean" %}🧹{% elif profile.cleanliness_preference == "moderate" %}🏠{% elif profile.cleanliness_preference == "relaxed" %}😎{% else %}🤷{% endif %}
                                 </span>
                             </div>
 
