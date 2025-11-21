@@ -1,5 +1,13 @@
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+
+
+def validate_future_or_today_date(value):
+    """Validate that the date is not in the past (today is allowed)"""
+    if value and value < timezone.now().date():
+        raise ValidationError("Move-in date cannot be in the past.")
 
 
 class Profile(models.Model):
@@ -116,6 +124,7 @@ class Profile(models.Model):
         null=True,
         blank=True,
         verbose_name="Preferred Move-In Date",
+        validators=[validate_future_or_today_date],
     )
 
     def __str__(self):

@@ -1,5 +1,6 @@
 # profiles/forms.py
 from django import forms
+from django.utils import timezone
 from .models import Profile
 
 
@@ -143,6 +144,12 @@ class ProfileForm(forms.ModelForm):
                 raise forms.ValidationError("Only JPG, PNG, and WebP formats allowed.")
 
         return photo
+
+    def clean_move_in_date(self):
+        move_in_date = self.cleaned_data.get("move_in_date")
+        if move_in_date and move_in_date < timezone.now().date():
+            raise forms.ValidationError("Move-in date cannot be in the past.")
+        return move_in_date
 
     def clean(self):
         cleaned_data = super().clean()
