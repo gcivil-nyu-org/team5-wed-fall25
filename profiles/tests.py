@@ -1070,16 +1070,6 @@ class ProfileFormValidationTests(TestCase):
         from profiles.forms import ProfileForm
         from django.utils import timezone
         from datetime import timedelta
-        from io import BytesIO
-        from PIL import Image
-        from django.core.files.uploadedfile import SimpleUploadedFile
-
-        # Create a small valid image
-        image = Image.new("RGB", (100, 100), color="red")
-        image_io = BytesIO()
-        image.save(image_io, format="JPEG")
-        image_data = image_io.getvalue()
-        photo = SimpleUploadedFile("test.jpg", image_data, content_type="image/jpeg")
 
         past_date = (timezone.now() - timedelta(days=10)).date()
 
@@ -1097,7 +1087,8 @@ class ProfileFormValidationTests(TestCase):
             "visibility": True,
             "move_in_date": past_date.strftime("%Y-%m-%d"),
         }
-        form = ProfileForm(data=form_data, files={"profile_photo": photo})
+        # Profile photo is now optional, so we don't need to provide it
+        form = ProfileForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn("move_in_date", form.errors)
         self.assertIn("cannot be in the past", str(form.errors["move_in_date"]))
@@ -1106,16 +1097,6 @@ class ProfileFormValidationTests(TestCase):
         """Test that form accepts today as move-in date"""
         from profiles.forms import ProfileForm
         from django.utils import timezone
-        from io import BytesIO
-        from PIL import Image
-        from django.core.files.uploadedfile import SimpleUploadedFile
-
-        # Create a small valid image
-        image = Image.new("RGB", (100, 100), color="red")
-        image_io = BytesIO()
-        image.save(image_io, format="JPEG")
-        image_data = image_io.getvalue()
-        photo = SimpleUploadedFile("test.jpg", image_data, content_type="image/jpeg")
 
         today = timezone.now().date()
 
@@ -1133,7 +1114,8 @@ class ProfileFormValidationTests(TestCase):
             "visibility": True,
             "move_in_date": today.strftime("%Y-%m-%d"),
         }
-        form = ProfileForm(data=form_data, files={"profile_photo": photo})
+        # Profile photo is now optional
+        form = ProfileForm(data=form_data)
         self.assertTrue(form.is_valid())
 
     def test_move_in_date_in_future(self):
@@ -1141,16 +1123,6 @@ class ProfileFormValidationTests(TestCase):
         from profiles.forms import ProfileForm
         from django.utils import timezone
         from datetime import timedelta
-        from io import BytesIO
-        from PIL import Image
-        from django.core.files.uploadedfile import SimpleUploadedFile
-
-        # Create a small valid image
-        image = Image.new("RGB", (100, 100), color="red")
-        image_io = BytesIO()
-        image.save(image_io, format="JPEG")
-        image_data = image_io.getvalue()
-        photo = SimpleUploadedFile("test.jpg", image_data, content_type="image/jpeg")
 
         future_date = (timezone.now() + timedelta(days=30)).date()
 
@@ -1168,11 +1140,55 @@ class ProfileFormValidationTests(TestCase):
             "visibility": True,
             "move_in_date": future_date.strftime("%Y-%m-%d"),
         }
-        form = ProfileForm(data=form_data, files={"profile_photo": photo})
+        # Profile photo is now optional
+        form = ProfileForm(data=form_data)
         self.assertTrue(form.is_valid())
 
     def test_move_in_date_optional(self):
         """Test that move-in date is optional"""
+        from profiles.forms import ProfileForm
+
+        form_data = {
+            "bio": "This is a valid bio with enough characters",
+            "university": "NYU",
+            "eating_habit": "no_preference",
+            "smoking_preference": "non_smoker",
+            "sharing_preference": "no_preference",
+            "drinking_preference": "no_preference",
+            "pet_preference": "no_preference",
+            "cleanliness_preference": "no_preference",
+            "budget_min": 1000,
+            "budget_max": 2000,
+            "visibility": True,
+            # No move_in_date provided
+        }
+        # Profile photo is now optional too
+        form = ProfileForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_profile_photo_optional(self):
+        """Test that profile photo is optional when creating a profile"""
+        from profiles.forms import ProfileForm
+
+        form_data = {
+            "bio": "This is a valid bio with enough characters",
+            "university": "NYU",
+            "eating_habit": "no_preference",
+            "smoking_preference": "non_smoker",
+            "sharing_preference": "no_preference",
+            "drinking_preference": "no_preference",
+            "pet_preference": "no_preference",
+            "cleanliness_preference": "no_preference",
+            "budget_min": 1000,
+            "budget_max": 2000,
+            "visibility": True,
+        }
+        # No profile photo provided - should still be valid
+        form = ProfileForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_profile_photo_with_valid_upload(self):
+        """Test that profile photo can be uploaded successfully"""
         from profiles.forms import ProfileForm
         from io import BytesIO
         from PIL import Image
@@ -1197,7 +1213,7 @@ class ProfileFormValidationTests(TestCase):
             "budget_min": 1000,
             "budget_max": 2000,
             "visibility": True,
-            # No move_in_date provided
         }
+        # With valid photo upload
         form = ProfileForm(data=form_data, files={"profile_photo": photo})
         self.assertTrue(form.is_valid())

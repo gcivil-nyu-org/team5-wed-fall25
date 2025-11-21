@@ -455,3 +455,41 @@
         height: 100px;
     }
 }
+
+/* ========================================
+   Date Picker Enhancements
+   ======================================== */
+
+.date-picker-input {
+    position: relative;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+.date-picker-input:hover {
+    border-color: #45a049 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2) !important;
+}
+
+.date-picker-input:focus {
+    outline: none !important;
+    border-color: #2e7d32 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1) !important;
+}
+
+/* Calendar icon enhancement for better visibility */
+.date-picker-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(48%) sepia(79%) saturate(500%) hue-rotate(86deg) brightness(96%) contrast(87%);
+    font-size: 1.2em;
+    padding: 4px;
+    margin-right: 4px;
+}
+
+.date-picker-input::-webkit-calendar-picker-indicator:hover {
+    filter: invert(34%) sepia(58%) saturate(740%) hue-rotate(86deg) brightness(95%) contrast(87%);
+    background-color: rgba(76, 175, 80, 0.1);
+    border-radius: 4px;
+}
