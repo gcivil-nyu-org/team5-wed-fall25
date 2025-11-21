@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Item
+import re
 
 
 class ItemForm(forms.ModelForm):
@@ -62,6 +63,15 @@ class ItemForm(forms.ModelForm):
             raise ValidationError("Title must be at least 3 characters long.")
         if len(title) > 200:
             raise ValidationError("Title cannot exceed 200 characters.")
+
+        # Validate title contains only approved characters
+        # Allowed: letters, numbers, spaces, and common punctuation (.,!?'-&)
+        if not re.match(r"^[a-zA-Z0-9\s.,!?'\-&]+$", title):
+            raise ValidationError(
+                "Title contains invalid characters. Only letters, numbers, spaces, "
+                "and basic punctuation (.,!?'-&) are allowed."
+            )
+
         return title
 
     def clean_price(self):

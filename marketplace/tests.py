@@ -281,6 +281,86 @@ class ItemFormTests(TestCase):
                 self.assertFalse(form.is_valid())
                 self.assertIn(field, form.errors)
 
+    def test_title_validation_valid_characters(self):
+        """Test title validation accepts valid characters"""
+        from marketplace.forms import ItemForm
+
+        valid_titles = [
+            "Valid Item Title",
+            "iPhone 13 Pro Max",
+            "Desk Lamp, Great Condition!",
+            "MacBook Pro - 2020",
+            "Used Textbook & Notes",
+            "Item with Question?",
+            "Simple Title 123",
+            "T-shirt",
+            "It's working!",
+        ]
+        for title in valid_titles:
+            with self.subTest(title=title):
+                data = {**self.valid_data, "title": title}
+                form = ItemForm(data=data)
+                self.assertTrue(form.is_valid(), f"Title '{title}' should be valid")
+
+    def test_title_validation_invalid_characters(self):
+        """Test title validation rejects invalid characters"""
+        from marketplace.forms import ItemForm
+
+        invalid_titles = [
+            "Item with @symbol",
+            "Title with #hashtag",
+            "Item with $dollar",
+            "Title with %percent",
+            "Item with *asterisk",
+            "Title with (parentheses)",
+            "Title with [brackets]",
+            "Title with {braces}",
+            "Title with /slash",
+            "Title with \\backslash",
+            "Title with |pipe",
+            "Title with <angle>",
+            "Title with =equals",
+            "Title with +plus",
+            "Title with ~tilde",
+            "Title with `backtick",
+            "Title with ^caret",
+            "Title with _underscore",
+            "Title with ;semicolon",
+            "Title with :colon",
+        ]
+        for title in invalid_titles:
+            with self.subTest(title=title):
+                data = {**self.valid_data, "title": title}
+                form = ItemForm(data=data)
+                self.assertFalse(form.is_valid(), f"Title '{title}' should be invalid")
+                self.assertIn("title", form.errors)
+                self.assertIn(
+                    "invalid characters",
+                    str(form.errors["title"]).lower(),
+                    f"Error message should mention invalid characters for title '{title}'",
+                )
+
+    def test_title_validation_minimum_length(self):
+        """Test title validation enforces minimum length"""
+        from marketplace.forms import ItemForm
+
+        data = {**self.valid_data, "title": "ab"}
+        form = ItemForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("title", form.errors)
+        self.assertIn("at least 3 characters", str(form.errors["title"]))
+
+    def test_title_validation_maximum_length(self):
+        """Test title validation enforces maximum length"""
+        from marketplace.forms import ItemForm
+
+        data = {**self.valid_data, "title": "a" * 201}
+        form = ItemForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("title", form.errors)
+        # Django's built-in max_length validator message
+        self.assertIn("at most 200 characters", str(form.errors["title"]))
+
 
 class CreateItemViewTests(TestCase):
     def setUp(self):
