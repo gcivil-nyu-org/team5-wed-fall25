@@ -17,11 +17,27 @@ from django.conf import settings
 from datetime import datetime
 from .forms import ListingForm
 from .models import Listing, ListingImage
-from .constants import AMENITY_CHOICES
+from .constants import AMENITY_CHOICES, NYC_NEIGHBORHOOD_BOROUGH_MAP
 from django.urls import reverse
 
 # Import the geocoding utility
 from map_utils.python.utils import geocode_address
+
+
+def get_neighborhoods_for_search(location_query):
+    """
+    Given a location search query, return list of neighborhoods to search for.
+    If the query matches a borough, return all neighborhoods in that borough.
+    Otherwise, return just the query itself for direct matching.
+    """
+    location_lower = location_query.lower().strip()
+
+    # Check if the search term is a borough
+    if location_lower in NYC_NEIGHBORHOOD_BOROUGH_MAP:
+        return NYC_NEIGHBORHOOD_BOROUGH_MAP[location_lower]
+
+    # Otherwise, return the original query for direct matching
+    return [location_query]
 
 
 def validate_image_files(files, form):
@@ -275,22 +291,46 @@ def public_listings(request):  # noqa: C901
         except ValueError:
             messages.warning(request, "Invalid maximum rent entered.")
 
-    # Apply location filter
+    # Apply location filter with smart neighborhood/borough matching
     if location:
-        listings = listings.filter(address__icontains=location)
+        neighborhoods = get_neighborhoods_for_search(location)
+        # Create OR query for all neighborhoods
+        location_query = Q()
+        for neighborhood in neighborhoods:
+            location_query |= Q(address__icontains=neighborhood)
+        listings = listings.filter(location_query)
 
     # Apply move-in and move-out date filters
     if move_in_date or move_out_date:
         try:
             if move_in_date:
                 move_in = datetime.strptime(move_in_date, "%Y-%m-%d").date()
-                # Listing's availability_start must be <= move_in_date
-                listings = listings.filter(availability_start__lte=move_in)
+            else:
+                move_in = None
 
             if move_out_date:
                 move_out = datetime.strptime(move_out_date, "%Y-%m-%d").date()
-                # Listing's availability_end must be >= move_out_date
-                listings = listings.filter(availability_end__gte=move_out)
+            else:
+                move_out = None
+
+            # Validate that move-out date is not before move-in date
+            if move_in and move_out and move_out < move_in:
+                messages.error(
+                    request,
+                    "Move-out date cannot be before move-in date. "
+                    "Please adjust your search filters.",
+                )
+                # Clear the results by returning empty queryset
+                listings = Listing.objects.none()
+            else:
+                # Apply filters only if date validation passes
+                if move_in:
+                    # Listing's availability_start must be <= move_in_date
+                    listings = listings.filter(availability_start__lte=move_in)
+
+                if move_out:
+                    # Listing's availability_end must be >= move_out_date
+                    listings = listings.filter(availability_end__gte=move_out)
         except ValueError:
             messages.warning(request, "Invalid date format.")
 

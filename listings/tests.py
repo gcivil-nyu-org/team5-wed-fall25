@@ -1684,3 +1684,115 @@ class PublicListingsViewTests(TestCase):
         response = self.client.get(reverse("public_listings"))
         self.assertIn("amenity_choices", response.context)
         self.assertIsNotNone(response.context["amenity_choices"])
+
+    def test_move_out_before_move_in_validation(self):
+        """Test that move-out date before move-in date shows error and no results"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        move_in = (timezone.now() + timedelta(days=30)).date().strftime("%Y-%m-%d")
+        move_out = (timezone.now() + timedelta(days=10)).date().strftime("%Y-%m-%d")
+
+        response = self.client.get(
+            reverse("public_listings"),
+            {"move_in_date": move_in, "move_out_date": move_out},
+        )
+
+        # Should get error message
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(
+            any("Move-out date cannot be before move-in date" in str(m) for m in messages)
+        )
+
+        # Should return empty queryset (no results)
+        listings = response.context["listings"]
+        self.assertEqual(listings.count(), 0)
+
+    def test_location_filter_borough_manhattan(self):
+        """Test that searching for Manhattan finds East Village listings"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Create a listing with East Village address
+        east_village_listing = Listing.objects.create(
+            user=self.user1,
+            title="East Village Apartment",
+            address="493 Broadway St, East Village, NY 10005",
+            rent=Decimal("2200.00"),
+            description="Nice apartment in East Village with great amenities",
+            amenities="wifi,laundry",
+            availability_start=timezone.now().date(),
+            availability_end=(timezone.now() + timedelta(days=365)).date(),
+            is_active=True,
+        )
+
+        # Search for "Manhattan" should find the East Village listing
+        response = self.client.get(
+            reverse("public_listings"), {"location": "Manhattan"}
+        )
+        listings = response.context["listings"]
+
+        # Should include the East Village listing
+        self.assertIn(east_village_listing, listings)
+
+    def test_location_filter_specific_neighborhood(self):
+        """Test that specific neighborhood search still works"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Create listings in different neighborhoods
+        soho_listing = Listing.objects.create(
+            user=self.user1,
+            title="SoHo Loft",
+            address="100 Spring St, SoHo, NY 10012",
+            rent=Decimal("3000.00"),
+            description="Beautiful loft in SoHo neighborhood",
+            amenities="wifi",
+            availability_start=timezone.now().date(),
+            availability_end=(timezone.now() + timedelta(days=365)).date(),
+            is_active=True,
+        )
+
+        chelsea_listing = Listing.objects.create(
+            user=self.user1,
+            title="Chelsea Studio",
+            address="200 W 23rd St, Chelsea, NY 10011",
+            rent=Decimal("2500.00"),
+            description="Modern studio in Chelsea",
+            amenities="wifi",
+            availability_start=timezone.now().date(),
+            availability_end=(timezone.now() + timedelta(days=365)).date(),
+            is_active=True,
+        )
+
+        # Search for "SoHo" should only find SoHo listing
+        response = self.client.get(
+            reverse("public_listings"), {"location": "SoHo"}
+        )
+        listings = response.context["listings"]
+
+        self.assertIn(soho_listing, listings)
+        self.assertNotIn(chelsea_listing, listings)
+
+    def test_location_filter_case_insensitive(self):
+        """Test that location filter is case-insensitive"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Create listing with Brooklyn address
+        brooklyn_listing = Listing.objects.create(
+            user=self.user1,
+            title="Brooklyn Apartment",
+            address="100 Court St, Brooklyn, NY 11201",
+            rent=Decimal("1800.00"),
+            description="Nice apartment in Brooklyn",
+            amenities="wifi",
+            availability_start=timezone.now().date(),
+            availability_end=(timezone.now() + timedelta(days=365)).date(),
+            is_active=True,
+        )
+
+        # Search with different cases
+        for search_term in ["brooklyn", "Brooklyn", "BROOKLYN", "BrOoKlYn"]:
+            with self.subTest(search_term=search_term):
+                response = self.client.get(
+                    reverse("public_listings"), {"location": search_term}
+                )
+                listings = response.context["listings"]
+                self.assertIn(brooklyn_listing, listings)
