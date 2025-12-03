@@ -13,9 +13,5 @@ urlpatterns = [
     path(
         "send/<int:thread_id>/", views.send_message, name="send"
     ),  # optional separate send endpoint
-    path(
-        "thread/<int:thread_id>/get-new-messages/",
-        views.get_new_messages,
-        name="get_new_messages",
-    ),  # AJAX endpoint for polling new messages
+    # AJAX polling endpoint removed - WebSocket used instead (see messaging/routing.py)
 ]

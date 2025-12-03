@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "storages",
     "listings",
     "marketplace",
+    "channels",
     "messaging",
     "feed",
 ]
@@ -130,6 +131,30 @@ else:
         }
     }
 
+# ASGI Application
+ASGI_APPLICATION = "CampusNest.asgi.application"
+
+# Channel Layers (In-Memory for development, Redis for production)
+REDIS_ENDPOINT = os.getenv("REDIS_ENDPOINT")
+
+if REDIS_ENDPOINT:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [REDIS_ENDPOINT],
+                "capacity": 1500,
+                "expiry": 10,
+            },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
+        }
+    }
+
 # # Uncomment while testing so that RDS does not get used when testing
 # DATABASES = {
 #     "default": {
@@ -140,6 +165,7 @@ else:
 #
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

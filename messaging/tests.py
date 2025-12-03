@@ -7,6 +7,7 @@ from listings.models import Listing
 from profiles.models import Profile
 from .models import Thread, Message
 from .forms import MessageForm
+import unittest
 
 User = get_user_model()
 
@@ -593,6 +594,7 @@ class SendMessageViewTests(TestCase):
         self.assertEqual(self.thread.messages.count(), 0)
 
 
+@unittest.skip("AJAX polling endpoint removed in Phase 1 - replaced with WebSockets")
 class GetNewMessagesViewTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -794,6 +796,7 @@ class SendMessageForbiddenTests(TestCase):
         self.assertEqual(response.status_code, 403)
 
 
+@unittest.skip("AJAX polling endpoint removed in Phase 1 - replaced with WebSockets")
 class GetNewMessagesWithProfilePhotoTests(TestCase):
     """Test get_new_messages with profile photo"""
 

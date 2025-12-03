@@ -1,5 +1,5 @@
 // messaging/static/messaging/js/thread.js
-// JavaScript for thread/chat page enhancements with AJAX polling
+// JavaScript for thread/chat page with WebSocket real-time messaging
 
 document.addEventListener('DOMContentLoaded', function() {
     // ===== Elements =====
@@ -13,24 +13,59 @@ document.addEventListener('DOMContentLoaded', function() {
     const threadId = messagesContainer.dataset.threadId;
     const currentUserId = parseInt(messagesContainer.dataset.currentUserId);
 
-    // Track the last message ID we've seen
-    let lastMessageId = 0;
+    // ===== WebSocket Connection =====
+    let socket;
+    let reconnectAttempts = 0;
+    const MAX_RECONNECT_DELAY = 30000; // 30 seconds
 
-    // Initialize lastMessageId from existing messages
-    function initializeLastMessageId() {
-        const messageRows = messagesContainer.querySelectorAll('.message-row[data-message-id]');
-        if (messageRows.length > 0) {
-            // Find the highest message ID
-            messageRows.forEach(row => {
-                const messageId = parseInt(row.dataset.messageId);
-                if (messageId > lastMessageId) {
-                    lastMessageId = messageId;
+    function connectWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/messages/thread/${threadId}/`;
+
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = function(e) {
+            console.log('WebSocket connected');
+            reconnectAttempts = 0;
+        };
+
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+
+            if (data.type === 'chat_message') {
+                console.log('WebSocket received message:', {
+                    id: data.message.id,
+                    sender_id: data.message.sender_id,
+                    is_current_user: data.message.is_current_user,
+                    current_user_id: currentUserId
+                });
+
+                const shouldScroll = isNearBottom();
+                const messageHTML = createMessageHTML(data.message);
+                messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
+
+                if (shouldScroll) {
+                    scrollToBottom(true);
                 }
-            });
-        }
+            } else if (data.type === 'typing_indicator') {
+                handleTypingIndicator(data);
+            }
+        };
+
+        socket.onclose = function(e) {
+            console.log('WebSocket closed, reconnecting...');
+            const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), MAX_RECONNECT_DELAY);
+            reconnectAttempts++;
+            setTimeout(connectWebSocket, delay);
+        };
+
+        socket.onerror = function(e) {
+            console.error('WebSocket error:', e);
+        };
     }
 
-    initializeLastMessageId();
+    // Initialize WebSocket connection
+    connectWebSocket();
 
     // ===== Auto-scroll to Latest Message =====
     function scrollToBottom(smooth = true) {
@@ -106,53 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return div.innerHTML;
     }
 
-    // ===== Poll for New Messages =====
-    function pollNewMessages() {
-        // Only poll if page is visible
-        if (document.hidden) return;
-
-        const url = `/messages/thread/${threadId}/get-new-messages/?last_message_id=${lastMessageId}`;
-
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.messages && data.messages.length > 0) {
-                const shouldScroll = isNearBottom();
-
-                // Append new messages to the container
-                data.messages.forEach(message => {
-                    const messageHTML = createMessageHTML(message);
-                    messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
-
-                    // Update last message ID
-                    if (message.id > lastMessageId) {
-                        lastMessageId = message.id;
-                    }
-                });
-
-                // Scroll to bottom if user was near bottom
-                if (shouldScroll) {
-                    scrollToBottom(true);
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error polling for new messages:', error);
-        });
+    // ===== Typing Indicator Handler (for Phase 3) =====
+    function handleTypingIndicator(data) {
+        // Placeholder for Phase 3 implementation
+        // Will show "User is typing..." indicator
     }
-
-    // Start polling every 2 seconds
-    const pollInterval = setInterval(pollNewMessages, 2000);
-
-    // Clean up on page unload
-    window.addEventListener('beforeunload', function() {
-        clearInterval(pollInterval);
-    });
 
     // ===== Auto-expanding Textarea =====
     if (messageInput) {
@@ -173,7 +166,8 @@ document.addEventListener('DOMContentLoaded', function() {
         messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                messageForm.submit();
+                // Trigger submit event (not direct submission) so our handler can intercept
+                messageForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
             }
         });
     }
@@ -181,21 +175,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== Form Submit Handler =====
     if (messageForm) {
         messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const body = messageInput.value.trim();
+            if (!body || !socket || socket.readyState !== WebSocket.OPEN) return;
+
+            // Send message via WebSocket
+            socket.send(JSON.stringify({
+                'type': 'chat_message',
+                'body': body
+            }));
+
+            // Clear input and reset height
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+
             // Disable send button temporarily to prevent double-sending
             const sendButton = messageForm.querySelector('.send-button');
             if (sendButton) {
                 sendButton.disabled = true;
-
-                // Re-enable after a delay
                 setTimeout(() => {
                     sendButton.disabled = false;
                 }, 1000);
             }
-
-            // After form submission completes, poll immediately for the new message
-            setTimeout(() => {
-                pollNewMessages();
-            }, 500);
         });
     }
 });
