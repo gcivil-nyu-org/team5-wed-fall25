@@ -108,7 +108,7 @@ WSGI_APPLICATION = "CampusNest.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+#https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 if os.getenv("RDS_HOSTNAME"):
     # Production/Development - PostgreSQL on AWS RDS
     DATABASES = {
