@@ -44,7 +44,8 @@ def register(request):
 
             # Send verification email
             subject = "Verify Your CampusNest Account"
-            message = textwrap.dedent(f"""
+            message = textwrap.dedent(
+                f"""
                 Hi {user.first_name},
 
                 Welcome to CampusNest! Please verify your email address by clicking the link below:
@@ -57,7 +58,8 @@ def register(request):
 
                 Best regards,
                 The CampusNest Team
-            """).strip()
+            """
+            ).strip()
 
             send_mail(
                 subject,
@@ -178,7 +180,8 @@ def resend_verification(request):
 
             # Send verification email
             subject = "Verify Your CampusNest Account"
-            message = textwrap.dedent(f"""
+            message = textwrap.dedent(
+                f"""
                 Hi {user.first_name},
 
                 You requested a new verification link for your CampusNest account.
@@ -193,7 +196,8 @@ def resend_verification(request):
 
                 Best regards,
                 The CampusNest Team
-            """).strip()
+            """
+            ).strip()
 
             send_mail(
                 subject,
@@ -243,7 +247,8 @@ def password_reset_request(request):
 
             # Send password reset email
             subject = "Reset Your CampusNest Password"
-            message = textwrap.dedent(f"""
+            message = textwrap.dedent(
+                f"""
                 Hi {user.first_name},
 
                 You requested to reset your password for your CampusNest account.
@@ -258,7 +263,8 @@ def password_reset_request(request):
 
                 Best regards,
                 The CampusNest Team
-            """).strip()
+            """
+            ).strip()
 
             send_mail(
                 subject,
@@ -308,7 +314,8 @@ def password_reset_confirm(request, uidb64, token):
 
                 # Send confirmation email
                 subject = "Your CampusNest Password Has Been Changed"
-                message = textwrap.dedent(f"""
+                message = textwrap.dedent(
+                    f"""
                     Hi {user.first_name},
 
                     This is to confirm that your password for CampusNest has been successfully changed.
@@ -319,7 +326,8 @@ def password_reset_confirm(request, uidb64, token):
 
                     Best regards,
                     The CampusNest Team
-                """).strip()
+                """
+                ).strip()
 
                 send_mail(
                     subject,
