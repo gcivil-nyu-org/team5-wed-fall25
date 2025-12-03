@@ -14,6 +14,7 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.db.models import Q
 from django.conf import settings
+from django.http import Http404
 from datetime import datetime
 from .forms import ListingForm
 from .models import Listing, ListingImage
@@ -188,7 +189,11 @@ def _handle_listing_images(files, listing):
 @login_required
 def delete_listing(request, listing_id):
     """Delete a listing with confirmation"""
-    listing = get_object_or_404(Listing, id=listing_id, user=request.user)
+    listing = get_object_or_404(Listing, id=listing_id)
+
+    # Only the owner or a staff (moderator) user can delete the listing
+    if listing.user != request.user and not request.user.is_staff:
+        raise Http404()
 
     if request.method == "POST":
         # Store listing title for success message
@@ -202,7 +207,7 @@ def delete_listing(request, listing_id):
             subject="Your CampusNest Listing Has Been Deleted",
             message=f"Your listing '{listing_title}' has been successfully deleted from CampusNest.\n\nIf you didn't perform this action, please contact us immediately.\n\nBest regards,\nThe CampusNest Team",
             from_email="noreply@campusnest.com",
-            recipient_list=[request.user.email],
+            recipient_list=[listing.user.email],
             fail_silently=True,
         )
 

@@ -146,16 +146,22 @@
   </div>
   <br>
   <div class="action-buttons-container">
-    {% if is_owner %}
+    {% if is_owner or request.user.is_staff %}
     <a href="{% url 'edit_listing' listing.id %}" class="btn-edit">
       Edit Listing
     </a>
     <a href="{% url 'delete_listing' listing.id %}" class="btn-delete">
       Delete Listing
     </a>
+    {% if is_owner %}
     <a href="{% url 'my_listings' %}" class="btn-back">
       Back to My Listings
     </a>
+    {% else %}
+    <a href="{% url 'public_listings' %}" class="btn-back">
+      Back to Browse
+    </a>
+    {% endif %}
     {% else %}
     <button onclick="showMessageForm()" class="btn-edit message-modal-trigger">
       Contact Seller

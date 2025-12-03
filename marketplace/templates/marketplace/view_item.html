@@ -109,7 +109,7 @@
   </div>
 
   <div class="item-actions-container">
-    {% if is_owner %}
+    {% if is_owner or request.user.is_staff %}
       {% if not item.is_sold %}
       <a href="{% url 'edit_item' item.id %}" class="btn-edit-item">
         Edit Item
@@ -124,9 +124,15 @@
       <a href="{% url 'delete_item' item.id %}" class="btn-delete-item">
         Delete Item
       </a>
+      {% if is_owner %}
       <a href="{% url 'my_items' %}" class="btn-back-to-items">
         Back to My Items
       </a>
+      {% else %}
+      <a href="{% url 'browse_marketplace' %}" class="btn-back-to-items">
+        Back to Marketplace
+      </a>
+      {% endif %}
     {% else %}
       <!-- Buyer viewing item from another user -->
       <button onclick="showMessageForm()" class="btn-edit-item message-modal-trigger">
