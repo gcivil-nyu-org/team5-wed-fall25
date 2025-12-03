@@ -17,7 +17,9 @@ class Item(models.Model):
         max_length=50, choices=ITEM_CATEGORY_CHOICES, default="other"
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    address = models.CharField(max_length=300)
+    street_address = models.CharField(max_length=300, default="")
+    city = models.CharField(max_length=100, default="New York")
+    zipcode = models.CharField(max_length=10, default="10012")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_edited = models.BooleanField(default=False)

@@ -13,7 +13,9 @@ class ItemForm(forms.ModelForm):
             "category",
             "condition",
             "price",
-            "address",
+            "street_address",
+            "city",
+            "zipcode",
         ]
         widgets = {
             "title": forms.TextInput(
@@ -39,9 +41,21 @@ class ItemForm(forms.ModelForm):
                     "class": "form-control",
                 }
             ),
-            "address": forms.TextInput(
+            "street_address": forms.TextInput(
                 attrs={
-                    "placeholder": "e.g., Bobst Library, NYU",
+                    "placeholder": "e.g., 70 Washington Square South",
+                    "class": "form-control",
+                }
+            ),
+            "city": forms.TextInput(
+                attrs={
+                    "placeholder": "e.g., New York",
+                    "class": "form-control",
+                }
+            ),
+            "zipcode": forms.TextInput(
+                attrs={
+                    "placeholder": "e.g., 10012",
                     "class": "form-control",
                 }
             ),
@@ -52,7 +66,9 @@ class ItemForm(forms.ModelForm):
             "category": "Category *",
             "condition": "Condition *",
             "price": "Price ($) *",
-            "address": "Pickup Location *",
+            "street_address": "Street Address *",
+            "city": "City *",
+            "zipcode": "Zip Code *",
         }
 
     def clean_title(self):
@@ -96,12 +112,36 @@ class ItemForm(forms.ModelForm):
             raise ValidationError("Description cannot exceed 2000 characters.")
         return description
 
-    def clean_address(self):
-        address = self.cleaned_data.get("address", "").strip()
-        if not address:
-            raise ValidationError("Pickup location is required.")
-        if len(address) < 5:
+    def clean_street_address(self):
+        street_address = self.cleaned_data.get("street_address", "").strip()
+        if not street_address:
+            raise ValidationError("Street address is required.")
+        if len(street_address) < 5:
             raise ValidationError(
-                "Please enter a complete pickup location (at least 5 characters)."
+                "Please enter a complete street address (at least 5 characters)."
             )
-        return address
+        return street_address
+
+    def clean_city(self):
+        city = self.cleaned_data.get("city", "").strip()
+        if not city:
+            raise ValidationError("City is required.")
+        if len(city) < 2:
+            raise ValidationError("Please enter a valid city name.")
+        # Only allow letters, spaces, hyphens, and apostrophes
+        if not re.match(r"^[a-zA-Z\s\-']+$", city):
+            raise ValidationError(
+                "City name can only contain letters, spaces, hyphens, and apostrophes."
+            )
+        return city
+
+    def clean_zipcode(self):
+        zipcode = self.cleaned_data.get("zipcode", "").strip()
+        if not zipcode:
+            raise ValidationError("Zip code is required.")
+        # Allow both 5-digit and 9-digit (with hyphen) zip codes
+        if not re.match(r"^\d{5}(-\d{4})?$", zipcode):
+            raise ValidationError(
+                "Please enter a valid zip code (e.g., 10012 or 10012-1234)."
+            )
+        return zipcode

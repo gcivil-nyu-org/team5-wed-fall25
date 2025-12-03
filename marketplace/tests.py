@@ -32,7 +32,9 @@ class ItemModelTests(TestCase):
             description="This is a test item description with at least 20 characters",
             condition="good",
             price=Decimal("50.00"),
-            address="Bobst Library",
+            street_address="Bobst Library",
+            city="New York",
+            zipcode="10012",
         )
 
     def test_create_item_success(self):
@@ -47,7 +49,7 @@ class ItemModelTests(TestCase):
         )
         self.assertEqual(item.condition, "good")
         self.assertEqual(item.price, Decimal("50.00"))
-        self.assertEqual(item.address, "Bobst Library")
+        self.assertEqual(item.street_address, "Bobst Library")
         self.assertEqual(Item.objects.filter(user=self.user).count(), 1)
 
     def test_item_defaults(self):
@@ -62,7 +64,9 @@ class ItemModelTests(TestCase):
             description="This is another test item description",
             condition="new",
             price=Decimal("100.00"),
-            address="Silver Center",
+            street_address="Silver Center",
+            city="New York",
+            zipcode="10012",
         )
         after = timezone.now()
 
@@ -82,7 +86,9 @@ class ItemModelTests(TestCase):
                 description="Test description with sufficient length",
                 condition=condition,
                 price=Decimal("25.00"),
-                address="Test Location",
+                street_address="Test Location",
+                city="New York",
+                zipcode="10012",
             )
             self.assertEqual(item.condition, condition)
 
@@ -98,7 +104,9 @@ class ItemModelTests(TestCase):
             description="This is a newer test item description",
             condition="new",
             price=Decimal("75.00"),
-            address="Kimmel Center",
+            street_address="Kimmel Center",
+            city="New York",
+            zipcode="10012",
         )
         items = list(Item.objects.all())
         self.assertEqual(items[0], item2)
@@ -144,7 +152,9 @@ class ItemImageModelTests(TestCase):
             description="This is a test item description with at least 20 characters",
             condition="good",
             price=Decimal("50.00"),
-            address="Bobst Library",
+            street_address="Bobst Library",
+            city="New York",
+            zipcode="10012",
         )
 
     def test_create_item_image(self):
@@ -188,7 +198,9 @@ class ItemFormTests(TestCase):
             "condition": "good",
             "category": "other",
             "price": "50.00",
-            "address": "Bobst Library",
+            "street_address": "Bobst Library",
+            "city": "New York",
+            "zipcode": "10012",
         }
 
     def test_valid_form(self):
@@ -271,7 +283,9 @@ class ItemFormTests(TestCase):
             "description",
             "condition",
             "price",
-            "address",
+            "street_address",
+            "city",
+            "zipcode",
         ]
         for field in required_fields:
             with self.subTest(field=field):
@@ -378,7 +392,9 @@ class CreateItemViewTests(TestCase):
             "condition": "good",
             "category": "other",
             "price": "50.00",
-            "address": "Bobst Library",
+            "street_address": "Bobst Library",
+            "city": "New York",
+            "zipcode": "10012",
         }
 
     def test_create_item_success(self):
@@ -520,7 +536,9 @@ class MyItemsViewTests(TestCase):
             description="Description for item 1 with sufficient length",
             condition="good",
             price=Decimal("25.00"),
-            address="Location 1",
+            street_address="Location 1",
+            city="New York",
+            zipcode="10012",
         )
         item2 = Item.objects.create(
             user=self.user,
@@ -528,7 +546,9 @@ class MyItemsViewTests(TestCase):
             description="Description for item 2 with sufficient length",
             condition="new",
             price=Decimal("50.00"),
-            address="Location 2",
+            street_address="Location 2",
+            city="New York",
+            zipcode="10012",
         )
 
         response = self.client.get(self.my_items_url)
@@ -549,7 +569,9 @@ class MyItemsViewTests(TestCase):
             description="Description for old item with sufficient length",
             condition="good",
             price=Decimal("25.00"),
-            address="Location 1",
+            street_address="Location 1",
+            city="New York",
+            zipcode="10012",
         )
         item2 = Item.objects.create(
             user=self.user,
@@ -557,7 +579,9 @@ class MyItemsViewTests(TestCase):
             description="Description for new item with sufficient length",
             condition="new",
             price=Decimal("50.00"),
-            address="Location 2",
+            street_address="Location 2",
+            city="New York",
+            zipcode="10012",
         )
 
         response = self.client.get(self.my_items_url)
@@ -574,7 +598,9 @@ class MyItemsViewTests(TestCase):
             description="Description for my item with sufficient length",
             condition="good",
             price=Decimal("25.00"),
-            address="My Location",
+            street_address="My Location",
+            city="New York",
+            zipcode="10012",
         )
         other_item = Item.objects.create(
             user=self.user2,
@@ -582,7 +608,9 @@ class MyItemsViewTests(TestCase):
             description="Description for other item with sufficient length",
             condition="good",
             price=Decimal("25.00"),
-            address="Other Location",
+            street_address="Other Location",
+            city="New York",
+            zipcode="10012",
         )
 
         response = self.client.get(self.my_items_url)
@@ -621,7 +649,9 @@ class ViewItemViewTests(TestCase):
             description="Test description with sufficient length",
             condition="good",
             price=Decimal("50.00"),
-            address="Test Location",
+            street_address="Test Location",
+            city="New York",
+            zipcode="10012",
         )
 
     def test_view_item_success(self):
@@ -674,7 +704,9 @@ class EditItemViewTests(TestCase):
             description="Original description with sufficient length",
             condition="good",
             price=Decimal("50.00"),
-            address="Original Location",
+            street_address="Original Location",
+            city="New York",
+            zipcode="10012",
         )
         image = create_image()
         self.item_image = ItemImage.objects.create(item=self.item, image=image)
@@ -700,7 +732,9 @@ class EditItemViewTests(TestCase):
             "condition": "like_new",
             "category": "other",
             "price": "75.00",
-            "address": "Updated Location",
+            "street_address": "Updated Location",
+            "city": "New York",
+            "zipcode": "10012",
         }
         response = self.client.post(url, data)
 
@@ -721,7 +755,9 @@ class EditItemViewTests(TestCase):
             "condition": self.item.condition,
             "category": "other",
             "price": str(self.item.price),
-            "address": self.item.address,
+            "street_address": self.item.street_address,
+            "city": self.item.city,
+            "zipcode": self.item.zipcode,
             "images": new_images,
         }
         self.client.post(url, data)
@@ -742,7 +778,9 @@ class EditItemViewTests(TestCase):
             "condition": self.item.condition,
             "category": "other",
             "price": str(self.item.price),
-            "address": self.item.address,
+            "street_address": self.item.street_address,
+            "city": self.item.city,
+            "zipcode": self.item.zipcode,
             "removed_images": str(self.item_image.id),
         }
         self.client.post(url, data)
@@ -761,7 +799,9 @@ class EditItemViewTests(TestCase):
             "condition": self.item.condition,
             "category": "other",
             "price": str(self.item.price),
-            "address": self.item.address,
+            "street_address": self.item.street_address,
+            "city": self.item.city,
+            "zipcode": self.item.zipcode,
             "removed_images": str(self.item_image.id),
         }
         response = self.client.post(url, data)
@@ -781,7 +821,9 @@ class EditItemViewTests(TestCase):
             "condition": self.item.condition,
             "category": "other",
             "price": str(self.item.price),
-            "address": self.item.address,
+            "street_address": self.item.street_address,
+            "city": self.item.city,
+            "zipcode": self.item.zipcode,
             "removed_images": str(self.item_image.id),
             "images": [new_image],
         }
@@ -822,7 +864,9 @@ class DeleteItemViewTests(TestCase):
             description="Test description with sufficient length",
             condition="good",
             price=Decimal("50.00"),
-            address="Test Location",
+            street_address="Test Location",
+            city="New York",
+            zipcode="10012",
         )
 
     def test_delete_item_get_confirmation(self):
@@ -899,7 +943,9 @@ class MarkAsSoldViewTests(TestCase):
             description="Test description with sufficient length",
             condition="good",
             price=Decimal("50.00"),
-            address="Test Location",
+            street_address="Test Location",
+            city="New York",
+            zipcode="10012",
         )
 
     def test_mark_as_sold_success(self):
@@ -999,7 +1045,9 @@ class HelperFunctionTests(TestCase):
             "description": "This is a valid description with more than 20 characters",
             "condition": "good",
             "price": "50.00",
-            "address": "Bobst Library",
+            "street_address": "Bobst Library",
+            "city": "New York",
+            "zipcode": "10012",
         }
         form = ItemForm(data=valid_data)
         files = [create_image() for _ in range(3)]
@@ -1016,7 +1064,9 @@ class HelperFunctionTests(TestCase):
             "description": "This is a valid description with more than 20 characters",
             "condition": "good",
             "price": "50.00",
-            "address": "Bobst Library",
+            "street_address": "Bobst Library",
+            "city": "New York",
+            "zipcode": "10012",
         }
         form = ItemForm(data=valid_data)
         files = [create_image() for _ in range(11)]
@@ -1033,7 +1083,9 @@ class HelperFunctionTests(TestCase):
             "description": "This is a valid description with more than 20 characters",
             "condition": "good",
             "price": "50.00",
-            "address": "Bobst Library",
+            "street_address": "Bobst Library",
+            "city": "New York",
+            "zipcode": "10012",
         }
         form = ItemForm(data=valid_data)
         text_file = SimpleUploadedFile(
@@ -1052,7 +1104,9 @@ class HelperFunctionTests(TestCase):
             "description": "This is a valid description with more than 20 characters",
             "condition": "good",
             "price": "50.00",
-            "address": "Bobst Library",
+            "street_address": "Bobst Library",
+            "city": "New York",
+            "zipcode": "10012",
         }
         form = ItemForm(data=valid_data)
         large_file = SimpleUploadedFile(
@@ -1109,7 +1163,9 @@ class BrowseMarketplaceViewTests(TestCase):
             category="furniture",
             condition="good",
             price=25.00,
-            address="Manhattan",
+            street_address="Manhattan",
+            city="New York",
+            zipcode="10012",
             is_active=True,
             is_sold=False,
         )
@@ -1121,7 +1177,9 @@ class BrowseMarketplaceViewTests(TestCase):
             category="electronics",
             condition="like_new",
             price=1200.00,
-            address="Brooklyn",
+            street_address="Brooklyn",
+            city="New York",
+            zipcode="10012",
             is_active=True,
             is_sold=False,
         )
@@ -1133,7 +1191,9 @@ class BrowseMarketplaceViewTests(TestCase):
             category="books",
             condition="good",
             price=50.00,
-            address="Queens",
+            street_address="Queens",
+            city="New York",
+            zipcode="10012",
             is_active=True,
             is_sold=False,
         )
@@ -1146,7 +1206,9 @@ class BrowseMarketplaceViewTests(TestCase):
             category="furniture",
             condition="good",
             price=100.00,
-            address="Manhattan",
+            street_address="Manhattan",
+            city="New York",
+            zipcode="10012",
             is_active=True,
             is_sold=True,
         )
@@ -1159,7 +1221,9 @@ class BrowseMarketplaceViewTests(TestCase):
             category="furniture",
             condition="good",
             price=100.00,
-            address="Manhattan",
+            street_address="Manhattan",
+            city="New York",
+            zipcode="10012",
             is_active=False,
             is_sold=False,
         )
