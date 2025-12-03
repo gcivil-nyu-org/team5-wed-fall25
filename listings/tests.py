@@ -1700,7 +1700,10 @@ class PublicListingsViewTests(TestCase):
         # Should get error message
         messages = list(get_messages(response.wsgi_request))
         self.assertTrue(
-            any("Move-out date cannot be before move-in date" in str(m) for m in messages)
+            any(
+                "Move-out date cannot be before move-in date" in str(m)
+                for m in messages
+            )
         )
 
         # Should return empty queryset (no results)
@@ -1763,9 +1766,7 @@ class PublicListingsViewTests(TestCase):
         )
 
         # Search for "SoHo" should only find SoHo listing
-        response = self.client.get(
-            reverse("public_listings"), {"location": "SoHo"}
-        )
+        response = self.client.get(reverse("public_listings"), {"location": "SoHo"})
         listings = response.context["listings"]
 
         self.assertIn(soho_listing, listings)
