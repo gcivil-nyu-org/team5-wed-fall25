@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import never_cache
+import textwrap
 
 from .forms import RegistrationForm
 from .models import User
@@ -43,20 +44,22 @@ def register(request):
 
             # Send verification email
             subject = "Verify Your CampusNest Account"
-            message = f"""
-            Hi {user.first_name},
-            # noqa: W293
-            Welcome to CampusNest! Please verify your email address by clicking the link below:
-            # noqa: W293
-            {verification_link}
-            # noqa: W293
-            This link will expire in 24 hours.
-            # noqa: W293
-            If you didn't create this account, please ignore this email.
-            # noqa: W293
-            Best regards,
-            The CampusNest Team
+            message = textwrap.dedent(
+                f"""
+                Hi {user.first_name},
+
+                Welcome to CampusNest! Please verify your email address by clicking the link below:
+
+                {verification_link}
+
+                This link will expire in 24 hours.
+
+                If you didn't create this account, please ignore this email.
+
+                Best regards,
+                The CampusNest Team
             """
+            ).strip()
 
             send_mail(
                 subject,
@@ -177,22 +180,24 @@ def resend_verification(request):
 
             # Send verification email
             subject = "Verify Your CampusNest Account"
-            message = f"""
-            Hi {user.first_name},
-            # noqa: W293
-            You requested a new verification link for your CampusNest account.
-            # noqa: W293
-            Please verify your email address by clicking the link below:
-            # noqa: W293
-            {verification_link}
-            # noqa: W293
-            This link will expire in 24 hours.
-            # noqa: W293
-            If you didn't request this, please ignore this email.
-            # noqa: W293
-            Best regards,
-            The CampusNest Team
+            message = textwrap.dedent(
+                f"""
+                Hi {user.first_name},
+
+                You requested a new verification link for your CampusNest account.
+
+                Please verify your email address by clicking the link below:
+
+                {verification_link}
+
+                This link will expire in 24 hours.
+
+                If you didn't request this, please ignore this email.
+
+                Best regards,
+                The CampusNest Team
             """
+            ).strip()
 
             send_mail(
                 subject,
@@ -242,22 +247,24 @@ def password_reset_request(request):
 
             # Send password reset email
             subject = "Reset Your CampusNest Password"
-            message = f"""
-            Hi {user.first_name},
-            # noqa: W293
-            You requested to reset your password for your CampusNest account.
-            # noqa: W293
-            Click the link below to reset your password:
-            # noqa: W293
-            {reset_link}
-            # noqa: W293
-            This link will expire in 1 hour for security reasons.
-            # noqa: W293
-            If you didn't request this password reset, please ignore this email and your password will remain unchanged.
-            # noqa: W293
-            Best regards,
-            The CampusNest Team
+            message = textwrap.dedent(
+                f"""
+                Hi {user.first_name},
+
+                You requested to reset your password for your CampusNest account.
+
+                Click the link below to reset your password:
+
+                {reset_link}
+
+                This link will expire in 1 hour for security reasons.
+
+                If you didn't request this password reset, please ignore this email and your password will remain unchanged.
+
+                Best regards,
+                The CampusNest Team
             """
+            ).strip()
 
             send_mail(
                 subject,
@@ -307,18 +314,20 @@ def password_reset_confirm(request, uidb64, token):
 
                 # Send confirmation email
                 subject = "Your CampusNest Password Has Been Changed"
-                message = f"""
-            Hi {user.first_name},
-            # noqa: W293
-            This is to confirm that your password for CampusNest has been successfully changed.
-            # noqa: W293
-            If you did not make this change, please contact us immediately.
-            # noqa: W293
-            For security, all your active sessions have been logged out. Please log in again with your new password.
-            # noqa: W293
-            Best regards,
-            The CampusNest Team
-            """
+                message = textwrap.dedent(
+                    f"""
+                    Hi {user.first_name},
+
+                    This is to confirm that your password for CampusNest has been successfully changed.
+
+                    If you did not make this change, please contact us immediately.
+
+                    For security, all your active sessions have been logged out. Please log in again with your new password.
+
+                    Best regards,
+                    The CampusNest Team
+                """
+                ).strip()
 
                 send_mail(
                     subject,
