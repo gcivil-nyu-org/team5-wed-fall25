@@ -94,17 +94,43 @@
     </div>
   </div>
 
-  <!-- Pickup Location -->
+  <!-- Street Address -->
   <div class="form-group">
-    <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
-    {{ form.address }}
-    {% if form.address.errors %}
+    <label for="{{ form.street_address.id_for_label }}">{{ form.street_address.label }}</label>
+    {{ form.street_address }}
+    {% if form.street_address.errors %}
     <ul class="errorlist">
-      {% for error in form.address.errors %}
+      {% for error in form.street_address.errors %}
       <li>{{ error }}</li>
       {% endfor %}
     </ul>
     {% endif %}
+  </div>
+
+  <!-- City and Zip Code -->
+  <div class="form-row">
+    <div class="form-group col-md-8">
+      <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+      {{ form.city }}
+      {% if form.city.errors %}
+      <ul class="errorlist">
+        {% for error in form.city.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    <div class="form-group col-md-4">
+      <label for="{{ form.zipcode.id_for_label }}">{{ form.zipcode.label }}</label>
+      {{ form.zipcode }}
+      {% if form.zipcode.errors %}
+      <ul class="errorlist">
+        {% for error in form.zipcode.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
   </div>
 
   <!-- Current Images -->

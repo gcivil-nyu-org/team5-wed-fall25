@@ -48,7 +48,7 @@
       data-mapbox-token="{{ mapbox_token }}"
       data-longitude="{{ item.longitude }}"
       data-latitude="{{ item.latitude }}"
-      data-address="{{ item.address }}"
+      data-address="{{ item.street_address }}, {{ item.city }}, {{ item.zipcode }}"
       data-title="{{ item.title }}"
     >
       <div class="map-loading">Loading map...</div>
@@ -83,7 +83,7 @@
 
       <div class="item-detail-group">
         <strong class="item-detail-label">Pickup Location:</strong>
-        <p class="item-detail-value">{{ item.address }}</p>
+        <p class="item-detail-value">{{ item.street_address }}, {{ item.city }}, {{ item.zipcode }}</p>
       </div>
 
       <div class="item-detail-group">

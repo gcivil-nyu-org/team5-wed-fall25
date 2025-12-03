@@ -99,8 +99,12 @@ def handle_item_form_submission(request, item, form, files, removed_image_ids):
 
         # **NEW: Re-geocode if address changed**
         # Check if address was modified
-        if "address" in form.changed_data:
-            coordinates = geocode_address(item.address)
+        if any(
+            field in form.changed_data
+            for field in ["street_address", "city", "zipcode"]
+        ):
+            full_address = f"{item.street_address}, {item.city}, {item.zipcode}"
+            coordinates = geocode_address(full_address)
             if coordinates:
                 item.longitude = coordinates[0]
                 item.latitude = coordinates[1]
@@ -181,7 +185,8 @@ def create_item(request):
 
             # **NEW: Geocode the address to get coordinates**
             # This happens automatically when user submits the form
-            coordinates = geocode_address(item.address)
+            full_address = f"{item.street_address}, {item.city}, {item.zipcode}"
+            coordinates = geocode_address(full_address)
             if coordinates:
                 # Store coordinates for map display
                 item.longitude = coordinates[0]  # longitude is first in Mapbox format

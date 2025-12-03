@@ -1,5 +1,6 @@
 # profiles/forms.py
 from django import forms
+from django.utils import timezone
 from .models import Profile
 
 
@@ -37,7 +38,8 @@ class ProfileForm(forms.ModelForm):
             ),
             "profile_photo": forms.FileInput(
                 attrs={
-                    "style": "width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
+                    "style": "width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;",
+                    "accept": "image/jpeg,image/png,image/webp",
                 }
             ),
             "eating_habit": forms.Select(
@@ -91,7 +93,8 @@ class ProfileForm(forms.ModelForm):
             "move_in_date": forms.DateInput(
                 attrs={
                     "type": "date",
-                    "style": "width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;",
+                    "style": "width: 100%; padding: 12px; border: 2px solid #4CAF50; border-radius: 6px; font-size: 16px; background-color: #f9f9f9; cursor: pointer;",
+                    "class": "date-picker-input",
                 }
             ),
             "visibility": forms.CheckboxInput(
@@ -111,6 +114,7 @@ class ProfileForm(forms.ModelForm):
             "move_in_date": "📅 Preferred Move-In Date",
         }
         help_texts = {
+            "profile_photo": "Optional - JPG, PNG, or WebP format, max 5MB",
             "eating_habit": "Your dietary preferences",
             "smoking_preference": "Your smoking habits",
             "sharing_preference": "Are you comfortable with sharing?",
@@ -132,7 +136,7 @@ class ProfileForm(forms.ModelForm):
     def clean_profile_photo(self):
         photo = self.cleaned_data.get("profile_photo")
 
-        # Only validate if a NEW file was uploaded
+        # Photo is optional, so only validate if provided
         if photo and hasattr(photo, "content_type"):
             # Check file size
             if photo.size > 5 * 1024 * 1024:
@@ -142,7 +146,16 @@ class ProfileForm(forms.ModelForm):
             if photo.content_type not in ["image/jpeg", "image/png", "image/webp"]:
                 raise forms.ValidationError("Only JPG, PNG, and WebP formats allowed.")
 
+        # If no new photo provided during edit, keep the existing one
+        # Django will handle this automatically with instance=profile
+
         return photo
+
+    def clean_move_in_date(self):
+        move_in_date = self.cleaned_data.get("move_in_date")
+        if move_in_date and move_in_date < timezone.now().date():
+            raise forms.ValidationError("Move-in date cannot be in the past.")
+        return move_in_date
 
     def clean(self):
         cleaned_data = super().clean()

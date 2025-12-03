@@ -199,7 +199,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="{{ form.move_in_date.id_for_label }}">{{ form.move_in_date.label }}</label>
+                        <label for="{{ form.move_in_date.id_for_label }}" style="font-weight: 600; color: #2e7d32;">{{ form.move_in_date.label }} (Click to open calendar)</label>
                         {{ form.move_in_date }}
                         {% if form.move_in_date.errors %}
                             <ul class="errorlist">
@@ -210,6 +210,8 @@
                         {% endif %}
                         {% if form.move_in_date.help_text %}
                             <small class="form-field-help">{{ form.move_in_date.help_text }}</small>
+                        {% else %}
+                            <small class="form-field-help" style="color: #4CAF50; font-weight: 500;">📅 Click the field or calendar icon to select a date</small>
                         {% endif %}
                     </div>
                 </div>

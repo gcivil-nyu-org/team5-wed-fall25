@@ -146,7 +146,8 @@
 }
 
 .mark-sold-form {
-    display: inline;
+    display: inline-block;
+    margin: 0;
 }
 
 .btn-edit-item {
