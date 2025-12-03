@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.db.models import Q
 from django.conf import settings
+from django.http import Http404
 from .forms import ItemForm
 from .models import Item, ItemImage
 from .constants import ITEM_CATEGORY_CHOICES
@@ -227,15 +228,19 @@ def view_item(request, item_id):
 @login_required
 def delete_item(request, item_id):
     """Delete an item with confirmation"""
-    item = get_object_or_404(Item, id=item_id, user=request.user)
+    item = get_object_or_404(Item, id=item_id)
     # print("inside delete_item, item: ", item)
+
+    # Only the owner or a staff (moderator) user can delete the item
+    if item.user != request.user and not request.user.is_staff:
+        raise Http404()
 
     if request.method == "POST":
         item_title = item.title
-        user_email = request.user.email
+        owner_email = item.user.email
         item.delete()
 
-        send_item_confirmation_email(user_email, item_title, "deleted")
+        send_item_confirmation_email(owner_email, item_title, "deleted")
 
         messages.success(request, f"Item '{item_title}' has been deleted successfully.")
         return redirect("my_items")
