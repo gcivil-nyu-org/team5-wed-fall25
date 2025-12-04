@@ -9,7 +9,6 @@ class Profile(models.Model):
         ("Fordham", "Fordham University"),
         ("CUNY", "City University of New York"),
         ("Pace", "Pace University"),
-        ("The New School", "The New School"),
     ]
 
     # Preference Choices

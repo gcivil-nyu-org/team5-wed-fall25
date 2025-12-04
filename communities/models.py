@@ -77,7 +77,7 @@ class Community(models.Model):
         """Validate that university field is set for university-restricted communities"""
         if self.privacy == 'university' and not self.university:
             raise ValidationError({
-                'university': 'University field is required for university-restricted communities'
+                'university': 'University field is required for university-restricted communities.'
             })
 
 

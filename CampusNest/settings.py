@@ -110,8 +110,13 @@ WSGI_APPLICATION = "CampusNest.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+#
+# TO SWITCH BETWEEN DATABASES:
+# - For LOCAL TESTING (SQLite with RDS data copy): Uncomment the override block below
+# - For PRODUCTION (RDS): Keep the override block commented (default behavior)
+#
 # if os.getenv("RDS_HOSTNAME"):
-#     # Production/Development - PostgreSQL on AWS RDS
+#     # Production - PostgreSQL on AWS RDS
 #     DATABASES = {
 #         "default": {
 #             "ENGINE": "django.db.backends.postgresql",
@@ -123,7 +128,7 @@ WSGI_APPLICATION = "CampusNest.wsgi.application"
 #         }
 #     }
 # else:
-#     # Local development fallback - SQLite
+#     # Fallback - SQLite (used when RDS_HOSTNAME not set in .env)
 #     DATABASES = {
 #         "default": {
 #             "ENGINE": "django.db.backends.sqlite3",
@@ -131,7 +136,10 @@ WSGI_APPLICATION = "CampusNest.wsgi.application"
 #         }
 #     }
 #
-# # # Uncomment while testing so that RDS does not get used when testing
+# ============================================================================
+# LOCAL TESTING OVERRIDE: Uncomment to use SQLite (db.sqlite3) for local testing
+# This SQLite database contains a copy of the RDS data (campusnest_rds_dump.backup)
+# ============================================================================
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",

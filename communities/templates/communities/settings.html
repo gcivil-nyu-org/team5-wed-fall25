@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings - {{ community.name }} - CampusNest{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="page-header">
+        <h1>Community Settings</h1>
+        <a href="{% url 'communities:detail' community.slug %}" class="breadcrumb">← Back to Community</a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="community-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="{{ form.name.id_for_label }}">Community Name *</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+                <span class="error">{{ form.name.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.name.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Description *</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <span class="error">{{ form.description.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.description.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.privacy.id_for_label }}">Privacy Level *</label>
+            {{ form.privacy }}
+            {% if form.privacy.errors %}
+                <span class="error">{{ form.privacy.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.privacy.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.university.id_for_label }}">University</label>
+            {{ form.university }}
+            {% if form.university.errors %}
+                <span class="error">{{ form.university.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.university.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.cover_image.id_for_label }}">Cover Image</label>
+            {% if community.cover_image %}
+                <div class="current-image">
+                    <img src="{{ community.cover_image.url }}" alt="Current cover">
+                    <p>Current cover image</p>
+                </div>
+            {% endif %}
+            {{ form.cover_image }}
+            {% if form.cover_image.errors %}
+                <span class="error">{{ form.cover_image.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.cover_image.help_text }}</small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <a href="{% url 'communities:detail' community.slug %}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.breadcrumb {
+    color: #667eea;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.page-header h1 {
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+}
+
+.community-form {
+    background: #2a2a2a;
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group select,
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.current-image {
+    margin-bottom: 1rem;
+}
+
+.current-image img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.current-image p {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.alert-error {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-secondary {
+    background: #374151;
+    color: white;
+}
+</style>
+{% endblock %}

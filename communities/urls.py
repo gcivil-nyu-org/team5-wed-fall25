@@ -31,6 +31,6 @@ urlpatterns = [
 
     # Join Requests (Private Communities)
     path('<slug:slug>/requests/', views.join_requests, name='join_requests'),
-    path('<slug:slug>/requests/<int:request_id>/approve/', views.approve_request, name='approve_request'),
-    path('<slug:slug>/requests/<int:request_id>/reject/', views.reject_request, name='reject_request'),
+    path('<slug:slug>/requests/<int:user_id>/approve/', views.approve_request, name='approve_request'),
+    path('<slug:slug>/requests/<int:user_id>/reject/', views.reject_request, name='reject_request'),
 ]

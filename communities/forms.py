@@ -53,14 +53,8 @@ class CommunityForm(forms.ModelForm):
     def clean(self):
         """Validate that university is set for university-restricted communities."""
         cleaned_data = super().clean()
-        privacy = cleaned_data.get('privacy')
-        university = cleaned_data.get('university')
-
-        if privacy == 'university' and not university:
-            raise ValidationError({
-                'university': 'University field is required for university-restricted communities.'
-            })
-
+        # Note: Validation is also done in the model's clean() method
+        # We rely on model validation instead of duplicating it here
         return cleaned_data
 
 

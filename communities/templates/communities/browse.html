@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Communities - CampusNest{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Browse Communities</h1>
+    <a href="{% url 'communities:create' %}" class="btn-primary">Create Community</a>
+</div>
+
+{% if communities %}
+    <div class="communities-grid">
+        {% for community in communities %}
+            <div class="community-card">
+                {% if community.cover_image %}
+                    <img src="{{ community.cover_image.url }}" alt="{{ community.name }}" class="community-cover">
+                {% else %}
+                    <div class="community-cover-placeholder">
+                        <span>{{ community.name|slice:":1" }}</span>
+                    </div>
+                {% endif %}
+
+                <div class="community-info">
+                    <h3>{{ community.name }}</h3>
+                    <p class="community-description">{{ community.description|truncatewords:20 }}</p>
+
+                    <div class="community-meta">
+                        <span class="badge badge-{{ community.privacy }}">{{ community.get_privacy_display }}</span>
+                        {% if community.university %}
+                            <span class="badge badge-university">{{ community.university }}</span>
+                        {% endif %}
+                        <span class="member-count">{{ community.member_count_actual }} members</span>
+                    </div>
+
+                    <div class="community-actions">
+                        {% if community.id in user_memberships %}
+                            <a href="{% url 'communities:detail' community.slug %}" class="btn-secondary">View Community</a>
+                        {% else %}
+                            <a href="{% url 'communities:detail' community.slug %}" class="btn-primary">Explore</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <p>No communities yet. Be the first to create one!</p>
+        <a href="{% url 'communities:create' %}" class="btn-primary">Create Community</a>
+    </div>
+{% endif %}
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.communities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.community-card {
+    background: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.community-card:hover {
+    transform: translateY(-4px);
+}
+
+.community-cover, .community-cover-placeholder {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.community-cover-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    color: white;
+}
+
+.community-info {
+    padding: 1.5rem;
+}
+
+.community-info h3 {
+    margin: 0 0 0.5rem 0;
+    color: #fff;
+}
+
+.community-description {
+    color: #ccc;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.community-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-public { background: #10b981; color: white; }
+.badge-private { background: #f59e0b; color: white; }
+.badge-university { background: #3b82f6; color: white; }
+
+.member-count {
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.community-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+}
+
+.btn-secondary {
+    background: #374151;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #9ca3af;
+}
+</style>
+{% endblock %}

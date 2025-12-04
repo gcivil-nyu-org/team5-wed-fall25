@@ -9,7 +9,6 @@ UNIVERSITY_EMAIL_DOMAINS = {
     'Fordham': ['fordham.edu'],
     'CUNY': ['cuny.edu', 'hunter.cuny.edu', 'brooklyn.cuny.edu', 'ccny.cuny.edu'],
     'Pace': ['pace.edu'],
-    'The New School': ['newschool.edu'],
 }
 
 

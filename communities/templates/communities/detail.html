@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ community.name }} - CampusNest{% endblock %}
+
+{% block content %}
+<div class="community-header">
+    {% if community.cover_image %}
+        <img src="{{ community.cover_image.url }}" alt="{{ community.name }}" class="community-cover">
+    {% else %}
+        <div class="community-cover-default">
+            <span>{{ community.name|slice:":1" }}</span>
+        </div>
+    {% endif %}
+
+    <div class="community-header-content">
+        <h1>{{ community.name }}</h1>
+        <p>{{ community.description }}</p>
+        <div class="community-badges">
+            <span class="badge badge-{{ community.privacy }}">{{ community.get_privacy_display }}</span>
+            {% if community.university %}
+                <span class="badge badge-university">{{ community.university }}</span>
+            {% endif %}
+            <span class="member-count">{{ community.member_count }} members</span>
+        </div>
+    </div>
+
+    <div class="community-actions">
+        {% if user.is_authenticated %}
+            {% if is_member %}
+                {% if is_admin %}
+                    <a href="{% url 'communities:settings' community.slug %}" class="btn-secondary">Settings</a>
+                {% endif %}
+                {% if can_manage %}
+                    <a href="{% url 'communities:members' community.slug %}" class="btn-secondary">Manage Members</a>
+                    {% if community.privacy == 'private' %}
+                        <a href="{% url 'communities:join_requests' community.slug %}" class="btn-secondary">Join Requests</a>
+                    {% endif %}
+                {% endif %}
+                <form method="post" action="{% url 'communities:leave' community.slug %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to leave this community?')">Leave Community</button>
+                </form>
+            {% else %}
+                {% if membership and membership.status == 'pending' %}
+                    <span class="status-pending">Join Request Pending</span>
+                {% elif membership and membership.status == 'banned' %}
+                    <span class="status-banned">You are banned from this community</span>
+                {% else %}
+                    <form method="post" action="{% url 'communities:join' community.slug %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-primary">
+                            {% if community.privacy == 'private' %}Request to Join{% else %}Join Community{% endif %}
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+{% if is_member %}
+    <div class="community-content">
+        <h2>Recent Members</h2>
+        {% if active_members %}
+            <div class="members-list">
+                {% for member in active_members %}
+                    <div class="member-item">
+                        <div class="member-avatar">
+                            {% if member.user.profile.profile_photo %}
+                                <img src="{{ member.user.profile.profile_photo.url }}" alt="{{ member.user.username }}">
+                            {% else %}
+                                <span>{{ member.user.username|slice:":1"|upper }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="member-info">
+                            <strong>{{ member.user.get_full_name|default:member.user.username }}</strong>
+                            <span class="badge badge-{{ member.role }}">{{ member.get_role_display }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <a href="{% url 'communities:members' community.slug %}" class="view-all">View all members →</a>
+        {% else %}
+            <p>No members yet.</p>
+        {% endif %}
+    </div>
+{% endif %}
+
+<style>
+.community-header {
+    background: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.community-cover, .community-cover-default {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.community-cover-default {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: bold;
+    color: white;
+}
+
+.community-header-content {
+    padding: 1.5rem;
+}
+
+.community-header-content h1 {
+    margin: 0 0 0.5rem 0;
+    color: #fff;
+}
+
+.community-header-content p {
+    color: #9ca3af;
+    margin: 0 0 1rem 0;
+}
+
+.community-actions {
+    padding: 0 1.5rem 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary, .btn-danger {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary { background: #667eea; color: white; }
+.btn-secondary { background: #374151; color: white; }
+.btn-danger { background: #ef4444; color: white; }
+
+.status-pending {
+    padding: 0.5rem 1rem;
+    background: #f59e0b;
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.status-banned {
+    padding: 0.5rem 1rem;
+    background: #ef4444;
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.community-content {
+    background: #2a2a2a;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.community-content h2 {
+    color: #fff;
+    margin-top: 0;
+}
+
+.members-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border-radius: 6px;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.member-info strong {
+    color: #fff;
+}
+
+.view-all {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.view-all:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}

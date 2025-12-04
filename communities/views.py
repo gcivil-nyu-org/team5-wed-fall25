@@ -436,7 +436,7 @@ def join_requests(request, slug):
 
 @login_required
 @require_POST
-def approve_request(request, slug, request_id):
+def approve_request(request, slug, user_id):
     """Approve join request (moderator+)."""
     community = get_object_or_404(Community, slug=slug, is_active=True)
 
@@ -447,7 +447,7 @@ def approve_request(request, slug, request_id):
     # Get join request
     join_request = get_object_or_404(
         CommunityMember,
-        id=request_id,
+        user__id=user_id,
         community=community,
         status='pending'
     )
@@ -469,7 +469,7 @@ def approve_request(request, slug, request_id):
 
 @login_required
 @require_POST
-def reject_request(request, slug, request_id):
+def reject_request(request, slug, user_id):
     """Reject join request (moderator+)."""
     community = get_object_or_404(Community, slug=slug, is_active=True)
 
@@ -480,7 +480,7 @@ def reject_request(request, slug, request_id):
     # Get join request
     join_request = get_object_or_404(
         CommunityMember,
-        id=request_id,
+        user__id=user_id,
         community=community,
         status='pending'
     )
