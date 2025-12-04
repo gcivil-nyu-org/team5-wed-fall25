@@ -855,3 +855,100 @@ class GetNewMessagesWithProfilePhotoTests(TestCase):
         self.assertEqual(len(data["messages"]), 1)
         # Check that profile_photo_url is present and not None
         self.assertIsNotNone(data["messages"][0]["profile_photo_url"])
+
+
+class UnreadCountViewTests(TestCase):
+    """Tests for the unread message count API endpoint."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        Profile.objects.create(user=self.user1, university="nyu")
+        Profile.objects.create(user=self.user2, university="nyu")
+
+        self.listing = Listing.objects.create(
+            user=self.user1,
+            title="Test Apartment",
+            description="Test",
+            address="123 Test St",
+            rent=1000,
+            availability_start=timezone.now().date(),
+            availability_end=timezone.now().date() + timezone.timedelta(days=30),
+        )
+
+        self.thread = Thread.objects.create(
+            listing=self.listing, user_a=self.user1, user_b=self.user2
+        )
+
+    def test_unread_count_zero(self):
+        """Test unread count returns 0 when no unread messages"""
+        self.client.login(username="user2@nyu.edu", password="TestPassword123!")
+        response = self.client.get(reverse("messaging:unread_count"))
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["count"], 0)
+
+    def test_unread_count_with_messages(self):
+        """Test unread count returns correct number of unread messages"""
+        # User1 sends 3 messages to user2
+        Message.objects.create(thread=self.thread, sender=self.user1, body="Message 1")
+        Message.objects.create(thread=self.thread, sender=self.user1, body="Message 2")
+        Message.objects.create(thread=self.thread, sender=self.user1, body="Message 3")
+
+        # User2 checks unread count
+        self.client.login(username="user2@nyu.edu", password="TestPassword123!")
+        response = self.client.get(reverse("messaging:unread_count"))
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["count"], 3)
+
+    def test_unread_count_excludes_own_messages(self):
+        """Test unread count excludes user's own messages"""
+        # User1 sends message
+        Message.objects.create(thread=self.thread, sender=self.user1, body="Message from user1")
+
+        # User1 checks unread count (should be 0, not count own message)
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+        response = self.client.get(reverse("messaging:unread_count"))
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["count"], 0)
+
+    def test_unread_count_after_read(self):
+        """Test unread count updates after messages are marked as read"""
+        # User1 sends message
+        message = Message.objects.create(thread=self.thread, sender=self.user1, body="Test")
+
+        # User2 checks unread count
+        self.client.login(username="user2@nyu.edu", password="TestPassword123!")
+        response = self.client.get(reverse("messaging:unread_count"))
+        self.assertEqual(response.json()["count"], 1)
+
+        # Mark as read
+        message.is_read = True
+        message.read_at = timezone.now()
+        message.save()
+
+        # Check again - should be 0
+        response = self.client.get(reverse("messaging:unread_count"))
+        self.assertEqual(response.json()["count"], 0)
+
+    def test_unread_count_requires_login(self):
+        """Test endpoint requires authentication"""
+        response = self.client.get(reverse("messaging:unread_count"))
+        self.assertEqual(response.status_code, 302)  # Redirects to login

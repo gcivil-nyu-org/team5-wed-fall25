@@ -13,5 +13,6 @@ urlpatterns = [
     path(
         "send/<int:thread_id>/", views.send_message, name="send"
     ),  # optional separate send endpoint
+    path("unread-count/", views.unread_count, name="unread_count"),  # API endpoint for badge
     # AJAX polling endpoint removed - WebSocket used instead (see messaging/routing.py)
 ]

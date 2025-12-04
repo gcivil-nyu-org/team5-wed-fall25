@@ -100,6 +100,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.media",
+                "messaging.context_processors.unread_message_count",
             ],
         },
     },

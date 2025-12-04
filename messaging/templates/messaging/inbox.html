@@ -7,6 +7,10 @@
 <link rel="stylesheet" href="{% static 'messaging/css/inbox.css' %}">
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'messaging/js/inbox.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 <div class="inbox-container">
     <!-- Header Section -->
@@ -29,7 +33,7 @@
 {% if rows %}
     <div class="conversations-grid">
         {% for t, other, last, unread in rows %}
-            <div class="conversation-card {% if unread %}conversation-unread{% endif %}">
+            <div class="conversation-card {% if unread %}conversation-unread{% endif %}" data-thread-id="{{ t.id }}">
                 <div class="conversation-header">
                     <!-- User Avatar (clickable) -->
                     <a href="{% url 'roommate_detail' other.id %}" class="conversation-avatar" title="View profile">

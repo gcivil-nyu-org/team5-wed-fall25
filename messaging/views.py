@@ -185,5 +185,18 @@ def send_message(request, thread_id):
     return redirect("messaging:thread", thread_id=thread_id)
 
 
+@login_required
+def unread_count(request):
+    """
+    API endpoint to get current unread message count.
+    Used for real-time badge updates.
+    """
+    count = Message.objects.filter(
+        Q(thread__user_a=request.user) | Q(thread__user_b=request.user)
+    ).filter(is_read=False).exclude(sender=request.user).count()
+
+    return JsonResponse({"count": count})
+
+
 # AJAX polling endpoint removed - replaced with WebSocket in Phase 1
 # See messaging/consumers.py for WebSocket implementation

@@ -30,7 +30,12 @@
 				<a href="{% url 'view_profile' %}">My Profile</a>
 				<a href="{% url 'home_portal' %}">Home</a>
 
-				<a href="{% url 'messaging:inbox' %}">Messages</a>
+				<a href="{% url 'messaging:inbox' %}" class="messages-link">
+					Messages
+					<span id="unread-badge" class="unread-badge" style="{% if unread_message_count == 0 %}display: none;{% endif %}">
+						{{ unread_message_count }}
+					</span>
+				</a>
 				<div class="nav-dropdown">
 					<a href="#" class="dropdown-toggle">House Listings ▼</a>
 					<div class="dropdown-menu">
@@ -94,6 +99,9 @@
 	</footer>
 
 	<script src="{% static 'js/base.js' %}"></script>
+	{% if user.is_authenticated %}
+	<script src="{% static 'js/messaging-badge.js' %}"></script>
+	{% endif %}
 	{% block extra_js %}{% endblock %}
 </body>
 

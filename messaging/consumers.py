@@ -109,6 +109,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Save message to database
         message = await self.save_message(self.thread_id, self.user.id, body)
 
+        # Get thread to find both participants
+        thread = await self.get_thread(self.thread_id)
+
         # Broadcast message to thread group (with message ID, not formatted data)
         # Each recipient will format it based on their own perspective
         await self.channel_layer.group_send(
@@ -117,6 +120,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "type": "chat_message",
                 "message_id": message.id,
             },
+        )
+
+        # Notify both users' inboxes (Phase 2)
+        await self.channel_layer.group_send(
+            f"inbox_{thread.user_a_id}",
+            {"type": "inbox_update", "thread_id": self.thread_id}
+        )
+        await self.channel_layer.group_send(
+            f"inbox_{thread.user_b_id}",
+            {"type": "inbox_update", "thread_id": self.thread_id}
         )
 
         logger.info(f"Message {message.id} sent to thread {self.thread_id}")
@@ -247,3 +260,114 @@ class ChatConsumer(AsyncWebsocketConsumer):
             is_read=True,
             read_at=timezone.now()
         )
+
+
+class InboxConsumer(AsyncWebsocketConsumer):
+    """
+    WebSocket consumer for real-time inbox updates.
+    Notifies user when new messages arrive in any thread.
+    """
+
+    async def connect(self):
+        """
+        Handle WebSocket connection for inbox updates.
+        Join user-specific inbox group.
+        """
+        self.user = self.scope["user"]
+
+        # Reject anonymous users
+        if self.user.is_anonymous:
+            logger.warning("Anonymous user attempted to connect to inbox")
+            await self.close()
+            return
+
+        # Create user-specific inbox group
+        self.inbox_group_name = f"inbox_{self.user.id}"
+
+        # Join inbox group
+        await self.channel_layer.group_add(self.inbox_group_name, self.channel_name)
+
+        # Accept WebSocket connection
+        await self.accept()
+
+        logger.info(f"User {self.user.id} connected to inbox updates")
+
+    async def disconnect(self, close_code):
+        """
+        Handle WebSocket disconnection.
+        Leave inbox group.
+        """
+        # Leave inbox group
+        await self.channel_layer.group_discard(self.inbox_group_name, self.channel_name)
+
+        logger.info(f"User {self.user.id} disconnected from inbox (code: {close_code})")
+
+    async def inbox_update(self, event):
+        """
+        Broadcast handler for inbox updates.
+        Fetch thread preview data and send to client.
+        """
+        thread_id = event["thread_id"]
+
+        # Fetch thread preview data
+        thread_data = await self.get_thread_preview(thread_id)
+
+        await self.send(text_data=json.dumps({
+            "type": "inbox_update",
+            "thread": thread_data,
+        }))
+
+        logger.info(f"Sent inbox update to user {self.user.id} for thread {thread_id}")
+
+    # Database helper methods
+
+    @database_sync_to_async
+    def get_thread_preview(self, thread_id):
+        """
+        Get thread preview data for inbox display.
+        """
+        from django.db.models import Q, Count
+
+        thread = Thread.objects.select_related(
+            "listing", "item", "user_a", "user_b",
+            "user_a__profile", "user_b__profile"
+        ).prefetch_related("messages").get(id=thread_id)
+
+        # Get the other participant
+        other = thread.user_b if thread.user_a_id == self.user.id else thread.user_a
+
+        # Get last message
+        last_message = thread.messages.order_by("-created_at").first()
+
+        # Count unread messages for this user
+        unread_count = thread.messages.filter(
+            is_read=False
+        ).exclude(sender=self.user).count()
+
+        # Get profile photo URL
+        profile_photo_url = None
+        if hasattr(other, "profile") and other.profile.profile_photo:
+            profile_photo_url = other.profile.profile_photo.url
+
+        # Format thread data for inbox display
+        return {
+            "id": thread.id,
+            "other_user": {
+                "id": other.id,
+                "name": other.first_name or other.username,
+                "first_initial": (other.first_name or other.username)[0].upper(),
+                "last_initial": (other.last_name or "")[0].upper() if other.last_name else "",
+                "profile_photo_url": profile_photo_url,
+            },
+            "related_object": {
+                "type": "listing" if thread.listing else "item",
+                "title": thread.listing.title if thread.listing else thread.item.title,
+            },
+            "last_message": {
+                "body": last_message.body if last_message else "",
+                "created_at": last_message.created_at.strftime("%b %d, %I:%M %p") if last_message else "",
+                "sender_name": (last_message.sender.first_name or last_message.sender.username) if last_message else "",
+            } if last_message else None,
+            "unread_count": unread_count,
+            "updated_at": thread.updated_at.strftime("%b %d, %I:%M %p"),
+        }
