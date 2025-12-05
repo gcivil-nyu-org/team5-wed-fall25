@@ -129,11 +129,11 @@
         </p>
 
         <p class="browse-item-seller">
-          <strong>Seller:</strong> {{ item.owner_name }}
+          <strong>Seller:</strong> {{ item.user.get_full_name|default:item.user.username }}
         </p>
 
         <p class="browse-item-location">
-          <strong>Pickup:</strong> {{ item.pickup_location }}
+          <strong>Pickup:</strong> {{ item.street_address }}, {{ item.city }}, {{ item.zipcode }}
         </p>
 
         <p class="browse-item-posted">

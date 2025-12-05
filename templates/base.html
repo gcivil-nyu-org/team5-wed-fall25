@@ -53,6 +53,14 @@
 						<a href="{% url 'connection_requests' %}">Connection Requests</a>
 					</div>
 				</div>
+				<div class="nav-dropdown">
+					<a href="#" class="dropdown-toggle">Communities ▼</a>
+					<div class="dropdown-menu">
+						<a href="{% url 'communities:browse' %}">Browse Communities</a>
+						<a href="{% url 'communities:my_communities' %}">My Communities</a>
+						<a href="{% url 'communities:create' %}">Create Community</a>
+					</div>
+				</div>
 				{% if user.is_staff %}
 				<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
 				{% endif %}

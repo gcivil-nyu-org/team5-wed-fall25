@@ -1,0 +1,583 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ community.name }} - CampusNest{% endblock %}
+
+{% block content %}
+<div class="community-header">
+    {% if community.cover_image %}
+        <img src="{{ community.cover_image.url }}" alt="{{ community.name }}" class="community-cover">
+    {% else %}
+        <div class="community-cover-default">
+            <span>{{ community.name|slice:":1" }}</span>
+        </div>
+    {% endif %}
+
+    <div class="community-header-content">
+        <h1>{{ community.name }}</h1>
+        <p>{{ community.description }}</p>
+        <div class="community-badges">
+            <span class="badge badge-{{ community.privacy }}">{{ community.get_privacy_display }}</span>
+            {% if community.university %}
+                <span class="badge badge-university">{{ community.university }}</span>
+            {% endif %}
+            <span class="member-count">{{ community.member_count }} members</span>
+        </div>
+    </div>
+
+    <div class="community-actions">
+        {% if user.is_authenticated %}
+            {% if is_member %}
+                <a href="{% url 'communities:chat_thread' community.slug %}" class="btn-primary">💬 Chat</a>
+                <a href="{% url 'communities:event_list' community.slug %}" class="btn-primary">📅 Events</a>
+                {% if is_admin %}
+                    <a href="{% url 'communities:settings' community.slug %}" class="btn-secondary">Settings</a>
+                {% endif %}
+                {% if can_manage %}
+                    <a href="{% url 'communities:members' community.slug %}" class="btn-secondary">Manage Members</a>
+                    {% if community.privacy == 'private' %}
+                        <a href="{% url 'communities:join_requests' community.slug %}" class="btn-secondary">Join Requests</a>
+                    {% endif %}
+                {% endif %}
+                <form method="post" action="{% url 'communities:leave' community.slug %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to leave this community?')">Leave Community</button>
+                </form>
+            {% else %}
+                {% if membership and membership.status == 'pending' %}
+                    <span class="status-pending">Join Request Pending</span>
+                {% elif membership and membership.status == 'banned' %}
+                    <span class="status-banned">You are banned from this community</span>
+                {% else %}
+                    <form method="post" action="{% url 'communities:join' community.slug %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-primary">
+                            {% if community.privacy == 'private' %}Request to Join{% else %}Join Community{% endif %}
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+{% if is_member %}
+    <!-- Posts Feed -->
+    <div class="community-content">
+        <div class="posts-header">
+            <h2>Community Posts</h2>
+            <a href="{% url 'communities:create_post' community.slug %}" class="btn-primary">Create Post</a>
+        </div>
+
+        {% if posts %}
+            <div class="posts-feed">
+                {% for post in posts %}
+                    <div class="post-card">
+                        <div class="post-card-header">
+                            <div class="post-author-info">
+                                <div class="post-avatar">
+                                    {% if post.author.profile.profile_photo %}
+                                        <img src="{{ post.author.profile.profile_photo.url }}" alt="{{ post.author.username }}">
+                                    {% else %}
+                                        <span>{{ post.author.username|slice:":1"|upper }}</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <strong>{{ post.author.get_full_name|default:post.author.username }}</strong>
+                                    <div class="post-meta">
+                                        {{ post.created_at|date:"M d, Y 'at' g:i A" }}
+                                        {% if post.is_pinned %}
+                                            <span class="pinned-badge">📌 Pinned</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if post.title %}
+                            <h3 class="post-card-title">{{ post.title }}</h3>
+                        {% endif %}
+
+                        <div class="post-card-content">
+                            {{ post.content|truncatewords:50|linebreaks }}
+                        </div>
+
+                        {% if post.images.all %}
+                            <div class="post-card-images">
+                                {% for image in post.images.all|slice:":3" %}
+                                    <img src="{{ image.image.url }}" alt="Post image">
+                                {% endfor %}
+                                {% if post.images.count > 3 %}
+                                    <div class="more-images">+{{ post.images.count|add:"-3" }} more</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="post-card-footer">
+                            <a href="{% url 'communities:post_detail' community.slug post.id %}" class="post-link">
+                                💬 {{ post.comment_count }} comment{{ post.comment_count|pluralize }}
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-posts">
+                <p>No posts yet. Be the first to share something!</p>
+                <a href="{% url 'communities:create_post' community.slug %}" class="btn-primary">Create First Post</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Upcoming Events -->
+    {% if upcoming_events %}
+        <div class="community-content">
+            <div class="events-header">
+                <h2>Upcoming Events</h2>
+                <a href="{% url 'communities:event_list' community.slug %}" class="btn-primary">View All Events</a>
+            </div>
+
+            <div class="events-grid">
+                {% for event in upcoming_events %}
+                    <a href="{% url 'communities:event_detail' community.slug event.id %}" class="event-card">
+                        {% if event.cover_image %}
+                            <div class="event-card-cover">
+                                <img src="{{ event.cover_image.url }}" alt="{{ event.title }}">
+                            </div>
+                        {% else %}
+                            <div class="event-card-cover-default">
+                                <span>📅</span>
+                            </div>
+                        {% endif %}
+
+                        <div class="event-card-content">
+                            <h3 class="event-card-title">{{ event.title }}</h3>
+
+                            <div class="event-card-meta">
+                                <div class="event-meta-item">
+                                    <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>{{ event.start_datetime|date:"M d, g:i A" }}</span>
+                                </div>
+                                <div class="event-meta-item">
+                                    <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>{{ event.location }}</span>
+                                </div>
+                            </div>
+
+                            <div class="event-card-rsvp">
+                                <span class="rsvp-count">✓ {{ event.going_count }} going</span>
+                                <span class="rsvp-count">⚡ {{ event.interested_count }} interested</span>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Recent Members -->
+    <div class="community-content">
+        <h2>Recent Members</h2>
+        {% if active_members %}
+            <div class="members-list">
+                {% for member in active_members %}
+                    <div class="member-item">
+                        <div class="member-avatar">
+                            {% if member.user.profile.profile_photo %}
+                                <img src="{{ member.user.profile.profile_photo.url }}" alt="{{ member.user.username }}">
+                            {% else %}
+                                <span>{{ member.user.username|slice:":1"|upper }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="member-info">
+                            <strong>{{ member.user.get_full_name|default:member.user.username }}</strong>
+                            <span class="badge badge-{{ member.role }}">{{ member.get_role_display }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <a href="{% url 'communities:members' community.slug %}" class="view-all">View all members →</a>
+        {% else %}
+            <p>No members yet.</p>
+        {% endif %}
+    </div>
+{% endif %}
+
+<style>
+.community-header {
+    background: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.community-cover, .community-cover-default {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.community-cover-default {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: bold;
+    color: white;
+}
+
+.community-header-content {
+    padding: 1.5rem;
+}
+
+.community-header-content h1 {
+    margin: 0 0 0.5rem 0;
+    color: #fff;
+}
+
+.community-header-content p {
+    color: #9ca3af;
+    margin: 0 0 1rem 0;
+}
+
+.community-actions {
+    padding: 0 1.5rem 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary, .btn-danger {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary { background: #667eea; color: white; }
+.btn-secondary { background: #374151; color: white; }
+.btn-danger { background: #ef4444; color: white; }
+
+.status-pending {
+    padding: 0.5rem 1rem;
+    background: #f59e0b;
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.status-banned {
+    padding: 0.5rem 1rem;
+    background: #ef4444;
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.community-content {
+    background: #2a2a2a;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.community-content h2 {
+    color: #fff;
+    margin-top: 0;
+}
+
+.members-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border-radius: 6px;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.member-info strong {
+    color: #fff;
+}
+
+.view-all {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.view-all:hover {
+    text-decoration: underline;
+}
+
+/* Posts Feed Styles */
+.posts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.posts-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.post-card {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+}
+
+.post-card-header {
+    margin-bottom: 1rem;
+}
+
+.post-author-info {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.post-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.post-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post-meta {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin-top: 0.125rem;
+}
+
+.pinned-badge {
+    color: #f59e0b;
+    margin-left: 0.5rem;
+}
+
+.post-card-title {
+    color: #fff;
+    margin: 0 0 0.75rem 0;
+    font-size: 1.25rem;
+}
+
+.post-card-content {
+    color: #e5e7eb;
+    margin-bottom: 1rem;
+}
+
+.post-card-images {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.post-card-images img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.more-images {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px 0 6px 0;
+    font-weight: 600;
+}
+
+.post-card-footer {
+    padding-top: 1rem;
+    border-top: 1px solid #374151;
+}
+
+.post-link {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.post-link:hover {
+    color: #667eea;
+}
+
+.empty-posts {
+    text-align: center;
+    padding: 3rem;
+    color: #9ca3af;
+}
+
+.empty-posts p {
+    margin-bottom: 1rem;
+}
+
+/* Events Section Styles */
+.events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.event-card {
+    background: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: block;
+}
+
+.event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.event-card-cover, .event-card-cover-default {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+}
+
+.event-card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-card-cover-default {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.event-card-content {
+    padding: 1.25rem;
+}
+
+.event-card-title {
+    color: #fff;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.event-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.event-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.meta-icon {
+    width: 16px;
+    height: 16px;
+    color: #667eea;
+    flex-shrink: 0;
+}
+
+.event-card-rsvp {
+    display: flex;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #374151;
+}
+
+.rsvp-count {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .events-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

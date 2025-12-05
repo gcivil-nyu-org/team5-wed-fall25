@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Members - {{ community.name }} - CampusNest{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ community.name }} - Members</h1>
+        <a href="{% url 'communities:detail' community.slug %}" class="breadcrumb">← Back to Community</a>
+    </div>
+</div>
+
+<div class="members-container">
+    {% if members %}
+        {% for member in members %}
+            <div class="member-card">
+                <div class="member-main">
+                    <div class="member-avatar-large">
+                        {% if member.user.profile.profile_photo %}
+                            <img src="{{ member.user.profile.profile_photo.url }}" alt="{{ member.user.username }}">
+                        {% else %}
+                            <span>{{ member.user.username|slice:":1"|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="member-details">
+                        <h3>{{ member.user.get_full_name|default:member.user.username }}</h3>
+                        <p class="member-email">{{ member.user.email }}</p>
+                        <div class="member-meta">
+                            <span class="badge badge-{{ member.role }}">{{ member.get_role_display }}</span>
+                            <span class="join-date">Joined {{ member.joined_at|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if can_manage and member.user != user %}
+                    <div class="member-actions">
+                        {% if is_admin %}
+                            {% if member.role == 'member' %}
+                                <form method="post" action="{% url 'communities:promote_member' community.slug member.user.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-small btn-secondary">Promote to Moderator</button>
+                                </form>
+                            {% elif member.role == 'moderator' %}
+                                <form method="post" action="{% url 'communities:demote_member' community.slug member.user.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-small btn-secondary">Demote to Member</button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if member.role != 'admin' %}
+                            <form method="post" action="{% url 'communities:remove_member' community.slug member.user.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-small btn-warning" onclick="return confirm('Remove this member?')">Remove</button>
+                            </form>
+                            <form method="post" action="{% url 'communities:ban_member' community.slug member.user.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-small btn-danger" onclick="return confirm('Ban this member?')">Ban</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <p>No members found.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.breadcrumb {
+    color: #667eea;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 0.5rem;
+}
+
+.members-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.member-card {
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.member-main {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+}
+
+.member-avatar-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.member-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-details h3 {
+    margin: 0 0 0.25rem 0;
+    color: #fff;
+}
+
+.member-email {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.member-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-small {
+    padding: 0.375rem 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-warning { background: #f59e0b; color: white; }
+</style>
+{% endblock %}
