@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title|default:"Post" }} - {{ community.name }} - CampusNest{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ community.name }}</h1>
+    <a href="{% url 'communities:detail' community.slug %}" class="breadcrumb">← Back to Community</a>
+</div>
+
+<div class="post-container">
+    <!-- Post Header -->
+    <div class="post-header">
+        <div class="post-author-info">
+            <div class="author-avatar">
+                {% if post.author.profile.profile_photo %}
+                    <img src="{{ post.author.profile.profile_photo.url }}" alt="{{ post.author.username }}">
+                {% else %}
+                    <span>{{ post.author.username|slice:":1"|upper }}</span>
+                {% endif %}
+            </div>
+            <div>
+                <strong>{{ post.author.get_full_name|default:post.author.username }}</strong>
+                <div class="post-meta">
+                    {{ post.created_at|date:"M d, Y 'at' g:i A" }}
+                    {% if post.is_edited %}
+                        <span class="edited-badge">(edited)</span>
+                    {% endif %}
+                    {% if post.is_pinned %}
+                        <span class="pinned-badge">📌 Pinned</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Actions -->
+        <div class="post-actions">
+            {% if can_pin %}
+                <form method="post" action="{% url 'communities:toggle_pin_post' community.slug post.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-icon" title="{% if post.is_pinned %}Unpin{% else %}Pin{% endif %} post">
+                        {% if post.is_pinned %}📌{% else %}📍{% endif %}
+                    </button>
+                </form>
+            {% endif %}
+            {% if is_author or can_pin %}
+                <a href="{% url 'communities:edit_post' community.slug post.id %}" class="btn-icon" title="Edit post">✏️</a>
+                <form method="post" action="{% url 'communities:delete_post' community.slug post.id %}" style="display: inline;" onsubmit="return confirm('Delete this post?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-icon" title="Delete post">🗑️</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Post Content -->
+    <div class="post-content">
+        {% if post.title %}
+            <h2 class="post-title">{{ post.title }}</h2>
+        {% endif %}
+        <div class="post-body">{{ post.content|linebreaks }}</div>
+
+        <!-- Post Images -->
+        {% if post.images.all %}
+            <div class="post-images">
+                {% for image in post.images.all %}
+                    <img src="{{ image.image.url }}" alt="Post image" class="post-image">
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Post Files -->
+        {% if post.files.all %}
+            <div class="post-files">
+                <h4>Attachments:</h4>
+                {% for file in post.files.all %}
+                    <a href="{{ file.file.url }}" class="file-link" download>
+                        📎 {{ file.file_name }} ({{ file.file_size|filesizeformat }})
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h3>Comments ({{ post.comment_count }})</h3>
+
+        <!-- Add Comment Form -->
+        <form method="post" action="{% url 'communities:create_comment' community.slug post.id %}" class="comment-form">
+            {% csrf_token %}
+            {{ comment_form.content }}
+            <button type="submit" class="btn-primary">Post Comment</button>
+        </form>
+
+        <!-- Display Comments -->
+        {% if comments %}
+            <div class="comments-list">
+                {% for comment in comments %}
+                    {% include 'communities/partials/comment.html' with comment=comment %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-comments">No comments yet. Be the first to comment!</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.breadcrumb {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.post-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.post-author-info {
+    display: flex;
+    gap: 1rem;
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post-meta {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.edited-badge, .pinned-badge {
+    font-style: italic;
+    color: #6b7280;
+    margin-left: 0.5rem;
+}
+
+.post-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem;
+}
+
+.post-title {
+    color: #fff;
+    margin: 0 0 1rem 0;
+}
+
+.post-body {
+    color: #e5e7eb;
+    line-height: 1.6;
+}
+
+.post-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.post-image {
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.post-files {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #1a1a1a;
+    border-radius: 6px;
+}
+
+.post-files h4 {
+    margin: 0 0 0.5rem 0;
+    color: #fff;
+}
+
+.file-link {
+    display: block;
+    color: #667eea;
+    text-decoration: none;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.file-link:hover {
+    background: #2a2a2a;
+}
+
+.comments-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #374151;
+}
+
+.comments-section h3 {
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.comment-form {
+    margin-bottom: 2rem;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.btn-primary {
+    padding: 0.5rem 1rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+}
+
+.no-comments {
+    color: #9ca3af;
+    text-align: center;
+    padding: 2rem;
+}
+</style>
+{% endblock %}

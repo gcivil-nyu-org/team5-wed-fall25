@@ -33,4 +33,16 @@ urlpatterns = [
     path('<slug:slug>/requests/', views.join_requests, name='join_requests'),
     path('<slug:slug>/requests/<int:user_id>/approve/', views.approve_request, name='approve_request'),
     path('<slug:slug>/requests/<int:user_id>/reject/', views.reject_request, name='reject_request'),
+
+    # Posts (Phase 2)
+    path('<slug:slug>/posts/create/', views.create_post, name='create_post'),
+    path('<slug:slug>/posts/<int:post_id>/', views.post_detail, name='post_detail'),
+    path('<slug:slug>/posts/<int:post_id>/edit/', views.edit_post, name='edit_post'),
+    path('<slug:slug>/posts/<int:post_id>/delete/', views.delete_post, name='delete_post'),
+    path('<slug:slug>/posts/<int:post_id>/pin/', views.toggle_pin_post, name='toggle_pin_post'),
+
+    # Comments (Phase 2)
+    path('<slug:slug>/posts/<int:post_id>/comments/create/', views.create_comment, name='create_comment'),
+    path('<slug:slug>/posts/<int:post_id>/comments/<int:comment_id>/edit/', views.edit_comment, name='edit_comment'),
+    path('<slug:slug>/posts/<int:post_id>/comments/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
 ]

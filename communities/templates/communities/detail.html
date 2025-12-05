@@ -59,6 +59,74 @@
 </div>
 
 {% if is_member %}
+    <!-- Posts Feed -->
+    <div class="community-content">
+        <div class="posts-header">
+            <h2>Community Posts</h2>
+            <a href="{% url 'communities:create_post' community.slug %}" class="btn-primary">Create Post</a>
+        </div>
+
+        {% if posts %}
+            <div class="posts-feed">
+                {% for post in posts %}
+                    <div class="post-card">
+                        <div class="post-card-header">
+                            <div class="post-author-info">
+                                <div class="post-avatar">
+                                    {% if post.author.profile.profile_photo %}
+                                        <img src="{{ post.author.profile.profile_photo.url }}" alt="{{ post.author.username }}">
+                                    {% else %}
+                                        <span>{{ post.author.username|slice:":1"|upper }}</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <strong>{{ post.author.get_full_name|default:post.author.username }}</strong>
+                                    <div class="post-meta">
+                                        {{ post.created_at|date:"M d, Y 'at' g:i A" }}
+                                        {% if post.is_pinned %}
+                                            <span class="pinned-badge">📌 Pinned</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if post.title %}
+                            <h3 class="post-card-title">{{ post.title }}</h3>
+                        {% endif %}
+
+                        <div class="post-card-content">
+                            {{ post.content|truncatewords:50|linebreaks }}
+                        </div>
+
+                        {% if post.images.all %}
+                            <div class="post-card-images">
+                                {% for image in post.images.all|slice:":3" %}
+                                    <img src="{{ image.image.url }}" alt="Post image">
+                                {% endfor %}
+                                {% if post.images.count > 3 %}
+                                    <div class="more-images">+{{ post.images.count|add:"-3" }} more</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="post-card-footer">
+                            <a href="{% url 'communities:post_detail' community.slug post.id %}" class="post-link">
+                                💬 {{ post.comment_count }} comment{{ post.comment_count|pluralize }}
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-posts">
+                <p>No posts yet. Be the first to share something!</p>
+                <a href="{% url 'communities:create_post' community.slug %}" class="btn-primary">Create First Post</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Members -->
     <div class="community-content">
         <h2>Recent Members</h2>
         {% if active_members %}
@@ -226,6 +294,134 @@
 
 .view-all:hover {
     text-decoration: underline;
+}
+
+/* Posts Feed Styles */
+.posts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.posts-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.post-card {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+}
+
+.post-card-header {
+    margin-bottom: 1rem;
+}
+
+.post-author-info {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.post-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.post-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post-meta {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin-top: 0.125rem;
+}
+
+.pinned-badge {
+    color: #f59e0b;
+    margin-left: 0.5rem;
+}
+
+.post-card-title {
+    color: #fff;
+    margin: 0 0 0.75rem 0;
+    font-size: 1.25rem;
+}
+
+.post-card-content {
+    color: #e5e7eb;
+    margin-bottom: 1rem;
+}
+
+.post-card-images {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.post-card-images img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.more-images {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px 0 6px 0;
+    font-weight: 600;
+}
+
+.post-card-footer {
+    padding-top: 1rem;
+    border-top: 1px solid #374151;
+}
+
+.post-link {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.post-link:hover {
+    color: #667eea;
+}
+
+.empty-posts {
+    text-align: center;
+    padding: 3rem;
+    color: #9ca3af;
+}
+
+.empty-posts p {
+    margin-bottom: 1rem;
 }
 </style>
 {% endblock %}

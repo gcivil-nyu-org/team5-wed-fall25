@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Post - {{ community.name }} - CampusNest{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit Post</h1>
+    <a href="{% url 'communities:post_detail' community.slug post.id %}" class="breadcrumb">← Back to Post</a>
+</div>
+
+<div class="form-container">
+    <form method="post" enctype="multipart/form-data" class="post-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">Title (Optional)</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <span class="error">{{ form.title.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.title.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.content.id_for_label }}">Content *</label>
+            {{ form.content }}
+            {% if form.content.errors %}
+                <span class="error">{{ form.content.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.content.help_text }}</small>
+        </div>
+
+        <!-- Show existing images -->
+        {% if post.images.all %}
+            <div class="existing-images">
+                <h4>Current Images:</h4>
+                <div class="image-grid">
+                    {% for image in post.images.all %}
+                        <img src="{{ image.image.url }}" alt="Post image">
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="{{ form.images.id_for_label }}">Add More Images</label>
+            {{ form.images }}
+            {% if form.images.errors %}
+                <span class="error">{{ form.images.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.images.help_text }}</small>
+        </div>
+
+        <!-- Show existing files -->
+        {% if post.files.all %}
+            <div class="existing-files">
+                <h4>Current Attachments:</h4>
+                {% for file in post.files.all %}
+                    <div class="file-item">
+                        <a href="{{ file.file.url }}" download>📎 {{ file.file_name }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="{{ form.files.id_for_label }}">Add More Files</label>
+            {{ form.files }}
+            {% if form.files.errors %}
+                <span class="error">{{ form.files.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.files.help_text }}</small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Update Post</button>
+            <a href="{% url 'communities:post_detail' community.slug post.id %}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.breadcrumb {
+    color: #667eea;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.post-form {
+    background: #2a2a2a;
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-group textarea {
+    min-height: 200px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.existing-images, .existing-files {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #1a1a1a;
+    border-radius: 6px;
+}
+
+.existing-images h4, .existing-files h4 {
+    color: #fff;
+    margin: 0 0 0.75rem 0;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.5rem;
+}
+
+.image-grid img {
+    width: 100%;
+    border-radius: 4px;
+}
+
+.file-item {
+    padding: 0.5rem;
+}
+
+.file-item a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.alert-error {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+}
+
+.btn-secondary {
+    background: #374151;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+</style>
+{% endblock %}

@@ -134,3 +134,135 @@ class CommunityMember(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.community.name} ({self.role})"
+
+
+class Post(models.Model):
+    """
+    Post model for community content.
+    Supports text posts with optional photo and file attachments.
+    """
+    community = models.ForeignKey(
+        Community,
+        on_delete=models.CASCADE,
+        related_name='posts'
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='community_posts'
+    )
+    title = models.CharField(max_length=200, blank=True)
+    content = models.TextField(max_length=10000)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_edited = models.BooleanField(default=False)
+
+    # Moderation
+    is_pinned = models.BooleanField(default=False)
+    pinned_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pinned_posts'
+    )
+
+    # Stats (denormalized for performance)
+    comment_count = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['-is_pinned', '-created_at']
+        indexes = [
+            models.Index(fields=['community', '-created_at']),
+            models.Index(fields=['author', '-created_at']),
+            models.Index(fields=['-is_pinned', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.author.username} in {self.community.name}: {self.title or self.content[:50]}"
+
+
+class PostImage(models.Model):
+    """Images attached to posts"""
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='images'
+    )
+    image = models.ImageField(upload_to='community_posts/images/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['uploaded_at']
+
+    def __str__(self):
+        return f"Image for post {self.post.id}"
+
+
+class PostFile(models.Model):
+    """Files attached to posts"""
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='files'
+    )
+    file = models.FileField(upload_to='community_posts/files/')
+    file_name = models.CharField(max_length=255)
+    file_size = models.IntegerField(help_text='File size in bytes')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['uploaded_at']
+
+    def __str__(self):
+        return f"{self.file_name} for post {self.post.id}"
+
+    def save(self, *args, **kwargs):
+        if self.file and not self.file_name:
+            self.file_name = self.file.name
+        if self.file and not self.file_size:
+            self.file_size = self.file.size
+        super().save(*args, **kwargs)
+
+
+class Comment(models.Model):
+    """
+    Comment model for post replies.
+    Supports nested comments (replies to comments).
+    """
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='community_comments'
+    )
+    content = models.TextField(max_length=2000)
+
+    # For nested replies
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_edited = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['created_at']
+        indexes = [
+            models.Index(fields=['post', 'created_at']),
+            models.Index(fields=['author', '-created_at']),
+            models.Index(fields=['parent', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f"Comment by {self.author.username} on post {self.post.id}"

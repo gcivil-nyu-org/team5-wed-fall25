@@ -1,5 +1,5 @@
 """
-Views for communities app - Phase 1: Core Infrastructure
+Views for communities app - Phase 1: Core Infrastructure & Phase 2: Posts and Comments
 """
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -7,9 +7,10 @@ from django.contrib import messages
 from django.db.models import Q, Count
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 
-from .models import Community, CommunityMember
-from .forms import CommunityForm, JoinRequestForm
+from .models import Community, CommunityMember, Post, PostImage, PostFile, Comment
+from .forms import CommunityForm, JoinRequestForm, PostForm, CommentForm
 from .permissions import (
     check_membership, is_admin, is_moderator_or_admin,
     can_moderate, require_membership, require_moderator, require_admin
@@ -116,11 +117,21 @@ def community_detail(request, slug):
         status='active'
     ).select_related('user').order_by('-joined_at')[:10]  # Show first 10
 
+    # Get posts for members (Phase 2)
+    posts = None
+    if is_member:
+        posts = Post.objects.filter(
+            community=community
+        ).select_related('author', 'author__profile').prefetch_related(
+            'images', 'files'
+        ).order_by('-is_pinned', '-created_at')[:10]  # Show first 10 posts
+
     context = {
         'community': community,
         'is_member': is_member,
         'membership': membership,
         'active_members': active_members,
+        'posts': posts,
         'can_manage': membership and membership.role in ['admin', 'moderator'] if membership else False,
         'is_admin': membership and membership.role == 'admin' if membership else False,
     }
@@ -490,3 +501,257 @@ def reject_request(request, slug, user_id):
 
     messages.success(request, f'Rejected {username}\'s join request.')
     return redirect('communities:join_requests', slug=slug)
+
+
+# ============================================================================
+# PHASE 2: POSTS AND COMMENTS VIEWS
+# ============================================================================
+
+@login_required
+@require_membership
+def create_post(request, slug):
+    """Create a new post in a community (members only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.community = community
+            post.author = request.user
+            post.save()
+
+            # Handle multiple image uploads
+            images = request.FILES.getlist('images')
+            for image in images[:5]:  # Limit to 5 images
+                PostImage.objects.create(post=post, image=image)
+
+            # Handle multiple file uploads
+            files = request.FILES.getlist('files')
+            for file in files[:5]:  # Limit to 5 files
+                PostFile.objects.create(post=post, file=file)
+
+            # Update community post count
+            community.post_count = Post.objects.filter(community=community).count()
+            community.save()
+
+            messages.success(request, 'Post created successfully!')
+            return redirect('communities:post_detail', slug=slug, post_id=post.id)
+    else:
+        form = PostForm()
+
+    context = {
+        'community': community,
+        'form': form,
+    }
+    return render(request, 'communities/create_post.html', context)
+
+
+@login_required
+@require_membership
+def post_detail(request, slug, post_id):
+    """View a single post with its comments (members only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+    post = get_object_or_404(
+        Post.objects.select_related('author', 'author__profile')
+        .prefetch_related('images', 'files'),
+        id=post_id,
+        community=community
+    )
+
+    # Get top-level comments with their replies
+    comments = Comment.objects.filter(
+        post=post,
+        parent__isnull=True
+    ).select_related('author', 'author__profile').prefetch_related('replies__author__profile')
+
+    # Check if current user is the author or moderator
+    is_author = request.user == post.author
+    can_pin = can_moderate(request.user, community)
+
+    comment_form = CommentForm()
+
+    context = {
+        'community': community,
+        'post': post,
+        'comments': comments,
+        'comment_form': comment_form,
+        'is_author': is_author,
+        'can_pin': can_pin,
+    }
+    return render(request, 'communities/post_detail.html', context)
+
+
+@login_required
+def edit_post(request, slug, post_id):
+    """Edit a post (author or moderator only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+    post = get_object_or_404(Post, id=post_id, community=community)
+
+    # Check permissions: author or moderator
+    if request.user != post.author and not can_moderate(request.user, community):
+        raise PermissionDenied("Only the author or moderators can edit this post")
+
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.is_edited = True
+            post.save()
+
+            # Handle new image uploads
+            images = request.FILES.getlist('images')
+            for image in images[:5]:
+                PostImage.objects.create(post=post, image=image)
+
+            # Handle new file uploads
+            files = request.FILES.getlist('files')
+            for file in files[:5]:
+                PostFile.objects.create(post=post, file=file)
+
+            messages.success(request, 'Post updated successfully!')
+            return redirect('communities:post_detail', slug=slug, post_id=post.id)
+    else:
+        form = PostForm(instance=post)
+
+    context = {
+        'community': community,
+        'post': post,
+        'form': form,
+    }
+    return render(request, 'communities/edit_post.html', context)
+
+
+@login_required
+@require_POST
+def delete_post(request, slug, post_id):
+    """Delete a post (author or moderator only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+    post = get_object_or_404(Post, id=post_id, community=community)
+
+    # Check permissions: author or moderator
+    if request.user != post.author and not can_moderate(request.user, community):
+        raise PermissionDenied("Only the author or moderators can delete this post")
+
+    post.delete()
+
+    # Update community post count
+    community.post_count = Post.objects.filter(community=community).count()
+    community.save()
+
+    messages.success(request, 'Post deleted successfully!')
+    return redirect('communities:detail', slug=slug)
+
+
+@login_required
+@require_POST
+def toggle_pin_post(request, slug, post_id):
+    """Pin or unpin a post (moderator+ only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+
+    # Check if user can moderate
+    if not can_moderate(request.user, community):
+        raise PermissionDenied("Only moderators and admins can pin posts")
+
+    post = get_object_or_404(Post, id=post_id, community=community)
+
+    if post.is_pinned:
+        post.is_pinned = False
+        post.pinned_by = None
+        messages.success(request, 'Post unpinned.')
+    else:
+        post.is_pinned = True
+        post.pinned_by = request.user
+        messages.success(request, 'Post pinned to top of feed.')
+
+    post.save()
+    return redirect('communities:post_detail', slug=slug, post_id=post.id)
+
+
+@login_required
+@require_POST
+def create_comment(request, slug, post_id):
+    """Create a comment on a post (members only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+
+    # Check membership
+    check_membership(request.user, community)
+
+    post = get_object_or_404(Post, id=post_id, community=community)
+
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.author = request.user
+
+        # Check if this is a reply to another comment
+        parent_id = request.POST.get('parent_id')
+        if parent_id:
+            parent_comment = get_object_or_404(Comment, id=parent_id, post=post)
+            comment.parent = parent_comment
+
+        comment.save()
+
+        # Update post comment count
+        post.comment_count = Comment.objects.filter(post=post).count()
+        post.save()
+
+        messages.success(request, 'Comment posted!')
+    else:
+        messages.error(request, 'Error posting comment. Please try again.')
+
+    return redirect('communities:post_detail', slug=slug, post_id=post_id)
+
+
+@login_required
+def edit_comment(request, slug, post_id, comment_id):
+    """Edit a comment (author only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+    post = get_object_or_404(Post, id=post_id, community=community)
+    comment = get_object_or_404(Comment, id=comment_id, post=post)
+
+    # Only author can edit their comment
+    if request.user != comment.author:
+        raise PermissionDenied("Only the author can edit this comment")
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.is_edited = True
+            comment.save()
+            messages.success(request, 'Comment updated!')
+            return redirect('communities:post_detail', slug=slug, post_id=post_id)
+    else:
+        form = CommentForm(instance=comment)
+
+    context = {
+        'community': community,
+        'post': post,
+        'comment': comment,
+        'form': form,
+    }
+    return render(request, 'communities/edit_comment.html', context)
+
+
+@login_required
+@require_POST
+def delete_comment(request, slug, post_id, comment_id):
+    """Delete a comment (author or moderator only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+    post = get_object_or_404(Post, id=post_id, community=community)
+    comment = get_object_or_404(Comment, id=comment_id, post=post)
+
+    # Check permissions: author or moderator
+    if request.user != comment.author and not can_moderate(request.user, community):
+        raise PermissionDenied("Only the author or moderators can delete this comment")
+
+    comment.delete()
+
+    # Update post comment count
+    post.comment_count = Comment.objects.filter(post=post).count()
+    post.save()
+
+    messages.success(request, 'Comment deleted!')
+    return redirect('communities:post_detail', slug=slug, post_id=post_id)

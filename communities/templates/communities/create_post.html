@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Post - {{ community.name }} - CampusNest{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Create Post in {{ community.name }}</h1>
+    <a href="{% url 'communities:detail' community.slug %}" class="breadcrumb">← Back to Community</a>
+</div>
+
+<div class="form-container">
+    <form method="post" enctype="multipart/form-data" class="post-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">Title (Optional)</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <span class="error">{{ form.title.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.title.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.content.id_for_label }}">Content *</label>
+            {{ form.content }}
+            {% if form.content.errors %}
+                <span class="error">{{ form.content.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.content.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.images.id_for_label }}">Images</label>
+            {{ form.images }}
+            {% if form.images.errors %}
+                <span class="error">{{ form.images.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.images.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.files.id_for_label }}">Files</label>
+            {{ form.files }}
+            {% if form.files.errors %}
+                <span class="error">{{ form.files.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.files.help_text }}</small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Create Post</button>
+            <a href="{% url 'communities:detail' community.slug %}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.breadcrumb {
+    color: #667eea;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.post-form {
+    background: #2a2a2a;
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-group textarea {
+    min-height: 200px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.alert-error {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+}
+
+.btn-secondary {
+    background: #374151;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+</style>
+{% endblock %}

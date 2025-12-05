@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Comment - {{ community.name }} - CampusNest{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit Comment</h1>
+    <a href="{% url 'communities:post_detail' community.slug post.id %}" class="breadcrumb">← Back to Post</a>
+</div>
+
+<div class="form-container">
+    <form method="post" class="comment-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="{{ form.content.id_for_label }}">Comment *</label>
+            {{ form.content }}
+            {% if form.content.errors %}
+                <span class="error">{{ form.content.errors.0 }}</span>
+            {% endif %}
+            <small>{{ form.content.help_text }}</small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Update Comment</button>
+            <a href="{% url 'communities:post_detail' community.slug post.id %}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.breadcrumb {
+    color: #667eea;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.comment-form {
+    background: #2a2a2a;
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    min-height: 120px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.alert-error {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+}
+
+.btn-secondary {
+    background: #374151;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+</style>
+{% endblock %}
