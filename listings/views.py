@@ -79,7 +79,9 @@ def create_listing(request):
             listing.user = request.user
 
             # Geocode address - construct full address from components
-            full_address = f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
+            full_address = (
+                f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
+            )
             coords = geocode_address(full_address)
             if coords:
                 listing.longitude, listing.latitude = coords[0], coords[1]
@@ -145,8 +147,13 @@ def edit_listing(request, listing_id):  # noqa: C901
 
             # **NEW: Re-geocode if address changed**
             # Check if any address component was modified
-            if any(field in form.changed_data for field in ["street_address", "city", "zipcode"]):
-                full_address = f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
+            if any(
+                field in form.changed_data
+                for field in ["street_address", "city", "zipcode"]
+            ):
+                full_address = (
+                    f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
+                )
                 coordinates = geocode_address(full_address)
                 if coordinates:
                     listing.longitude = coordinates[0]

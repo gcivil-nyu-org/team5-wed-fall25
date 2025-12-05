@@ -101,9 +101,9 @@ def home_portal(request):
             if getattr(prof, "location", None):
                 # Search across street_address, city, or zipcode
                 suggestions = suggestions.filter(
-                    Q(street_address__icontains=prof.location) |
-                    Q(city__icontains=prof.location) |
-                    Q(zipcode__icontains=prof.location)
+                    Q(street_address__icontains=prof.location)
+                    | Q(city__icontains=prof.location)
+                    | Q(zipcode__icontains=prof.location)
                 )
             # use budget range if present
             budget_min = getattr(prof, "budget_min", None)

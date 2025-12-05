@@ -3,6 +3,7 @@
 
 import re
 
+
 def parse_address(address_str):
     """Parse an address string into street_address, city, zipcode components"""
     # Handle addresses like "123 Main St, Brooklyn, NY 11201"
@@ -19,11 +20,13 @@ def parse_address(address_str):
     else:
         return address_str, "New York", "10012"
 
+
 def replace_model_create(match):
     """Replace address= in Listing.objects.create() calls"""
     address_value = match.group(1)
     street, city, zipcode = parse_address(address_value)
     return f'street_address="{street}",\n            city="{city}",\n            zipcode="{zipcode}",'
+
 
 def replace_form_data(match):
     """Replace "address": in form data dictionaries"""
@@ -31,43 +34,32 @@ def replace_form_data(match):
     street, city, zipcode = parse_address(address_value)
     return f'"street_address": "{street}",\n            "city": "{city}",\n            "zipcode": "{zipcode}",'
 
+
 # Read the file
-with open('listings/tests.py', 'r') as f:
+with open("listings/tests.py", "r") as f:
     content = f.read()
 
 # Replace in Listing.objects.create() calls
 # Pattern: address="value",
-content = re.sub(
-    r'address="([^"]+)",',
-    replace_model_create,
-    content
-)
+content = re.sub(r'address="([^"]+)",', replace_model_create, content)
 
 # Replace in form data dictionaries
 # Pattern: "address": "value",
-content = re.sub(
-    r'"address":\s*"([^"]+)",',
-    replace_form_data,
-    content
-)
+content = re.sub(r'"address":\s*"([^"]+)",', replace_form_data, content)
 
 # Write back
-with open('listings/tests.py', 'w') as f:
+with open("listings/tests.py", "w") as f:
     f.write(content)
 
 print("✓ Updated listings/tests.py")
 
 # Now update messaging/tests.py
-with open('messaging/tests.py', 'r') as f:
+with open("messaging/tests.py", "r") as f:
     content = f.read()
 
-content = re.sub(
-    r'address="([^"]+)",',
-    replace_model_create,
-    content
-)
+content = re.sub(r'address="([^"]+)",', replace_model_create, content)
 
-with open('messaging/tests.py', 'w') as f:
+with open("messaging/tests.py", "w") as f:
     f.write(content)
 
 print("✓ Updated messaging/tests.py")
