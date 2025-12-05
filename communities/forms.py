@@ -3,7 +3,7 @@ Forms for communities app.
 """
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Community, CommunityMember, Post, Comment, ChatMessage
+from .models import Community, CommunityMember, Post, Comment, ChatMessage, Event
 from profiles.models import Profile
 
 
@@ -179,3 +179,73 @@ class ChatMessageForm(forms.ModelForm):
         help_texts = {
             'content': 'Max 2,000 characters'
         }
+
+
+class EventForm(forms.ModelForm):
+    """Form for creating and editing community events."""
+
+    class Meta:
+        model = Event
+        fields = ['title', 'description', 'start_datetime', 'end_datetime', 'location', 'location_details', 'cover_image']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Event title',
+                'maxlength': '200'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Describe your event...',
+                'rows': 5,
+                'maxlength': '2000'
+            }),
+            'start_datetime': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            }),
+            'end_datetime': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Event location (address, venue name, etc.)',
+                'maxlength': '300'
+            }),
+            'location_details': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Additional location details (room number, landmarks, parking info, etc.)',
+                'rows': 3,
+                'maxlength': '500'
+            }),
+            'cover_image': forms.FileInput(attrs={
+                'class': 'form-control'
+            })
+        }
+        help_texts = {
+            'title': 'Max 200 characters',
+            'description': 'Max 2,000 characters',
+            'location_details': 'Optional. Max 500 characters',
+            'cover_image': 'Optional event cover image'
+        }
+
+    def clean(self):
+        """Validate that end_datetime is after start_datetime"""
+        cleaned_data = super().clean()
+        start = cleaned_data.get('start_datetime')
+        end = cleaned_data.get('end_datetime')
+
+        if start and end:
+            if end <= start:
+                raise ValidationError({
+                    'end_datetime': 'End time must be after start time.'
+                })
+
+            # Validate that event times are in the future
+            from django.utils import timezone
+            if start < timezone.now():
+                raise ValidationError({
+                    'start_datetime': 'Event cannot start in the past.'
+                })
+
+        return cleaned_data

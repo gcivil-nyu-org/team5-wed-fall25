@@ -9,8 +9,8 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 
-from .models import Community, CommunityMember, Post, PostImage, PostFile, Comment, Thread, ChatMessage
-from .forms import CommunityForm, JoinRequestForm, PostForm, CommentForm, ChatMessageForm
+from .models import Community, CommunityMember, Post, PostImage, PostFile, Comment, Thread, ChatMessage, Event, EventRSVP
+from .forms import CommunityForm, JoinRequestForm, PostForm, CommentForm, ChatMessageForm, EventForm
 from .permissions import (
     check_membership, is_admin, is_moderator_or_admin,
     can_moderate, require_membership, require_moderator, require_admin
@@ -126,12 +126,23 @@ def community_detail(request, slug):
             'images', 'files'
         ).order_by('-is_pinned', '-created_at')[:10]  # Show first 10 posts
 
+    # Get upcoming events for members (Phase 4)
+    upcoming_events = None
+    if is_member:
+        from django.utils import timezone
+        upcoming_events = Event.objects.filter(
+            community=community,
+            is_cancelled=False,
+            start_datetime__gte=timezone.now()
+        ).select_related('organizer', 'organizer__profile').order_by('start_datetime')[:3]  # Show first 3
+
     context = {
         'community': community,
         'is_member': is_member,
         'membership': membership,
         'active_members': active_members,
         'posts': posts,
+        'upcoming_events': upcoming_events,
         'can_manage': membership and membership.role in ['admin', 'moderator'] if membership else False,
         'is_admin': membership and membership.role == 'admin' if membership else False,
     }
@@ -879,3 +890,232 @@ def poll_messages(request, slug):
         'messages': messages_data,
         'count': len(messages_data)
     })
+
+
+# ============================================================================
+# PHASE 4: EVENTS
+# ============================================================================
+
+@login_required
+@require_membership
+def event_list(request, slug):
+    """View all events for a community (members only)."""
+    from django.utils import timezone
+
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+
+    # Get upcoming events (not cancelled, start time in future)
+    upcoming_events = Event.objects.filter(
+        community=community,
+        is_cancelled=False,
+        start_datetime__gte=timezone.now()
+    ).select_related('organizer', 'organizer__profile').order_by('start_datetime')
+
+    # Get past events (end time in past)
+    past_events = Event.objects.filter(
+        community=community,
+        end_datetime__lt=timezone.now()
+    ).select_related('organizer', 'organizer__profile').order_by('-start_datetime')[:10]  # Last 10 events
+
+    # Get user's RSVPs for upcoming events
+    user_rsvps = {}
+    if upcoming_events:
+        rsvps = EventRSVP.objects.filter(
+            event__in=upcoming_events,
+            user=request.user
+        ).select_related('event')
+        user_rsvps = {rsvp.event_id: rsvp.status for rsvp in rsvps}
+
+    # Get membership info
+    membership = CommunityMember.objects.filter(
+        community=community,
+        user=request.user,
+        status='active'
+    ).first()
+
+    context = {
+        'community': community,
+        'upcoming_events': upcoming_events,
+        'past_events': past_events,
+        'user_rsvps': user_rsvps,
+        'membership': membership,
+        'is_admin': is_admin(request.user, community),
+        'can_moderate': can_moderate(request.user, community),
+    }
+    return render(request, 'communities/event_list.html', context)
+
+
+@login_required
+@require_membership
+def create_event(request, slug):
+    """Create a new event (members only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+
+    if request.method == 'POST':
+        form = EventForm(request.POST, request.FILES)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.community = community
+            event.organizer = request.user
+            event.save()
+
+            messages.success(request, 'Event created successfully!')
+            return redirect('communities:event_detail', slug=slug, event_id=event.id)
+    else:
+        form = EventForm()
+
+    context = {
+        'community': community,
+        'form': form,
+    }
+    return render(request, 'communities/create_event.html', context)
+
+
+@login_required
+@require_membership
+def event_detail(request, slug, event_id):
+    """View event details with RSVP information (members only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+    event = get_object_or_404(
+        Event.objects.select_related('organizer', 'organizer__profile', 'community'),
+        id=event_id,
+        community=community
+    )
+
+    # Get user's RSVP status
+    user_rsvp = EventRSVP.objects.filter(event=event, user=request.user).first()
+
+    # Get attendees by RSVP status
+    going_rsvps = EventRSVP.objects.filter(
+        event=event,
+        status='going'
+    ).select_related('user', 'user__profile')
+
+    interested_rsvps = EventRSVP.objects.filter(
+        event=event,
+        status='interested'
+    ).select_related('user', 'user__profile')
+
+    # Check permissions
+    is_organizer = event.organizer == request.user
+
+    context = {
+        'community': community,
+        'event': event,
+        'user_rsvp': user_rsvp,
+        'going_rsvps': going_rsvps,
+        'interested_rsvps': interested_rsvps,
+        'is_organizer': is_organizer,
+        'is_admin': is_admin(request.user, community),
+        'can_moderate': can_moderate(request.user, community),
+    }
+    return render(request, 'communities/event_detail.html', context)
+
+
+@login_required
+@require_membership
+def edit_event(request, slug, event_id):
+    """Edit an event (organizer only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+    event = get_object_or_404(Event, id=event_id, community=community)
+
+    # Check permissions: only organizer or admin can edit
+    if request.user != event.organizer and not is_admin(request.user, community):
+        raise PermissionDenied("Only the event organizer or community admin can edit this event")
+
+    if request.method == 'POST':
+        form = EventForm(request.POST, request.FILES, instance=event)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Event updated successfully!')
+            return redirect('communities:event_detail', slug=slug, event_id=event.id)
+    else:
+        form = EventForm(instance=event)
+
+    context = {
+        'community': community,
+        'event': event,
+        'form': form,
+    }
+    return render(request, 'communities/edit_event.html', context)
+
+
+@login_required
+@require_POST
+@require_membership
+def delete_event(request, slug, event_id):
+    """Delete an event (organizer or admin only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+    event = get_object_or_404(Event, id=event_id, community=community)
+
+    # Check permissions: only organizer or admin can delete
+    if request.user != event.organizer and not is_admin(request.user, community):
+        raise PermissionDenied("Only the event organizer or community admin can delete this event")
+
+    event.delete()
+    messages.success(request, 'Event deleted successfully!')
+    return redirect('communities:event_list', slug=slug)
+
+
+@login_required
+@require_POST
+@require_membership
+def rsvp_event(request, slug, event_id):
+    """RSVP to an event (members only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+    event = get_object_or_404(Event, id=event_id, community=community)
+
+    # Get RSVP status from form
+    status = request.POST.get('status')
+
+    if status not in ['going', 'interested', 'not_going']:
+        messages.error(request, 'Invalid RSVP status.')
+        return redirect('communities:event_detail', slug=slug, event_id=event_id)
+
+    # Get or create RSVP
+    rsvp, created = EventRSVP.objects.get_or_create(
+        event=event,
+        user=request.user,
+        defaults={'status': status}
+    )
+
+    # If RSVP already exists, update status
+    if not created:
+        # If status is 'not_going', delete the RSVP
+        if status == 'not_going':
+            rsvp.delete()
+            messages.success(request, 'RSVP removed.')
+        else:
+            rsvp.status = status
+            rsvp.save()
+            messages.success(request, f'RSVP updated to "{status}".')
+    else:
+        messages.success(request, f'RSVP set to "{status}".')
+
+    # Update event RSVP counts
+    event.update_rsvp_counts()
+
+    return redirect('communities:event_detail', slug=slug, event_id=event_id)
+
+
+@login_required
+@require_POST
+@require_membership
+def cancel_event(request, slug, event_id):
+    """Cancel an event (organizer or admin only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+    event = get_object_or_404(Event, id=event_id, community=community)
+
+    # Check permissions: only organizer or admin can cancel
+    if request.user != event.organizer and not is_admin(request.user, community):
+        raise PermissionDenied("Only the event organizer or community admin can cancel this event")
+
+    event.is_cancelled = not event.is_cancelled
+    event.save()
+
+    if event.is_cancelled:
+        messages.success(request, 'Event cancelled.')
+    else:
+        messages.success(request, 'Event reactivated.')
+
+    return redirect('communities:event_detail', slug=slug, event_id=event_id)

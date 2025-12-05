@@ -4,7 +4,7 @@ Django admin configuration for communities app.
 from django.contrib import admin
 from .models import (
     Community, CommunityMember, Post, PostImage, PostFile, Comment,
-    Thread, ChatMessage
+    Thread, ChatMessage, Event, EventRSVP
 )
 
 
@@ -165,3 +165,59 @@ class ChatMessageAdmin(admin.ModelAdmin):
         """Show content preview."""
         return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
     content_preview.short_description = 'Content'
+
+
+class EventRSVPInline(admin.TabularInline):
+    """Inline admin for event RSVPs."""
+    model = EventRSVP
+    extra = 0
+    readonly_fields = ('user', 'status', 'created_at', 'updated_at')
+    fields = ('user', 'status', 'created_at', 'updated_at')
+    can_delete = True
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    """Admin interface for Event model."""
+    list_display = ('id', 'title', 'community', 'organizer', 'start_datetime', 'location', 'going_count', 'interested_count', 'is_cancelled')
+    list_filter = ('is_cancelled', 'start_datetime', 'community')
+    search_fields = ('title', 'description', 'location', 'organizer__username', 'community__name')
+    readonly_fields = ('created_at', 'updated_at', 'going_count', 'interested_count')
+    inlines = [EventRSVPInline]
+    fieldsets = (
+        ('Event Information', {
+            'fields': ('community', 'organizer', 'title', 'description', 'cover_image')
+        }),
+        ('Date & Time', {
+            'fields': ('start_datetime', 'end_datetime')
+        }),
+        ('Location', {
+            'fields': ('location', 'location_details', 'latitude', 'longitude')
+        }),
+        ('Status', {
+            'fields': ('is_cancelled',)
+        }),
+        ('Statistics', {
+            'fields': ('going_count', 'interested_count')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+
+@admin.register(EventRSVP)
+class EventRSVPAdmin(admin.ModelAdmin):
+    """Admin interface for EventRSVP model."""
+    list_display = ('id', 'user', 'event', 'status', 'created_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('user__username', 'user__email', 'event__title', 'event__community__name')
+    readonly_fields = ('created_at', 'updated_at')
+    fieldsets = (
+        ('RSVP', {
+            'fields': ('event', 'user', 'status')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )

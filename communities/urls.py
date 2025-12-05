@@ -50,4 +50,13 @@ urlpatterns = [
     path('<slug:slug>/chat/', views.chat_thread, name='chat_thread'),
     path('<slug:slug>/chat/send/', views.send_message, name='send_message'),
     path('<slug:slug>/chat/poll/', views.poll_messages, name='poll_messages'),
+
+    # Events (Phase 4)
+    path('<slug:slug>/events/', views.event_list, name='event_list'),
+    path('<slug:slug>/events/create/', views.create_event, name='create_event'),
+    path('<slug:slug>/events/<int:event_id>/', views.event_detail, name='event_detail'),
+    path('<slug:slug>/events/<int:event_id>/edit/', views.edit_event, name='edit_event'),
+    path('<slug:slug>/events/<int:event_id>/delete/', views.delete_event, name='delete_event'),
+    path('<slug:slug>/events/<int:event_id>/rsvp/', views.rsvp_event, name='rsvp_event'),
+    path('<slug:slug>/events/<int:event_id>/cancel/', views.cancel_event, name='cancel_event'),
 ]

@@ -324,3 +324,118 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return f"Message by {self.sender.username} in {self.thread.community.name}"
+
+
+class Event(models.Model):
+    """
+    Event model for community meetups, study sessions, social gatherings.
+    Supports RSVP system and location information.
+    """
+    RSVP_STATUS_CHOICES = [
+        ('going', 'Going'),
+        ('interested', 'Interested'),
+        ('not_going', 'Not Going'),
+    ]
+
+    community = models.ForeignKey(
+        Community,
+        on_delete=models.CASCADE,
+        related_name='events'
+    )
+    organizer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='organized_events'
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(max_length=2000)
+
+    # Date and Time
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField()
+
+    # Location
+    location = models.CharField(max_length=300)
+    location_details = models.TextField(max_length=500, blank=True, help_text='Additional location info (room number, landmarks, etc.)')
+
+    # Optional map coordinates for future map integration
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+
+    # Cover image
+    cover_image = models.ImageField(upload_to='event_covers/', blank=True, null=True)
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_cancelled = models.BooleanField(default=False)
+
+    # Stats (denormalized for performance)
+    going_count = models.IntegerField(default=0)
+    interested_count = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['start_datetime']
+        indexes = [
+            models.Index(fields=['community', 'start_datetime']),
+            models.Index(fields=['organizer', '-created_at']),
+            models.Index(fields=['start_datetime']),
+            models.Index(fields=['is_cancelled']),
+        ]
+
+    def __str__(self):
+        return f"{self.title} - {self.community.name}"
+
+    @property
+    def is_past(self):
+        """Check if event has already occurred"""
+        from django.utils import timezone
+        return self.end_datetime < timezone.now()
+
+    @property
+    def is_upcoming(self):
+        """Check if event is in the future"""
+        from django.utils import timezone
+        return self.start_datetime > timezone.now()
+
+    def update_rsvp_counts(self):
+        """Update denormalized RSVP counts"""
+        self.going_count = self.rsvps.filter(status='going').count()
+        self.interested_count = self.rsvps.filter(status='interested').count()
+        self.save()
+
+
+class EventRSVP(models.Model):
+    """
+    RSVP model linking users to events with their attendance status.
+    """
+    STATUS_CHOICES = [
+        ('going', 'Going'),
+        ('interested', 'Interested'),
+        ('not_going', 'Not Going'),
+    ]
+
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='rsvps'
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='event_rsvps'
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('event', 'user')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['event', 'status']),
+            models.Index(fields=['user', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.event.title} ({self.status})"

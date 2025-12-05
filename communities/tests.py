@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import IntegrityError
 from django.urls import reverse
-from .models import Community, CommunityMember, Post, PostImage, PostFile, Comment, Thread, ChatMessage
+from .models import Community, CommunityMember, Post, PostImage, PostFile, Comment, Thread, ChatMessage, Event, EventRSVP
 from .forms import CommunityForm, PostForm, CommentForm
 from profiles.models import Profile
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -2405,5 +2405,267 @@ class ChatMessageModelTests(TestCase):
         # Verify messages are deleted
         self.assertEqual(
             ChatMessage.objects.filter(thread_id=thread_id).count(),
+            0
+        )
+
+
+# ============================================================================
+# PHASE 4: EVENT MODEL TESTS
+# ============================================================================
+
+class EventModelTests(TestCase):
+    """Tests for Event model"""
+
+    def setUp(self):
+        """Create test users and community"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        self.user = User.objects.create_user(
+            email='test@nyu.edu',
+            username='testuser',
+            password='testpass123'
+        )
+        Profile.objects.create(user=self.user, university='NYU')
+
+        self.community = Community.objects.create(
+            name='Test Community',
+            description='Test Description',
+            privacy='public',
+            created_by=self.user
+        )
+
+        self.start_time = timezone.now() + timedelta(days=1)
+        self.end_time = self.start_time + timedelta(hours=2)
+
+    def test_event_creation(self):
+        """Test creating an event"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user,
+            title='Test Event',
+            description='Test Description',
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location='Test Location'
+        )
+
+        self.assertEqual(event.community, self.community)
+        self.assertEqual(event.organizer, self.user)
+        self.assertEqual(event.title, 'Test Event')
+        self.assertEqual(event.going_count, 0)
+        self.assertEqual(event.interested_count, 0)
+        self.assertFalse(event.is_cancelled)
+
+    def test_event_str(self):
+        """Test event string representation"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user,
+            title='Study Session',
+            description='Test',
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location='Library'
+        )
+        self.assertEqual(str(event), f"Study Session - {self.community.name}")
+
+    def test_event_is_upcoming(self):
+        """Test is_upcoming property"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user,
+            title='Future Event',
+            description='Test',
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location='Test'
+        )
+        self.assertTrue(event.is_upcoming)
+
+    def test_event_is_past(self):
+        """Test is_past property"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        past_start = timezone.now() - timedelta(days=2)
+        past_end = past_start + timedelta(hours=2)
+
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user,
+            title='Past Event',
+            description='Test',
+            start_datetime=past_start,
+            end_datetime=past_end,
+            location='Test'
+        )
+        self.assertTrue(event.is_past)
+        self.assertFalse(event.is_upcoming)
+
+    def test_event_ordering(self):
+        """Test that events are ordered by start_datetime"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        event1_start = timezone.now() + timedelta(days=1)
+        event2_start = timezone.now() + timedelta(days=2)
+
+        event1 = Event.objects.create(
+            community=self.community,
+            organizer=self.user,
+            title='First Event',
+            description='Test',
+            start_datetime=event1_start,
+            end_datetime=event1_start + timedelta(hours=1),
+            location='Test'
+        )
+
+        event2 = Event.objects.create(
+            community=self.community,
+            organizer=self.user,
+            title='Second Event',
+            description='Test',
+            start_datetime=event2_start,
+            end_datetime=event2_start + timedelta(hours=1),
+            location='Test'
+        )
+
+        events = Event.objects.filter(community=self.community)
+        self.assertEqual(events[0], event1)
+        self.assertEqual(events[1], event2)
+
+    def test_update_rsvp_counts(self):
+        """Test update_rsvp_counts method"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user,
+            title='Test Event',
+            description='Test',
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location='Test'
+        )
+
+        user2 = User.objects.create_user(
+            email='user2@nyu.edu',
+            username='user2',
+            password='testpass123'
+        )
+        Profile.objects.create(user=user2, university='NYU')
+
+        EventRSVP.objects.create(event=event, user=self.user, status='going')
+        EventRSVP.objects.create(event=event, user=user2, status='interested')
+
+        event.update_rsvp_counts()
+        self.assertEqual(event.going_count, 1)
+        self.assertEqual(event.interested_count, 1)
+
+
+class EventRSVPModelTests(TestCase):
+    """Tests for EventRSVP model"""
+
+    def setUp(self):
+        """Create test users, community, and event"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        self.user1 = User.objects.create_user(
+            email='user1@nyu.edu',
+            username='user1',
+            password='testpass123'
+        )
+        Profile.objects.create(user=self.user1, university='NYU')
+
+        self.user2 = User.objects.create_user(
+            email='user2@nyu.edu',
+            username='user2',
+            password='testpass123'
+        )
+        Profile.objects.create(user=self.user2, university='NYU')
+
+        self.community = Community.objects.create(
+            name='Test Community',
+            description='Test',
+            privacy='public',
+            created_by=self.user1
+        )
+
+        start_time = timezone.now() + timedelta(days=1)
+        self.event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title='Test Event',
+            description='Test',
+            start_datetime=start_time,
+            end_datetime=start_time + timedelta(hours=2),
+            location='Test'
+        )
+
+    def test_rsvp_creation(self):
+        """Test creating an RSVP"""
+        rsvp = EventRSVP.objects.create(
+            event=self.event,
+            user=self.user1,
+            status='going'
+        )
+
+        self.assertEqual(rsvp.event, self.event)
+        self.assertEqual(rsvp.user, self.user1)
+        self.assertEqual(rsvp.status, 'going')
+
+    def test_rsvp_str(self):
+        """Test RSVP string representation"""
+        rsvp = EventRSVP.objects.create(
+            event=self.event,
+            user=self.user1,
+            status='interested'
+        )
+        expected = f"{self.user1.username} - {self.event.title} (interested)"
+        self.assertEqual(str(rsvp), expected)
+
+    def test_rsvp_unique_constraint(self):
+        """Test that a user can only have one RSVP per event"""
+        EventRSVP.objects.create(
+            event=self.event,
+            user=self.user1,
+            status='going'
+        )
+
+        with self.assertRaises(IntegrityError):
+            EventRSVP.objects.create(
+                event=self.event,
+                user=self.user1,
+                status='interested'
+            )
+
+    def test_multiple_rsvps_different_users(self):
+        """Test multiple users can RSVP to same event"""
+        rsvp1 = EventRSVP.objects.create(
+            event=self.event,
+            user=self.user1,
+            status='going'
+        )
+        rsvp2 = EventRSVP.objects.create(
+            event=self.event,
+            user=self.user2,
+            status='interested'
+        )
+
+        self.assertEqual(EventRSVP.objects.filter(event=self.event).count(), 2)
+
+    def test_delete_event_deletes_rsvps(self):
+        """Test that deleting an event deletes all its RSVPs"""
+        EventRSVP.objects.create(
+            event=self.event,
+            user=self.user1,
+            status='going'
+        )
+
+        event_id = self.event.id
+        self.event.delete()
+
+        self.assertEqual(
+            EventRSVP.objects.filter(event_id=event_id).count(),
             0
         )
