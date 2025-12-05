@@ -34,7 +34,7 @@ class Thread(models.Model):
                 name="unique_thread_per_item_pair",
             ),
             models.CheckConstraint(
-                check=~Q(user_a=F("user_b")), name="prevent_self_thread"
+                condition=~Q(user_a=F("user_b")), name="prevent_self_thread"
             ),
         ]
         indexes = [
