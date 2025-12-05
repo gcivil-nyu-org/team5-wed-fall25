@@ -3,7 +3,7 @@ Forms for communities app.
 """
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Community, CommunityMember, Post, Comment
+from .models import Community, CommunityMember, Post, Comment, ChatMessage
 from profiles.models import Profile
 
 
@@ -154,6 +154,26 @@ class CommentForm(forms.ModelForm):
                 'placeholder': 'Write a comment...',
                 'rows': 3,
                 'maxlength': '2000'
+            })
+        }
+        help_texts = {
+            'content': 'Max 2,000 characters'
+        }
+
+
+class ChatMessageForm(forms.ModelForm):
+    """Form for sending chat messages in community threads."""
+
+    class Meta:
+        model = ChatMessage
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control chat-input',
+                'placeholder': 'Type your message...',
+                'rows': 2,
+                'maxlength': '2000',
+                'id': 'chat-message-input'
             })
         }
         help_texts = {

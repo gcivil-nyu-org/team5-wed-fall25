@@ -9,8 +9,8 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 
-from .models import Community, CommunityMember, Post, PostImage, PostFile, Comment
-from .forms import CommunityForm, JoinRequestForm, PostForm, CommentForm
+from .models import Community, CommunityMember, Post, PostImage, PostFile, Comment, Thread, ChatMessage
+from .forms import CommunityForm, JoinRequestForm, PostForm, CommentForm, ChatMessageForm
 from .permissions import (
     check_membership, is_admin, is_moderator_or_admin,
     can_moderate, require_membership, require_moderator, require_admin
@@ -755,3 +755,127 @@ def delete_comment(request, slug, post_id, comment_id):
 
     messages.success(request, 'Comment deleted!')
     return redirect('communities:post_detail', slug=slug, post_id=post_id)
+
+
+# ============================================================================
+# PHASE 3: AJAX POLLING CHAT
+# ============================================================================
+
+@login_required
+@require_membership
+def chat_thread(request, slug):
+    """View community chat thread (members only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+
+    # Get or create thread for this community
+    thread, created = Thread.objects.get_or_create(community=community)
+
+    # Get recent messages (last 50)
+    messages_list = ChatMessage.objects.filter(
+        thread=thread
+    ).select_related('sender', 'sender__profile').order_by('-created_at')[:50]
+
+    # Reverse to show oldest first
+    messages_list = list(reversed(messages_list))
+
+    # Message form
+    form = ChatMessageForm()
+
+    # Get membership info for context
+    membership = CommunityMember.objects.filter(
+        community=community,
+        user=request.user,
+        status='active'
+    ).first()
+
+    context = {
+        'community': community,
+        'thread': thread,
+        'messages': messages_list,
+        'form': form,
+        'membership': membership,
+        'is_admin': is_admin(request.user, community),
+        'can_moderate': can_moderate(request.user, community),
+    }
+    return render(request, 'communities/chat_thread.html', context)
+
+
+@login_required
+@require_POST
+@require_membership
+def send_message(request, slug):
+    """Send a message to community chat (members only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+
+    # Get or create thread
+    thread, created = Thread.objects.get_or_create(community=community)
+
+    form = ChatMessageForm(request.POST)
+    if form.is_valid():
+        message = form.save(commit=False)
+        message.thread = thread
+        message.sender = request.user
+        message.save()
+
+        # Update thread stats
+        thread.message_count = ChatMessage.objects.filter(thread=thread).count()
+        thread.save()
+
+        # Return success response for AJAX
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message_id': message.id
+            })
+
+        return redirect('communities:chat_thread', slug=slug)
+
+    # Handle errors
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors
+        }, status=400)
+
+    messages.error(request, 'Failed to send message.')
+    return redirect('communities:chat_thread', slug=slug)
+
+
+@login_required
+@require_membership
+def poll_messages(request, slug):
+    """AJAX endpoint to poll for new messages (members only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+
+    # Get thread
+    thread = get_object_or_404(Thread, community=community)
+
+    # Get last message ID from query params
+    last_message_id = request.GET.get('last_message_id', 0)
+
+    # Get new messages after last_message_id
+    new_messages = ChatMessage.objects.filter(
+        thread=thread,
+        id__gt=last_message_id
+    ).select_related('sender', 'sender__profile').order_by('created_at')
+
+    # Serialize messages
+    messages_data = []
+    for msg in new_messages:
+        messages_data.append({
+            'id': msg.id,
+            'sender_id': msg.sender.id,
+            'sender_name': msg.sender.get_full_name() or msg.sender.username,
+            'sender_first_initial': msg.sender.first_name[0].upper() if msg.sender.first_name else msg.sender.username[0].upper(),
+            'sender_last_initial': msg.sender.last_name[0].upper() if msg.sender.last_name else '',
+            'profile_photo_url': msg.sender.profile.profile_photo.url if msg.sender.profile.profile_photo else None,
+            'content': msg.content,
+            'created_at': msg.created_at.strftime('%b %d, %I:%M %p'),
+            'is_current_user': msg.sender == request.user,
+            'is_edited': msg.is_edited,
+        })
+
+    return JsonResponse({
+        'messages': messages_data,
+        'count': len(messages_data)
+    })

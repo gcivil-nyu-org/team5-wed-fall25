@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import IntegrityError
 from django.urls import reverse
-from .models import Community, CommunityMember, Post, PostImage, PostFile, Comment
+from .models import Community, CommunityMember, Post, PostImage, PostFile, Comment, Thread, ChatMessage
 from .forms import CommunityForm, PostForm, CommentForm
 from profiles.models import Profile
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -2243,3 +2243,167 @@ class IntegrationTests(TestCase):
         )
         post.refresh_from_db()
         self.assertTrue(post.is_edited)
+
+
+# ============================================================================
+# PHASE 3: CHAT MODEL TESTS
+# ============================================================================
+
+class ThreadModelTests(TestCase):
+    """Tests for Thread model"""
+
+    def setUp(self):
+        """Create test user and community"""
+        self.user = User.objects.create_user(
+            email='test@nyu.edu',
+            username='testuser',
+            password='testpass123'
+        )
+        Profile.objects.create(user=self.user, university='NYU')
+
+        self.community = Community.objects.create(
+            name='Test Community',
+            description='Test Description',
+            privacy='public',
+            created_by=self.user
+        )
+
+    def test_thread_creation(self):
+        """Test creating a thread"""
+        thread = Thread.objects.create(community=self.community)
+        self.assertEqual(thread.community, self.community)
+        self.assertEqual(thread.message_count, 0)
+
+    def test_thread_str(self):
+        """Test thread string representation"""
+        thread = Thread.objects.create(community=self.community)
+        self.assertEqual(str(thread), f"Chat thread for {self.community.name}")
+
+    def test_one_to_one_relationship(self):
+        """Test that one community can only have one thread"""
+        Thread.objects.create(community=self.community)
+
+        # Try to create another thread for the same community
+        with self.assertRaises(Exception):
+            Thread.objects.create(community=self.community)
+
+    def test_thread_message_count_default(self):
+        """Test that message_count defaults to 0"""
+        thread = Thread.objects.create(community=self.community)
+        self.assertEqual(thread.message_count, 0)
+
+
+class ChatMessageModelTests(TestCase):
+    """Tests for ChatMessage model"""
+
+    def setUp(self):
+        """Create test users, community, and thread"""
+        self.user1 = User.objects.create_user(
+            email='user1@nyu.edu',
+            username='user1',
+            password='testpass123'
+        )
+        Profile.objects.create(user=self.user1, university='NYU')
+
+        self.user2 = User.objects.create_user(
+            email='user2@nyu.edu',
+            username='user2',
+            password='testpass123'
+        )
+        Profile.objects.create(user=self.user2, university='NYU')
+
+        self.community = Community.objects.create(
+            name='Test Community',
+            description='Test Description',
+            privacy='public',
+            created_by=self.user1
+        )
+
+        self.thread = Thread.objects.create(community=self.community)
+
+    def test_chat_message_creation(self):
+        """Test creating a chat message"""
+        message = ChatMessage.objects.create(
+            thread=self.thread,
+            sender=self.user1,
+            content='Hello, world!'
+        )
+
+        self.assertEqual(message.thread, self.thread)
+        self.assertEqual(message.sender, self.user1)
+        self.assertEqual(message.content, 'Hello, world!')
+        self.assertFalse(message.is_edited)
+        self.assertIsNone(message.edited_at)
+
+    def test_chat_message_str(self):
+        """Test chat message string representation"""
+        message = ChatMessage.objects.create(
+            thread=self.thread,
+            sender=self.user1,
+            content='Test message'
+        )
+        expected = f"Message by {self.user1.username} in {self.community.name}"
+        self.assertEqual(str(message), expected)
+
+    def test_chat_message_ordering(self):
+        """Test that messages are ordered by created_at"""
+        msg1 = ChatMessage.objects.create(
+            thread=self.thread,
+            sender=self.user1,
+            content='First'
+        )
+        msg2 = ChatMessage.objects.create(
+            thread=self.thread,
+            sender=self.user2,
+            content='Second'
+        )
+
+        messages = ChatMessage.objects.filter(thread=self.thread)
+        self.assertEqual(messages[0], msg1)
+        self.assertEqual(messages[1], msg2)
+
+    def test_chat_message_is_edited_default(self):
+        """Test that is_edited defaults to False"""
+        message = ChatMessage.objects.create(
+            thread=self.thread,
+            sender=self.user1,
+            content='Test'
+        )
+        self.assertFalse(message.is_edited)
+
+    def test_multiple_messages_same_thread(self):
+        """Test creating multiple messages in the same thread"""
+        ChatMessage.objects.create(
+            thread=self.thread,
+            sender=self.user1,
+            content='Message 1'
+        )
+        ChatMessage.objects.create(
+            thread=self.thread,
+            sender=self.user2,
+            content='Message 2'
+        )
+        ChatMessage.objects.create(
+            thread=self.thread,
+            sender=self.user1,
+            content='Message 3'
+        )
+
+        self.assertEqual(ChatMessage.objects.filter(thread=self.thread).count(), 3)
+
+    def test_delete_thread_deletes_messages(self):
+        """Test that deleting a thread deletes all its messages"""
+        ChatMessage.objects.create(
+            thread=self.thread,
+            sender=self.user1,
+            content='Test'
+        )
+
+        thread_id = self.thread.id
+        self.thread.delete()
+
+        # Verify messages are deleted
+        self.assertEqual(
+            ChatMessage.objects.filter(thread_id=thread_id).count(),
+            0
+        )

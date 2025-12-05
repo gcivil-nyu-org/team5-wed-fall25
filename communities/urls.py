@@ -45,4 +45,9 @@ urlpatterns = [
     path('<slug:slug>/posts/<int:post_id>/comments/create/', views.create_comment, name='create_comment'),
     path('<slug:slug>/posts/<int:post_id>/comments/<int:comment_id>/edit/', views.edit_comment, name='edit_comment'),
     path('<slug:slug>/posts/<int:post_id>/comments/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
+
+    # Chat (Phase 3)
+    path('<slug:slug>/chat/', views.chat_thread, name='chat_thread'),
+    path('<slug:slug>/chat/send/', views.send_message, name='send_message'),
+    path('<slug:slug>/chat/poll/', views.poll_messages, name='poll_messages'),
 ]

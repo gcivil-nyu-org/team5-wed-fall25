@@ -2,7 +2,10 @@
 Django admin configuration for communities app.
 """
 from django.contrib import admin
-from .models import Community, CommunityMember, Post, PostImage, PostFile, Comment
+from .models import (
+    Community, CommunityMember, Post, PostImage, PostFile, Comment,
+    Thread, ChatMessage
+)
 
 
 @admin.register(Community)
@@ -102,6 +105,59 @@ class CommentAdmin(admin.ModelAdmin):
         }),
         ('Metadata', {
             'fields': ('created_at', 'updated_at', 'is_edited')
+        }),
+    )
+
+    def content_preview(self, obj):
+        """Show content preview."""
+        return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
+    content_preview.short_description = 'Content'
+
+
+class ChatMessageInline(admin.TabularInline):
+    """Inline admin for chat messages."""
+    model = ChatMessage
+    extra = 0
+    readonly_fields = ('sender', 'created_at', 'is_edited', 'edited_at')
+    fields = ('sender', 'content', 'created_at', 'is_edited', 'edited_at')
+    can_delete = True
+    show_change_link = True
+
+
+@admin.register(Thread)
+class ThreadAdmin(admin.ModelAdmin):
+    """Admin interface for Thread model."""
+    list_display = ('id', 'community', 'message_count', 'created_at', 'updated_at')
+    list_filter = ('created_at', 'updated_at')
+    search_fields = ('community__name',)
+    readonly_fields = ('created_at', 'updated_at', 'message_count')
+    inlines = [ChatMessageInline]
+    fieldsets = (
+        ('Thread', {
+            'fields': ('community',)
+        }),
+        ('Statistics', {
+            'fields': ('message_count',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    """Admin interface for ChatMessage model."""
+    list_display = ('id', 'sender', 'thread', 'content_preview', 'created_at', 'is_edited')
+    list_filter = ('is_edited', 'created_at')
+    search_fields = ('content', 'sender__username', 'thread__community__name')
+    readonly_fields = ('created_at', 'edited_at')
+    fieldsets = (
+        ('Message', {
+            'fields': ('thread', 'sender', 'content')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'is_edited', 'edited_at')
         }),
     )
 

@@ -27,6 +27,7 @@
     <div class="community-actions">
         {% if user.is_authenticated %}
             {% if is_member %}
+                <a href="{% url 'communities:chat_thread' community.slug %}" class="btn-primary">💬 Chat</a>
                 {% if is_admin %}
                     <a href="{% url 'communities:settings' community.slug %}" class="btn-secondary">Settings</a>
                 {% endif %}

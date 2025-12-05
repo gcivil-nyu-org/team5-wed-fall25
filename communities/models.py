@@ -266,3 +266,61 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.author.username} on post {self.post.id}"
+
+
+class Thread(models.Model):
+    """
+    Chat thread model for community conversations.
+    One thread per community for general chat.
+    """
+    community = models.OneToOneField(
+        Community,
+        on_delete=models.CASCADE,
+        related_name='chat_thread'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Stats (denormalized for performance)
+    message_count = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['-updated_at']
+        indexes = [
+            models.Index(fields=['community']),
+            models.Index(fields=['-updated_at']),
+        ]
+
+    def __str__(self):
+        return f"Chat thread for {self.community.name}"
+
+
+class ChatMessage(models.Model):
+    """
+    Individual chat message in a community thread.
+    Supports real-time messaging via AJAX polling.
+    """
+    thread = models.ForeignKey(
+        Thread,
+        on_delete=models.CASCADE,
+        related_name='messages'
+    )
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='community_chat_messages'
+    )
+    content = models.TextField(max_length=2000)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_edited = models.BooleanField(default=False)
+    edited_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['created_at']
+        indexes = [
+            models.Index(fields=['thread', 'created_at']),
+            models.Index(fields=['sender', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"Message by {self.sender.username} in {self.thread.community.name}"
