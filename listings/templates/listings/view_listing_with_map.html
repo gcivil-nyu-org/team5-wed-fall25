@@ -47,7 +47,7 @@
       data-mapbox-token="{{ mapbox_token }}"
       data-longitude="{{ listing.longitude }}"
       data-latitude="{{ listing.latitude }}"
-      data-address="{{ listing.address }}"
+      data-address="{{ listing.street_address }}, {{ listing.city }}, NY {{ listing.zipcode }}"
       data-title="{{ listing.title }}"
     >
       <div class="map-loading">Loading map...</div>
@@ -62,7 +62,7 @@
     <div class="details-grid">
       <div>
         <strong class="detail-field-label">Address:</strong>
-        <p class="detail-field-value">{{ listing.address }}</p>
+        <p class="detail-field-value">{{ listing.street_address }}, {{ listing.city }}, NY {{ listing.zipcode }}</p>
       </div>
 
       <div>

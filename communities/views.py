@@ -9,6 +9,7 @@ from django.db.models import Q, Count
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
+from django.conf import settings
 
 from .models import (
     Community,
@@ -986,6 +987,7 @@ def create_event(request, slug):
     context = {
         "community": community,
         "form": form,
+        "mapbox_token": getattr(settings, "MAPBOX_ACCESS_TOKEN", None),
     }
     return render(request, "communities/create_event.html", context)
 
@@ -1025,6 +1027,7 @@ def event_detail(request, slug, event_id):
         "is_organizer": is_organizer,
         "is_admin": is_admin(request.user, community),
         "can_moderate": can_moderate(request.user, community),
+        "mapbox_token": getattr(settings, "MAPBOX_ACCESS_TOKEN", None),
     }
     return render(request, "communities/event_detail.html", context)
 
@@ -1055,6 +1058,7 @@ def edit_event(request, slug, event_id):
         "community": community,
         "event": event,
         "form": form,
+        "mapbox_token": getattr(settings, "MAPBOX_ACCESS_TOKEN", None),
     }
     return render(request, "communities/edit_event.html", context)
 

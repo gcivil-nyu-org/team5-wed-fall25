@@ -198,6 +198,8 @@ class EventForm(forms.ModelForm):
             "end_datetime",
             "location",
             "location_details",
+            "latitude",
+            "longitude",
             "cover_image",
         ]
         widgets = {
@@ -237,6 +239,8 @@ class EventForm(forms.ModelForm):
                     "maxlength": "500",
                 }
             ),
+            "latitude": forms.HiddenInput(attrs={"id": "id_latitude"}),
+            "longitude": forms.HiddenInput(attrs={"id": "id_longitude"}),
             "cover_image": forms.FileInput(attrs={"class": "form-control"}),
         }
         help_texts = {
