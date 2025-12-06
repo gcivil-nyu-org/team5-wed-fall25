@@ -1,0 +1,218 @@
+<div class="comment" id="comment-{{ comment.id }}">
+    <div class="comment-header">
+        <div class="comment-author">
+            <div class="comment-avatar">
+                {% if comment.author.profile.profile_photo %}
+                    <img src="{{ comment.author.profile.profile_photo.url }}" alt="{{ comment.author.username }}">
+                {% else %}
+                    <span>{{ comment.author.username|slice:":1"|upper }}</span>
+                {% endif %}
+            </div>
+            <div>
+                <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+                <div class="comment-meta">
+                    {{ comment.created_at|date:"M d, Y 'at' g:i A" }}
+                    {% if comment.is_edited %}
+                        <span class="edited-badge">(edited)</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Comment Actions -->
+        <div class="comment-actions">
+            {% if user == comment.author %}
+                <a href="{% url 'communities:edit_comment' community.slug post.id comment.id %}" class="btn-text">Edit</a>
+                <form method="post" action="{% url 'communities:delete_comment' community.slug post.id comment.id %}" style="display: inline;" onsubmit="return confirm('Delete this comment?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-text-danger">Delete</button>
+                </form>
+            {% elif can_pin %}
+                <form method="post" action="{% url 'communities:delete_comment' community.slug post.id comment.id %}" style="display: inline;" onsubmit="return confirm('Delete this comment?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-text-danger">Delete</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="comment-content">
+        {{ comment.content|linebreaks }}
+    </div>
+
+    <!-- Reply Button -->
+    <button class="btn-reply" onclick="toggleReplyForm({{ comment.id }})">Reply</button>
+
+    <!-- Reply Form (Hidden by default) -->
+    <div id="reply-form-{{ comment.id }}" class="reply-form" style="display: none;">
+        <form method="post" action="{% url 'communities:create_comment' community.slug post.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+            <textarea name="content" rows="3" placeholder="Write a reply..." required></textarea>
+            <div class="reply-actions">
+                <button type="submit" class="btn-primary-small">Reply</button>
+                <button type="button" class="btn-secondary-small" onclick="toggleReplyForm({{ comment.id }})">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Nested Replies -->
+    {% if comment.replies.all %}
+        <div class="replies">
+            {% for reply in comment.replies.all %}
+                {% include 'communities/partials/comment.html' with comment=reply %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.comment {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: #1a1a1a;
+    border-radius: 6px;
+    border-left: 3px solid #667eea;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.comment-author {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.comment-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.comment-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.comment-meta {
+    color: #9ca3af;
+    font-size: 0.75rem;
+    margin-top: 0.125rem;
+}
+
+.edited-badge {
+    font-style: italic;
+    color: #6b7280;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-text, .btn-text-danger {
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 0;
+}
+
+.btn-text-danger {
+    color: #ef4444;
+}
+
+.comment-content {
+    color: #e5e7eb;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.btn-reply {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.btn-reply:hover {
+    color: #667eea;
+}
+
+.reply-form {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #2a2a2a;
+    border-radius: 6px;
+}
+
+.reply-form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    background: #1a1a1a;
+    border: 1px solid #374151;
+    border-radius: 4px;
+    color: #fff;
+    resize: vertical;
+    margin-bottom: 0.5rem;
+}
+
+.reply-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-primary-small, .btn-secondary-small {
+    padding: 0.375rem 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.btn-primary-small {
+    background: #667eea;
+    color: white;
+}
+
+.btn-secondary-small {
+    background: #374151;
+    color: white;
+}
+
+.replies {
+    margin-top: 1rem;
+    margin-left: 2rem;
+    border-left: 2px solid #374151;
+    padding-left: 1rem;
+}
+
+.replies .comment {
+    background: #242424;
+    border-left: 2px solid #4b5563;
+}
+</style>
+
+<script>
+function toggleReplyForm(commentId) {
+    const form = document.getElementById(`reply-form-${commentId}`);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+</script>

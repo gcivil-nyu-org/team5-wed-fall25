@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Event - {{ event.title }} - CampusNest{% endblock %}
+
+{% block extra_css %}
+<!-- Mapbox GL CSS -->
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+<!-- Mapbox Geocoder CSS -->
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css' type='text/css' />
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1>Edit Event</h1>
+        <p class="subtitle">Update the details for {{ event.title }}</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="event-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">Event Title *</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <div class="error-message">{{ form.title.errors }}</div>
+            {% endif %}
+            <small class="help-text">{{ form.title.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Description *</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <div class="error-message">{{ form.description.errors }}</div>
+            {% endif %}
+            <small class="help-text">{{ form.description.help_text }}</small>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="{{ form.start_datetime.id_for_label }}">Start Date & Time *</label>
+                {{ form.start_datetime }}
+                {% if form.start_datetime.errors %}
+                    <div class="error-message">{{ form.start_datetime.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.end_datetime.id_for_label }}">End Date & Time *</label>
+                {{ form.end_datetime }}
+                {% if form.end_datetime.errors %}
+                    <div class="error-message">{{ form.end_datetime.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.location.id_for_label }}">Location *</label>
+            {{ form.location }}
+            {% if form.location.errors %}
+                <div class="error-message">{{ form.location.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.location_details.id_for_label }}">Location Details</label>
+            {{ form.location_details }}
+            {% if form.location_details.errors %}
+                <div class="error-message">{{ form.location_details.errors }}</div>
+            {% endif %}
+            <small class="help-text">{{ form.location_details.help_text }}</small>
+        </div>
+
+        <!-- Map Picker -->
+        <div class="form-group">
+            <label>Pin Event Location on Map (Optional)</label>
+            <div id="event-location-map" class="event-location-map" data-mapbox-token="{{ mapbox_token }}">
+                <div class="map-loading">Loading map...</div>
+            </div>
+            <small class="help-text">Click on the map or use the search box to set the event location. This helps attendees find the event.</small>
+        </div>
+
+        <!-- Hidden fields for coordinates -->
+        {{ form.latitude }}
+        {{ form.longitude }}
+
+        <div class="form-group">
+            <label for="{{ form.cover_image.id_for_label }}">Cover Image</label>
+            {% if event.cover_image %}
+                <div class="current-image">
+                    <img src="{{ event.cover_image.url }}" alt="Current cover">
+                    <p class="current-image-text">Current cover image</p>
+                </div>
+            {% endif %}
+            {{ form.cover_image }}
+            {% if form.cover_image.errors %}
+                <div class="error-message">{{ form.cover_image.errors }}</div>
+            {% endif %}
+            <small class="help-text">{{ form.cover_image.help_text }}</small>
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="error-message">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <a href="{% url 'communities:event_detail' community.slug event.id %}" class="btn-secondary">Cancel</a>
+            <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+
+<style>
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #2a2a2a;
+    border-radius: 12px;
+    border: 1px solid #374151;
+}
+
+.form-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #374151;
+}
+
+.form-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #9ca3af;
+    font-size: 1rem;
+}
+
+.event-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.event-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.event-form .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border: 2px solid #374151;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.event-form .form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.event-form textarea.form-control {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.current-image {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #1a1a1a;
+    border-radius: 8px;
+    border: 1px solid #374151;
+}
+
+.current-image img {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.current-image-text {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.help-text {
+    display: block;
+    margin-top: 0.25rem;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.error-message {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    border-radius: 8px;
+    color: #fca5a5;
+    font-size: 0.875rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #374151;
+}
+
+.event-location-map {
+    width: 100%;
+    height: 400px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #1a1a1a;
+    border: 1px solid #374151;
+}
+
+.map-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #9ca3af;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .event-location-map {
+        height: 300px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Mapbox GL JS -->
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+<!-- Mapbox Geocoder Plugin -->
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+<!-- Event location picker script -->
+<script src="{% static 'communities/js/event_location_picker.js' %}"></script>
+{% endblock %}

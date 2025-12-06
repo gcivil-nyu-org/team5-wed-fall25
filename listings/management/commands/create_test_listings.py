@@ -307,6 +307,11 @@ class Command(BaseCommand):
                     ITEM_CATEGORIES
                 )  # Uses values from marketplace.constants
 
+                # Generate address components
+                street_address = f"{random.randint(100, 9999)} {random.choice(['Main', 'Park', 'Broadway', 'Madison', 'Fifth'])} St"
+                city = "New York"
+                zipcode = random.choice(ZIPCODES)
+
                 item = Item.objects.create(
                     user=user,
                     title=f"{item_name} #{k + 1}",
@@ -314,9 +319,9 @@ class Command(BaseCommand):
                     price=price,
                     condition=condition,
                     category=category,
-                    pickup_location=f"{random.choice(NEIGHBORHOODS)}, NY",
-                    owner_name=f"{user.first_name} {user.last_name}",
-                    contact_details=user.email,
+                    street_address=street_address,
+                    city=city,
+                    zipcode=zipcode,
                     is_active=True,
                 )
 

@@ -78,8 +78,11 @@ def create_listing(request):
             listing = form.save(commit=False)
             listing.user = request.user
 
-            # Geocode address
-            coords = geocode_address(listing.address)
+            # Geocode address - construct full address from components
+            full_address = (
+                f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
+            )
+            coords = geocode_address(full_address)
             if coords:
                 listing.longitude, listing.latitude = coords[0], coords[1]
 
@@ -143,9 +146,15 @@ def edit_listing(request, listing_id):  # noqa: C901
             listing.is_edited = True
 
             # **NEW: Re-geocode if address changed**
-            # Check if address was modified
-            if "address" in form.changed_data:
-                coordinates = geocode_address(listing.address)
+            # Check if any address component was modified
+            if any(
+                field in form.changed_data
+                for field in ["street_address", "city", "zipcode"]
+            ):
+                full_address = (
+                    f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
+                )
+                coordinates = geocode_address(full_address)
                 if coordinates:
                     listing.longitude = coordinates[0]
                     listing.latitude = coordinates[1]
@@ -232,7 +241,8 @@ def view_listing(request, listing_id):
         return get_object_or_404(Listing, id=listing_id, user=request.user)
 
     share_url = request.build_absolute_uri(reverse("view_listing", args=[listing.id]))
-    share_text = f"Check out this CampusNest listing: {listing.title} — ${listing.rent}/mo at {listing.address}. {share_url}"
+    full_address = f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
+    share_text = f"Check out this CampusNest listing: {listing.title} — ${listing.rent}/mo at {full_address}. {share_url}"
 
     context = {
         "listing": listing,
@@ -280,7 +290,9 @@ def public_listings(request):  # noqa: C901
         listings = listings.filter(
             Q(title__icontains=keyword)
             | Q(description__icontains=keyword)
-            | Q(address__icontains=keyword)
+            | Q(street_address__icontains=keyword)
+            | Q(city__icontains=keyword)
+            | Q(zipcode__icontains=keyword)
         )
 
     # Apply rent filter
@@ -299,10 +311,14 @@ def public_listings(request):  # noqa: C901
     # Apply location filter with smart neighborhood/borough matching
     if location:
         neighborhoods = get_neighborhoods_for_search(location)
-        # Create OR query for all neighborhoods
+        # Create OR query for all neighborhoods across all address fields
         location_query = Q()
         for neighborhood in neighborhoods:
-            location_query |= Q(address__icontains=neighborhood)
+            location_query |= (
+                Q(street_address__icontains=neighborhood)
+                | Q(city__icontains=neighborhood)
+                | Q(zipcode__icontains=neighborhood)
+            )
         listings = listings.filter(location_query)
 
     # Apply move-in and move-out date filters

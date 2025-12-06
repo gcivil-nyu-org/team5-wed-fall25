@@ -34,7 +34,9 @@ class ListingModelTests(TestCase):
         self.listing = Listing.objects.create(
             user=self.user,
             title="Test Listing",
-            address="123 Main St, Brooklyn, NY 11201",
+            street_address="123 Main St, Brooklyn",
+            city="New York",
+            zipcode="11201",
             rent=Decimal("1500.00"),
             description="This is a test listing description with at least 20 characters",
             amenities="furnished,wifi,laundry",
@@ -51,7 +53,9 @@ class ListingModelTests(TestCase):
         self.assertIsNotNone(listing)
         self.assertEqual(listing.user, self.user)
         self.assertEqual(listing.title, "Test Listing")
-        self.assertEqual(listing.address, "123 Main St, Brooklyn, NY 11201")
+        self.assertEqual(listing.street_address, "123 Main St, Brooklyn")
+        self.assertEqual(listing.city, "New York")
+        self.assertEqual(listing.zipcode, "11201")
         self.assertEqual(listing.rent, Decimal("1500.00"))
         self.assertEqual(
             listing.description,
@@ -70,7 +74,9 @@ class ListingModelTests(TestCase):
         listing = Listing.objects.create(
             user=self.user,
             title="No Coords Listing",
-            address="456 Test Ave",
+            street_address="456 Test Ave",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1200.00"),
             description="Listing without coordinates for testing",
             availability_start=self.future_start,
@@ -89,7 +95,9 @@ class ListingModelTests(TestCase):
         listing = Listing.objects.create(
             user=self.user,
             title="Update Test",
-            address="789 Update St",
+            street_address="789 Update St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1600.00"),
             description="Testing coordinate updates",
             availability_start=self.future_start,
@@ -115,7 +123,9 @@ class ListingModelTests(TestCase):
         listing = Listing.objects.create(
             user=user2,
             title="Another Listing",
-            address="456 Oak Ave, Manhattan, NY 10001",
+            street_address="456 Oak Ave, Manhattan",
+            city="New York",
+            zipcode="10001",
             rent=Decimal("2000.00"),
             description="Another test listing description",
             availability_start=self.future_start,
@@ -146,7 +156,9 @@ class ListingModelTests(TestCase):
         listing = Listing.objects.create(
             user=self.user,
             title="No Amenities Listing",
-            address="789 Pine St",
+            street_address="789 Pine St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1000.00"),
             description="A listing with no amenities selected",
             availability_start=self.future_start,
@@ -165,7 +177,9 @@ class ListingModelTests(TestCase):
         listing = Listing.objects.create(
             user=self.user,
             title="Standard Amenities",
-            address="123 Test St",
+            street_address="123 Test St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1200.00"),
             description="Standard amenities only listing",
             amenities="furnished,wifi",
@@ -180,7 +194,9 @@ class ListingModelTests(TestCase):
         listing = Listing.objects.create(
             user=self.user,
             title="Empty Amenities",
-            address="456 Test Ave",
+            street_address="456 Test Ave",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1100.00"),
             description="No amenities at all listing",
             availability_start=self.future_start,
@@ -194,7 +210,9 @@ class ListingModelTests(TestCase):
         listing1 = Listing.objects.create(
             user=self.user,
             title="First Listing",
-            address="1 First St",
+            street_address="1 First St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1000.00"),
             description="First listing created for ordering test",
             availability_start=self.future_start,
@@ -203,7 +221,9 @@ class ListingModelTests(TestCase):
         listing2 = Listing.objects.create(
             user=self.user,
             title="Second Listing",
-            address="2 Second St",
+            street_address="2 Second St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1100.00"),
             description="Second listing created for ordering test",
             availability_start=self.future_start,
@@ -257,7 +277,9 @@ class ListingModelTests(TestCase):
         listing = Listing.objects.create(
             user=user3,
             title="User3 Listing",
-            address="999 Test Blvd",
+            street_address="999 Test Blvd",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1800.00"),
             description="Listing for cascade delete test",
             availability_start=self.future_start,
@@ -275,7 +297,9 @@ class ListingModelTests(TestCase):
         with_coords = Listing.objects.create(
             user=self.user,
             title="With Coords",
-            address="100 Coord St",
+            street_address="100 Coord St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1400.00"),
             description="Has coordinates for testing",
             availability_start=self.future_start,
@@ -286,7 +310,9 @@ class ListingModelTests(TestCase):
         without_coords = Listing.objects.create(
             user=self.user,
             title="Without Coords",
-            address="200 No Coord St",
+            street_address="200 No Coord St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1300.00"),
             description="No coordinates for testing",
             availability_start=self.future_start,
@@ -312,7 +338,9 @@ class ListingImageModelTests(TestCase):
         self.listing = Listing.objects.create(
             user=self.user,
             title="Test Listing",
-            address="123 Main St",
+            street_address="123 Main St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1500.00"),
             description="Test listing for image tests",
             availability_start=self.future_start,
@@ -365,7 +393,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Beautiful Apartment",
             "description": "A beautiful apartment with great amenities and location",
-            "address": "123 Main St, Brooklyn, NY 11201",
+            "street_address": "123 Main St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "amenities": ["furnished", "wifi"],
             "custom_amenities": "Balcony, Dishwasher",
@@ -380,14 +410,18 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "",
             "description": "",
-            "address": "",
+            "street_address": "",
+            "city": "",
+            "zipcode": "",
             "rent": "",
         }
         form = ListingForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn("title", form.errors)
         self.assertIn("description", form.errors)
-        self.assertIn("address", form.errors)
+        self.assertIn("street_address", form.errors)
+        self.assertIn("city", form.errors)
+        self.assertIn("zipcode", form.errors)
         self.assertIn("rent", form.errors)
 
     def test_rent_validation_negative(self):
@@ -395,7 +429,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "-100.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -409,7 +445,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "0.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -423,7 +461,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "150000.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -437,7 +477,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Too short",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -451,7 +493,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "12345678901234567890",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -465,7 +509,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": past_date,
             "availability_end": self.future_end,
@@ -480,7 +526,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": past_date,
@@ -494,7 +542,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": self.future_end,
             "availability_end": self.future_start,
@@ -509,7 +559,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": same_date,
             "availability_end": same_date,
@@ -523,7 +575,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "amenities": [],
             "availability_start": self.future_start,
@@ -537,7 +591,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "custom_amenities": "  Balcony  ,  Dishwasher  ,  Pool  ",
             "availability_start": self.future_start,
@@ -554,7 +610,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "custom_amenities": "Balcony,  ,  , Dishwasher",
             "availability_start": self.future_start,
@@ -572,7 +630,9 @@ class ListingFormTests(TestCase):
         form_data = {
             "title": "Test Listing",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "amenities": ["furnished", "wifi", "laundry"],
             "availability_start": self.future_start,
@@ -632,7 +692,9 @@ class CreateListingViewTests(TestCase):
     #     form_data = {
     #         "title": "Beautiful Apartment",
     #         "description": "A beautiful apartment with great amenities and location",
-    #         "address": "123 Main St, Brooklyn, NY 11201",
+    #         "street_address": "123 Main St, Brooklyn",
+    #         "city": "New York",
+    #         "zipcode": "11201",
     #         "rent": "1500.00",
     #         "amenities": ["furnished", "wifi"],
     #         "custom_amenities": "Balcony",
@@ -658,7 +720,9 @@ class CreateListingViewTests(TestCase):
         form_data = {
             "title": "Beautiful Apartment",
             "description": "A beautiful apartment with great amenities and location",
-            "address": "123 Main St, Brooklyn, NY 11201",
+            "street_address": "123 Main St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -678,7 +742,9 @@ class CreateListingViewTests(TestCase):
         form_data = {
             "title": "Beautiful Apartment",
             "description": "A beautiful apartment with great amenities and location",
-            "address": "123 Main St, Brooklyn, NY 11201",
+            "street_address": "123 Main St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -701,7 +767,9 @@ class CreateListingViewTests(TestCase):
         form_data = {
             "title": "Beautiful Apartment",
             "description": "A beautiful apartment with great amenities and location",
-            "address": "123 Main St, Brooklyn, NY 11201",
+            "street_address": "123 Main St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -725,7 +793,9 @@ class CreateListingViewTests(TestCase):
         form_data = {
             "title": "Beautiful Apartment",
             "description": "A beautiful apartment with great amenities and location",
-            "address": "123 Main St, Brooklyn, NY 11201",
+            "street_address": "123 Main St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -746,7 +816,9 @@ class CreateListingViewTests(TestCase):
         form_data = {
             "title": "Beautiful Apartment",
             "description": "A beautiful apartment with great amenities and location",
-            "address": "123 Main St, Brooklyn, NY 11201",
+            "street_address": "123 Main St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -766,7 +838,9 @@ class CreateListingViewTests(TestCase):
         form_data = {
             "title": "Beautiful Apartment",
             "description": "A beautiful apartment with great amenities and location",
-            "address": "123 Main St, Brooklyn, NY 11201",
+            "street_address": "123 Main St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -794,7 +868,9 @@ class EditListingViewTests(TestCase):
         self.listing = Listing.objects.create(
             user=self.user,
             title="Original Title",
-            address="123 Main St, Brooklyn, NY",
+            street_address="123 Main St, Brooklyn",
+            city="New York",
+            zipcode="11201",
             rent=Decimal("1500.00"),
             description="Original description with at least 20 characters",
             amenities="furnished,wifi",
@@ -833,7 +909,9 @@ class EditListingViewTests(TestCase):
     #     form_data = {
     #         "title": "Updated Title",
     #         "description": "Updated description with at least 20 characters",
-    #         "address": "123 Main St, Brooklyn, NY 11201",
+    #         "street_address": "123 Main St, Brooklyn",
+    #         "city": "New York",
+    #         "zipcode": "11201",
     #         "rent": "2000.00",
     #         "amenities": ["furnished", "wifi", "laundry"],
     #         "availability_start": self.future_start,
@@ -863,7 +941,9 @@ class EditListingViewTests(TestCase):
     #     form_data = {
     #         "title": "Same Title",
     #         "description": "Original description with at least 20 characters",
-    #         "address": "123 ",  # Changed address
+    #         "street_address": "123 ",
+    #         "city": "New York",
+    #         "zipcode": "10012",  # Changed address
     #         "rent": "1500.00",
     #         "keep_existing_images": "on",
     #         "availability_start": self.future_start,
@@ -887,7 +967,9 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "123 Main St, Brooklyn, NY",  # Same address
+            "street_address": "123 Main St, Brooklyn",
+            "city": "New York",
+            "zipcode": "11201",
             "rent": "1600.00",
             "keep_existing_images": "on",
             "availability_start": self.future_start,
@@ -907,7 +989,9 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave, Manhattan, NY",
+            "street_address": "456 Oak Ave, Manhattan",
+            "city": "New York",
+            "zipcode": "10001",
             "rent": "2000.00",
             "keep_existing_images": "on",
             "availability_start": self.future_start,
@@ -929,7 +1013,9 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave, Manhattan, NY",
+            "street_address": "456 Oak Ave, Manhattan",
+            "city": "New York",
+            "zipcode": "10001",
             "rent": "2000.00",
             "keep_existing_images": "on",
             "availability_start": self.future_start,
@@ -951,7 +1037,9 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave, Manhattan, NY",
+            "street_address": "456 Oak Ave, Manhattan",
+            "city": "New York",
+            "zipcode": "10001",
             "rent": "2000.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -973,7 +1061,9 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave, Manhattan, NY",
+            "street_address": "456 Oak Ave, Manhattan",
+            "city": "New York",
+            "zipcode": "10001",
             "rent": "2000.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -995,7 +1085,9 @@ class EditListingViewTests(TestCase):
         listing_no_images = Listing.objects.create(
             user=self.user,
             title="No Images Listing",
-            address="789 Test St",
+            street_address="789 Test St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1800.00"),
             description="A listing without any images for testing",
             amenities="wifi",
@@ -1009,7 +1101,9 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave, Manhattan, NY",
+            "street_address": "456 Oak Ave, Manhattan",
+            "city": "New York",
+            "zipcode": "10001",
             "rent": "2000.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -1041,7 +1135,9 @@ class EditListingViewTests(TestCase):
         form_data = {
             "title": "Updated Title",
             "description": "Updated description with at least 20 characters",
-            "address": "456 Oak Ave, Manhattan, NY",
+            "street_address": "456 Oak Ave, Manhattan",
+            "city": "New York",
+            "zipcode": "10001",
             "rent": "2000.00",
             "keep_existing_images": "on",
             "availability_start": self.future_start,
@@ -1071,7 +1167,9 @@ class DeleteListingViewTests(TestCase):
         self.listing = Listing.objects.create(
             user=self.user,
             title="Test Listing",
-            address="123 Main St",
+            street_address="123 Main St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1500.00"),
             description="Test description with at least 20 characters",
             availability_start=self.future_start,
@@ -1152,7 +1250,9 @@ class ViewListingViewTests(TestCase):
         self.listing = Listing.objects.create(
             user=self.user,
             title="Test Listing",
-            address="123 Main St",
+            street_address="123 Main St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1500.00"),
             description="Test description with at least 20 characters",
             availability_start=self.future_start,
@@ -1238,7 +1338,9 @@ class MyListingsViewTests(TestCase):
         Listing.objects.create(
             user=self.user,
             title="User Listing",
-            address="123 Main St",
+            street_address="123 Main St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1500.00"),
             description="User listing description",
             availability_start=self.future_start,
@@ -1247,7 +1349,9 @@ class MyListingsViewTests(TestCase):
         Listing.objects.create(
             user=self.other_user,
             title="Other User Listing",
-            address="456 Oak Ave",
+            street_address="456 Oak Ave",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("2000.00"),
             description="Other user listing description",
             availability_start=self.future_start,
@@ -1267,7 +1371,9 @@ class MyListingsViewTests(TestCase):
         listing1 = Listing.objects.create(
             user=self.user,
             title="First Listing",
-            address="123 Main St",
+            street_address="123 Main St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1500.00"),
             description="First listing description",
             availability_start=self.future_start,
@@ -1276,7 +1382,9 @@ class MyListingsViewTests(TestCase):
         listing2 = Listing.objects.create(
             user=self.user,
             title="Second Listing",
-            address="456 Oak Ave",
+            street_address="456 Oak Ave",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("2000.00"),
             description="Second listing description",
             availability_start=self.future_start,
@@ -1312,7 +1420,9 @@ class HelperFunctionTests(TestCase):
         self.listing = Listing.objects.create(
             user=self.user,
             title="Test Listing",
-            address="123 Main St",
+            street_address="123 Main St",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("1500.00"),
             description="Test description",
             availability_start=self.future_start,
@@ -1328,7 +1438,9 @@ class HelperFunctionTests(TestCase):
         form_data = {
             "title": "Test",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn, NY",
+            "city": "New York",
+            "zipcode": "10012",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -1346,7 +1458,9 @@ class HelperFunctionTests(TestCase):
         form_data = {
             "title": "Test",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn, NY",
+            "city": "New York",
+            "zipcode": "10012",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -1367,7 +1481,9 @@ class HelperFunctionTests(TestCase):
         form_data = {
             "title": "Test",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn, NY",
+            "city": "New York",
+            "zipcode": "10012",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -1388,7 +1504,9 @@ class HelperFunctionTests(TestCase):
         form_data = {
             "title": "Test",
             "description": "Test description with at least 20 characters",
-            "address": "123 Test St, Brooklyn, NY",
+            "street_address": "123 Test St, Brooklyn, NY",
+            "city": "New York",
+            "zipcode": "10012",
             "rent": "1500.00",
             "availability_start": self.future_start,
             "availability_end": self.future_end,
@@ -1427,7 +1545,9 @@ class PublicListingsViewTests(TestCase):
             user=self.user1,
             title="Cheap Studio in Manhattan",
             description="Cozy studio apartment",
-            address="123 Broadway, Manhattan, NY 10001",
+            street_address="123 Broadway, Manhattan",
+            city="New York",
+            zipcode="10001",
             rent=1200,
             amenities="wifi,laundry",
             availability_start=timezone.now().date(),
@@ -1441,7 +1561,9 @@ class PublicListingsViewTests(TestCase):
             user=self.user2,
             title="Luxury 2BR in Brooklyn",
             description="Spacious two bedroom apartment",
-            address="456 Smith St, Brooklyn, NY 11201",
+            street_address="456 Smith St, Brooklyn",
+            city="New York",
+            zipcode="11201",
             rent=2500,
             amenities="furnished,wifi,laundry,elevator",
             availability_start=(timezone.now() + timedelta(days=30)).date(),
@@ -1455,7 +1577,9 @@ class PublicListingsViewTests(TestCase):
             user=self.user1,
             title="Queens Apartment Near Subway",
             description="Great location near subway",
-            address="789 Queens Blvd, Queens, NY 11375",
+            street_address="789 Queens Blvd, Queens",
+            city="New York",
+            zipcode="11375",
             rent=1800,
             amenities="pets,ac",
             availability_start=timezone.now().date(),
@@ -1470,7 +1594,9 @@ class PublicListingsViewTests(TestCase):
             user=self.user1,
             title="Inactive Listing",
             description="Should not appear",
-            address="999 Test St",
+            street_address="999 Test St",
+            city="New York",
+            zipcode="10012",
             rent=1000,
             availability_start=timezone.now().date(),
             availability_end=(timezone.now() + timedelta(days=365)).date(),
@@ -1718,7 +1844,9 @@ class PublicListingsViewTests(TestCase):
         east_village_listing = Listing.objects.create(
             user=self.user1,
             title="East Village Apartment",
-            address="493 Broadway St, East Village, NY 10005",
+            street_address="493 Broadway St, East Village",
+            city="New York",
+            zipcode="10005",
             rent=Decimal("2200.00"),
             description="Nice apartment in East Village with great amenities",
             amenities="wifi,laundry",
@@ -1744,7 +1872,9 @@ class PublicListingsViewTests(TestCase):
         soho_listing = Listing.objects.create(
             user=self.user1,
             title="SoHo Loft",
-            address="100 Spring St, SoHo, NY 10012",
+            street_address="100 Spring St, SoHo",
+            city="New York",
+            zipcode="10012",
             rent=Decimal("3000.00"),
             description="Beautiful loft in SoHo neighborhood",
             amenities="wifi",
@@ -1756,7 +1886,9 @@ class PublicListingsViewTests(TestCase):
         chelsea_listing = Listing.objects.create(
             user=self.user1,
             title="Chelsea Studio",
-            address="200 W 23rd St, Chelsea, NY 10011",
+            street_address="200 W 23rd St, Chelsea",
+            city="New York",
+            zipcode="10011",
             rent=Decimal("2500.00"),
             description="Modern studio in Chelsea",
             amenities="wifi",
@@ -1780,7 +1912,9 @@ class PublicListingsViewTests(TestCase):
         brooklyn_listing = Listing.objects.create(
             user=self.user1,
             title="Brooklyn Apartment",
-            address="100 Court St, Brooklyn, NY 11201",
+            street_address="100 Court St, Brooklyn",
+            city="New York",
+            zipcode="11201",
             rent=Decimal("1800.00"),
             description="Nice apartment in Brooklyn",
             amenities="wifi",

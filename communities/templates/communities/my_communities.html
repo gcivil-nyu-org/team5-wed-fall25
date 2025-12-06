@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}My Communities - CampusNest{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>My Communities</h1>
+    <a href="{% url 'communities:browse' %}" class="btn-secondary">Browse All</a>
+</div>
+
+{% if memberships %}
+    <div class="communities-list">
+        {% for membership in memberships %}
+            <div class="community-item">
+                <div class="community-main">
+                    {% if membership.community.cover_image %}
+                        <img src="{{ membership.community.cover_image.url }}" alt="{{ membership.community.name }}" class="community-thumb">
+                    {% else %}
+                        <div class="community-thumb-placeholder">
+                            {{ membership.community.name|slice:":1" }}
+                        </div>
+                    {% endif %}
+
+                    <div class="community-details">
+                        <h3>
+                            <a href="{% url 'communities:detail' membership.community.slug %}">{{ membership.community.name }}</a>
+                        </h3>
+                        <p>{{ membership.community.description|truncatewords:15 }}</p>
+                        <div class="community-meta">
+                            <span class="badge badge-{{ membership.role }}">{{ membership.get_role_display }}</span>
+                            <span class="member-count">{{ membership.community.member_count }} members</span>
+                            <span class="join-date">Joined {{ membership.joined_at|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="community-actions">
+                    <a href="{% url 'communities:detail' membership.community.slug %}" class="btn-primary">View</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <p>You haven't joined any communities yet.</p>
+        <a href="{% url 'communities:browse' %}" class="btn-primary">Browse Communities</a>
+    </div>
+{% endif %}
+
+<style>
+.communities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.community-item {
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.community-main {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+}
+
+.community-thumb, .community-thumb-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.community-thumb-placeholder {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.community-details h3 {
+    margin: 0 0 0.5rem 0;
+}
+
+.community-details h3 a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.community-details h3 a:hover {
+    color: #667eea;
+}
+
+.community-details p {
+    color: #9ca3af;
+    margin: 0 0 0.5rem 0;
+}
+
+.badge-admin { background: #ef4444; color: white; }
+.badge-moderator { background: #f59e0b; color: white; }
+.badge-member { background: #6b7280; color: white; }
+
+.join-date {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}

@@ -31,7 +31,9 @@ class ListingForm(forms.ModelForm):
         fields = [
             "title",
             "description",
-            "address",
+            "street_address",
+            "city",
+            "zipcode",
             "rent",
             "amenities",
             "custom_amenities",
@@ -52,9 +54,21 @@ class ListingForm(forms.ModelForm):
                     "class": "form-control",
                 }
             ),
-            "address": forms.TextInput(
+            "street_address": forms.TextInput(
                 attrs={
-                    "placeholder": "e.g., 123 Main St, Brooklyn, NY 11201",
+                    "placeholder": "e.g., 123 Main St, Brooklyn",
+                    "class": "form-control",
+                }
+            ),
+            "city": forms.TextInput(
+                attrs={
+                    "placeholder": "e.g., New York",
+                    "class": "form-control",
+                }
+            ),
+            "zipcode": forms.TextInput(
+                attrs={
+                    "placeholder": "e.g., 10012",
                     "class": "form-control",
                 }
             ),
@@ -76,7 +90,9 @@ class ListingForm(forms.ModelForm):
         labels = {
             "title": "Listing Title *",
             "description": "Description *",
-            "address": "Full Address *",
+            "street_address": "Street Address *",
+            "city": "City *",
+            "zipcode": "ZIP Code *",
             "rent": "Monthly Rent ($) *",
             "availability_start": "Available From *",
             "availability_end": "Available Until *",
@@ -104,20 +120,31 @@ class ListingForm(forms.ModelForm):
             raise ValidationError("Title cannot exceed 200 characters.")
         return title
 
-    def clean_address(self):
-        address = self.cleaned_data.get("address", "").strip()
-        if not address:
-            raise ValidationError("Address is required.")
-        if len(address) < 10:
+    def clean_street_address(self):
+        street_address = self.cleaned_data.get("street_address", "").strip()
+        if not street_address:
+            raise ValidationError("Street address is required.")
+        if len(street_address) < 5:
             raise ValidationError(
-                "Please enter a complete address (at least 10 characters)."
+                "Please enter a complete street address (at least 5 characters)."
             )
-        # Check if address contains basic components (street number, street name, city/state)
-        if "," not in address:
-            raise ValidationError(
-                "Please enter a complete address including street, city, and state (e.g., '123 Main St, Brooklyn, NY 11201')."
-            )
-        return address
+        return street_address
+
+    def clean_city(self):
+        city = self.cleaned_data.get("city", "").strip()
+        if not city:
+            raise ValidationError("City is required.")
+        if len(city) < 2:
+            raise ValidationError("Please enter a valid city name.")
+        return city
+
+    def clean_zipcode(self):
+        zipcode = self.cleaned_data.get("zipcode", "").strip()
+        if not zipcode:
+            raise ValidationError("ZIP code is required.")
+        if len(zipcode) < 5:
+            raise ValidationError("Please enter a valid ZIP code.")
+        return zipcode
 
     def clean_description(self):
         description = self.cleaned_data.get("description", "").strip()

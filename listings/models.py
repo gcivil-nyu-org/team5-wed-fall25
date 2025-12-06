@@ -16,7 +16,9 @@ class Listing(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
-    address = models.CharField(max_length=300)
+    street_address = models.CharField(max_length=300, default="")
+    city = models.CharField(max_length=100, default="New York")
+    zipcode = models.CharField(max_length=10, default="10012")
     rent = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(max_length=2000)
     amenities = models.CharField(max_length=500, blank=True)

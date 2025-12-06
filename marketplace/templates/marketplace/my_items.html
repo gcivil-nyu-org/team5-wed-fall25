@@ -54,7 +54,7 @@
                     <strong class="my-item-info-label">Condition:</strong> {{ item.get_condition_display }}
                 </p>
                 <p class="my-item-info">
-                    <strong class="my-item-info-label">Pickup Location:</strong> {{ item.pickup_location }}
+                    <strong class="my-item-info-label">Pickup Location:</strong> {{ item.street_address }}, {{ item.city }}, {{ item.zipcode }}
                 </p>
                 <p class="my-item-info-dates">
                     <strong class="my-item-info-label">Posted:</strong> {{ item.created_at|date:"F d, Y" }}

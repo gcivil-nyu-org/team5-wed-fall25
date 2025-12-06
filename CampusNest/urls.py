@@ -11,6 +11,7 @@ urlpatterns = [
     path("marketplace/", include("marketplace.urls")),
     path("messages/", include("messaging.urls")),
     path("feed/", include("feed.urls")),
+    path("communities/", include("communities.urls")),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load event_filters %}
+
+{% block title %}Events - {{ community.name }} - CampusNest{% endblock %}
+
+{% block content %}
+<div class="community-header">
+    <h1>{{ community.name }} - Events</h1>
+    <div class="header-actions">
+        <a href="{% url 'communities:detail' community.slug %}" class="btn-secondary">Back to Community</a>
+        <a href="{% url 'communities:create_event' community.slug %}" class="btn-primary">Create Event</a>
+    </div>
+</div>
+
+<!-- Upcoming Events -->
+<div class="events-section">
+    <h2>Upcoming Events</h2>
+    {% if upcoming_events %}
+        <div class="events-grid">
+            {% for event in upcoming_events %}
+                <div class="event-card">
+                    {% if event.cover_image %}
+                        <div class="event-cover">
+                            <img src="{{ event.cover_image.url }}" alt="{{ event.title }}">
+                        </div>
+                    {% endif %}
+                    <div class="event-content">
+                        <h3><a href="{% url 'communities:event_detail' community.slug event.id %}">{{ event.title }}</a></h3>
+                        <div class="event-meta">
+                            <div class="event-date">
+                                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ event.start_datetime|date:"M d, Y g:i A" }}
+                            </div>
+                            <div class="event-location">
+                                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ event.location }}
+                            </div>
+                        </div>
+                        <div class="event-rsvp-info">
+                            <span class="rsvp-count going">{{ event.going_count }} Going</span>
+                            <span class="rsvp-count interested">{{ event.interested_count }} Interested</span>
+                            {% if event.id in user_rsvps %}
+                                <span class="user-rsvp-status {{ user_rsvps|get_item:event.id }}">
+                                    You're {{ user_rsvps|get_item:event.id }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <svg class="empty-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+            </svg>
+            <p>No upcoming events</p>
+            <a href="{% url 'communities:create_event' community.slug %}" class="btn-primary">Create the first event</a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Past Events -->
+{% if past_events %}
+<div class="events-section past-events">
+    <h2>Past Events</h2>
+    <div class="events-grid">
+        {% for event in past_events %}
+            <div class="event-card past">
+                {% if event.cover_image %}
+                    <div class="event-cover">
+                        <img src="{{ event.cover_image.url }}" alt="{{ event.title }}">
+                    </div>
+                {% endif %}
+                <div class="event-content">
+                    <h3><a href="{% url 'communities:event_detail' community.slug event.id %}">{{ event.title }}</a></h3>
+                    <div class="event-meta">
+                        <div class="event-date">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                            </svg>
+                            {{ event.start_datetime|date:"M d, Y g:i A" }}
+                        </div>
+                    </div>
+                    <div class="event-rsvp-info">
+                        <span class="rsvp-count">{{ event.going_count }} Attended</span>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<style>
+.community-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #374151;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.events-section {
+    margin-bottom: 3rem;
+}
+
+.events-section h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.5rem;
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.event-card {
+    background: #2a2a2a;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #374151;
+    transition: all 0.3s ease;
+}
+
+.event-card:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+}
+
+.event-card.past {
+    opacity: 0.7;
+}
+
+.event-cover {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.event-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-content {
+    padding: 1.5rem;
+}
+
+.event-content h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.event-content h3 a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.event-content h3 a:hover {
+    color: #667eea;
+}
+
+.event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.event-date,
+.event-location {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.event-rsvp-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.rsvp-count {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: #374151;
+    color: #d1d5db;
+}
+
+.rsvp-count.going {
+    background: #10b981;
+    color: white;
+}
+
+.rsvp-count.interested {
+    background: #3b82f6;
+    color: white;
+}
+
+.user-rsvp-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #667eea;
+    color: white;
+    text-transform: capitalize;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    color: #667eea;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    color: #9ca3af;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .community-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .events-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

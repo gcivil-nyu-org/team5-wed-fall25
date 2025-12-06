@@ -99,7 +99,12 @@ def home_portal(request):
         prof = getattr(request.user, "profile", None)
         if prof:
             if getattr(prof, "location", None):
-                suggestions = suggestions.filter(address__icontains=prof.location)
+                # Search across street_address, city, or zipcode
+                suggestions = suggestions.filter(
+                    Q(street_address__icontains=prof.location)
+                    | Q(city__icontains=prof.location)
+                    | Q(zipcode__icontains=prof.location)
+                )
             # use budget range if present
             budget_min = getattr(prof, "budget_min", None)
             budget_max = getattr(prof, "budget_max", None)
