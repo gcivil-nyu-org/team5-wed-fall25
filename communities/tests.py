@@ -2476,7 +2476,9 @@ class ChatViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(ChatMessage.objects.filter(content="Hello, community!").exists())
+        self.assertTrue(
+            ChatMessage.objects.filter(content="Hello, community!").exists()
+        )
 
     def test_send_message_ajax_success(self):
         """Test sending a chat message via AJAX"""
@@ -2517,7 +2519,7 @@ class ChatViewTests(TestCase):
             sender=self.user1,
             content="First message",
         )
-        msg2 = ChatMessage.objects.create(
+        ChatMessage.objects.create(
             thread=thread,
             sender=self.user2,
             content="Second message",
@@ -2864,7 +2866,9 @@ class EventViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(EventRSVP.objects.filter(event=event, user=self.user2).exists())
+        self.assertFalse(
+            EventRSVP.objects.filter(event=event, user=self.user2).exists()
+        )
 
 
 class EventFormTests(TestCase):
@@ -3273,7 +3277,9 @@ class AdditionalCoverageTests(TestCase):
 
         self.client.login(username="user1@nyu.edu", password="testpass123")
         response = self.client.post(
-            reverse("communities:promote_member", args=[self.community.slug, self.user2.id])
+            reverse(
+                "communities:promote_member", args=[self.community.slug, self.user2.id]
+            )
         )
 
         self.assertEqual(response.status_code, 302)
@@ -3289,7 +3295,9 @@ class AdditionalCoverageTests(TestCase):
 
         self.client.login(username="user1@nyu.edu", password="testpass123")
         response = self.client.post(
-            reverse("communities:demote_member", args=[self.community.slug, self.user2.id])
+            reverse(
+                "communities:demote_member", args=[self.community.slug, self.user2.id]
+            )
         )
 
         self.assertEqual(response.status_code, 302)
@@ -3357,7 +3365,10 @@ class AdditionalCoverageTests(TestCase):
 
         self.client.login(username="user2@nyu.edu", password="testpass123")
         response = self.client.get(
-            reverse("communities:edit_comment", args=[self.community.slug, post.id, comment.id])
+            reverse(
+                "communities:edit_comment",
+                args=[self.community.slug, post.id, comment.id],
+            )
         )
 
         self.assertEqual(response.status_code, 200)
@@ -3455,7 +3466,9 @@ class AdditionalCoverageTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(EventRSVP.objects.filter(event=event, user=self.user2).exists())
+        self.assertFalse(
+            EventRSVP.objects.filter(event=event, user=self.user2).exists()
+        )
 
     def test_rsvp_event_update_existing(self):
         """Test updating existing RSVP"""
