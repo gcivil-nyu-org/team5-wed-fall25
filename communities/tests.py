@@ -2386,3 +2386,1165 @@ class EventRSVPModelTests(TestCase):
         self.event.delete()
 
         self.assertEqual(EventRSVP.objects.filter(event_id=event_id).count(), 0)
+
+
+# ============================================================================
+# PHASE 5: COMPREHENSIVE COVERAGE TESTS FOR CHAT, EVENTS, FORMS, UTILS
+# ============================================================================
+
+
+class ChatViewTests(TestCase):
+    """Tests for chat views"""
+
+    def setUp(self):
+        """Create test users and community"""
+        self.client = Client()
+
+        self.user1 = User.objects.create_user(
+            username="user1",
+            email="user1@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.user1, university="NYU")
+
+        self.user2 = User.objects.create_user(
+            username="user2",
+            email="user2@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.user2, university="NYU")
+
+        self.non_member = User.objects.create_user(
+            username="nonmember",
+            email="nonmember@columbia.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.non_member, university="Columbia")
+
+        # Create community
+        self.community = Community.objects.create(
+            name="Test Community",
+            description="A test community",
+            privacy="public",
+            created_by=self.user1,
+        )
+
+        # Create memberships
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user1,
+            role="admin",
+            status="active",
+        )
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+    def test_chat_thread_view_creates_thread(self):
+        """Test viewing chat thread creates thread if it doesn't exist"""
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:chat_thread", args=[self.community.slug])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Thread.objects.filter(community=self.community).exists())
+
+    def test_chat_thread_view_non_member_forbidden(self):
+        """Test non-member cannot access chat thread"""
+        self.client.login(username="nonmember@columbia.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:chat_thread", args=[self.community.slug])
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_send_message_success(self):
+        """Test sending a chat message"""
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+
+        data = {"content": "Hello, community!"}
+        response = self.client.post(
+            reverse("communities:send_message", args=[self.community.slug]),
+            data,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(ChatMessage.objects.filter(content="Hello, community!").exists())
+
+    def test_send_message_ajax_success(self):
+        """Test sending a chat message via AJAX"""
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+
+        data = {"content": "AJAX message"}
+        response = self.client.post(
+            reverse("communities:send_message", args=[self.community.slug]),
+            data,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertTrue(json_data["success"])
+        self.assertIn("message_id", json_data)
+
+    def test_send_message_ajax_error(self):
+        """Test AJAX error handling for invalid message"""
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+
+        data = {"content": ""}  # Empty content
+        response = self.client.post(
+            reverse("communities:send_message", args=[self.community.slug]),
+            data,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        json_data = response.json()
+        self.assertFalse(json_data["success"])
+
+    def test_poll_messages_new_messages(self):
+        """Test polling for new messages"""
+        thread = Thread.objects.create(community=self.community)
+        msg1 = ChatMessage.objects.create(
+            thread=thread,
+            sender=self.user1,
+            content="First message",
+        )
+        msg2 = ChatMessage.objects.create(
+            thread=thread,
+            sender=self.user2,
+            content="Second message",
+        )
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:poll_messages", args=[self.community.slug])
+            + f"?last_message_id={msg1.id}"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertEqual(json_data["count"], 1)
+        self.assertEqual(json_data["messages"][0]["content"], "Second message")
+
+    def test_poll_messages_no_new_messages(self):
+        """Test polling returns empty when no new messages"""
+        thread = Thread.objects.create(community=self.community)
+        msg1 = ChatMessage.objects.create(
+            thread=thread,
+            sender=self.user1,
+            content="Last message",
+        )
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:poll_messages", args=[self.community.slug])
+            + f"?last_message_id={msg1.id}"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertEqual(json_data["count"], 0)
+
+
+class EventViewTests(TestCase):
+    """Tests for event views"""
+
+    def setUp(self):
+        """Create test users and community"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        self.client = Client()
+
+        self.user1 = User.objects.create_user(
+            username="user1",
+            email="user1@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.user1, university="NYU")
+
+        self.user2 = User.objects.create_user(
+            username="user2",
+            email="user2@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.user2, university="NYU")
+
+        self.community = Community.objects.create(
+            name="Test Community",
+            description="Test",
+            privacy="public",
+            created_by=self.user1,
+        )
+
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user1,
+            role="admin",
+            status="active",
+        )
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+        self.start_time = timezone.now() + timedelta(days=1)
+        self.end_time = self.start_time + timedelta(hours=2)
+
+    def test_event_list_view(self):
+        """Test viewing event list"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        # Create upcoming event
+        Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Upcoming Event",
+            description="Test",
+            start_datetime=timezone.now() + timedelta(days=1),
+            end_datetime=timezone.now() + timedelta(days=1, hours=2),
+            location="Library",
+        )
+
+        # Create past event
+        Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Past Event",
+            description="Test",
+            start_datetime=timezone.now() - timedelta(days=2),
+            end_datetime=timezone.now() - timedelta(days=2, hours=-2),
+            location="Cafeteria",
+        )
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:event_list", args=[self.community.slug])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Upcoming Event")
+        self.assertContains(response, "Past Event")
+
+    def test_create_event_get(self):
+        """Test GET request to create event page"""
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:create_event", args=[self.community.slug])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("form", response.context)
+
+    def test_create_event_post_valid(self):
+        """Test creating an event with valid data"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+
+        start = timezone.now() + timedelta(days=1)
+        end = start + timedelta(hours=2)
+
+        data = {
+            "title": "New Event",
+            "description": "A new event description",
+            "start_datetime": start.strftime("%Y-%m-%dT%H:%M"),
+            "end_datetime": end.strftime("%Y-%m-%dT%H:%M"),
+            "location": "Test Location",
+        }
+
+        response = self.client.post(
+            reverse("communities:create_event", args=[self.community.slug]),
+            data,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Event.objects.filter(title="New Event").exists())
+
+    def test_event_detail_view(self):
+        """Test viewing event details"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test description",
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location="Test Location",
+        )
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:event_detail", args=[self.community.slug, event.id])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["event"], event)
+
+    def test_edit_event_as_organizer(self):
+        """Test organizer can edit event"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Original Title",
+            description="Original description",
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location="Original Location",
+        )
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+
+        data = {
+            "title": "Updated Title",
+            "description": "Updated description",
+            "start_datetime": self.start_time.strftime("%Y-%m-%dT%H:%M"),
+            "end_datetime": self.end_time.strftime("%Y-%m-%dT%H:%M"),
+            "location": "Updated Location",
+        }
+
+        response = self.client.post(
+            reverse("communities:edit_event", args=[self.community.slug, event.id]),
+            data,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        event.refresh_from_db()
+        self.assertEqual(event.title, "Updated Title")
+
+    def test_edit_event_non_organizer_forbidden(self):
+        """Test non-organizer cannot edit event"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test",
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location="Test",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+
+        data = {
+            "title": "Unauthorized Edit",
+            "description": "Test",
+            "start_datetime": self.start_time.strftime("%Y-%m-%dT%H:%M"),
+            "end_datetime": self.end_time.strftime("%Y-%m-%dT%H:%M"),
+            "location": "Test",
+        }
+
+        response = self.client.post(
+            reverse("communities:edit_event", args=[self.community.slug, event.id]),
+            data,
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_event_as_organizer(self):
+        """Test organizer can delete event"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="To Delete",
+            description="Test",
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location="Test",
+        )
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:delete_event", args=[self.community.slug, event.id])
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Event.objects.filter(id=event.id).exists())
+
+    def test_delete_event_non_organizer_forbidden(self):
+        """Test non-organizer cannot delete event"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test",
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location="Test",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:delete_event", args=[self.community.slug, event.id])
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(Event.objects.filter(id=event.id).exists())
+
+    def test_rsvp_event_going(self):
+        """Test RSVP to event as going"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test",
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location="Test",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:rsvp_event", args=[self.community.slug, event.id]),
+            {"status": "going"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            EventRSVP.objects.filter(
+                event=event, user=self.user2, status="going"
+            ).exists()
+        )
+
+    def test_rsvp_event_interested(self):
+        """Test RSVP to event as interested"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test",
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location="Test",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:rsvp_event", args=[self.community.slug, event.id]),
+            {"status": "interested"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            EventRSVP.objects.filter(
+                event=event, user=self.user2, status="interested"
+            ).exists()
+        )
+
+    def test_rsvp_event_invalid_status(self):
+        """Test RSVP with invalid status"""
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test",
+            start_datetime=self.start_time,
+            end_datetime=self.end_time,
+            location="Test",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:rsvp_event", args=[self.community.slug, event.id]),
+            {"status": "invalid_status"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(EventRSVP.objects.filter(event=event, user=self.user2).exists())
+
+
+class EventFormTests(TestCase):
+    """Tests for EventForm"""
+
+    def test_event_form_valid(self):
+        """Test form is valid with valid data"""
+        from django.utils import timezone
+        from datetime import timedelta
+        from communities.forms import EventForm
+
+        start = timezone.now() + timedelta(days=1)
+        end = start + timedelta(hours=2)
+
+        data = {
+            "title": "Test Event",
+            "description": "Test description",
+            "start_datetime": start,
+            "end_datetime": end,
+            "location": "Test Location",
+        }
+
+        form = EventForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_event_form_end_before_start(self):
+        """Test form is invalid when end is before start"""
+        from django.utils import timezone
+        from datetime import timedelta
+        from communities.forms import EventForm
+
+        start = timezone.now() + timedelta(days=1)
+        end = start - timedelta(hours=1)  # End before start
+
+        data = {
+            "title": "Test Event",
+            "description": "Test description",
+            "start_datetime": start,
+            "end_datetime": end,
+            "location": "Test Location",
+        }
+
+        form = EventForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("end_datetime", form.errors)
+
+    def test_event_form_start_in_past(self):
+        """Test form is invalid when start is in the past"""
+        from django.utils import timezone
+        from datetime import timedelta
+        from communities.forms import EventForm
+
+        start = timezone.now() - timedelta(days=1)  # Past time
+        end = start + timedelta(hours=2)
+
+        data = {
+            "title": "Test Event",
+            "description": "Test description",
+            "start_datetime": start,
+            "end_datetime": end,
+            "location": "Test Location",
+        }
+
+        form = EventForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("start_datetime", form.errors)
+
+
+class ChatMessageFormTests(TestCase):
+    """Tests for ChatMessageForm"""
+
+    def test_chat_message_form_valid(self):
+        """Test form is valid with content"""
+        from communities.forms import ChatMessageForm
+
+        form = ChatMessageForm(data={"content": "Test message"})
+        self.assertTrue(form.is_valid())
+
+    def test_chat_message_form_invalid_empty(self):
+        """Test form is invalid without content"""
+        from communities.forms import ChatMessageForm
+
+        form = ChatMessageForm(data={"content": ""})
+        self.assertFalse(form.is_valid())
+
+
+class TemplateTagTests(TestCase):
+    """Tests for custom template tags"""
+
+    def test_get_item_filter_with_valid_key(self):
+        """Test get_item filter with valid key"""
+        from communities.templatetags.event_filters import get_item
+
+        test_dict = {"key1": "value1", "key2": "value2"}
+        result = get_item(test_dict, "key1")
+        self.assertEqual(result, "value1")
+
+    def test_get_item_filter_with_invalid_key(self):
+        """Test get_item filter with invalid key"""
+        from communities.templatetags.event_filters import get_item
+
+        test_dict = {"key1": "value1"}
+        result = get_item(test_dict, "nonexistent")
+        self.assertIsNone(result)
+
+    def test_get_item_filter_with_none(self):
+        """Test get_item filter with None dictionary"""
+        from communities.templatetags.event_filters import get_item
+
+        result = get_item(None, "key")
+        self.assertIsNone(result)
+
+
+class PrivateCommunityTests(TestCase):
+    """Tests for private community access"""
+
+    def setUp(self):
+        """Create test users and private community"""
+        self.client = Client()
+
+        self.admin = User.objects.create_user(
+            username="admin",
+            email="admin@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.admin, university="NYU")
+
+        self.member = User.objects.create_user(
+            username="member",
+            email="member@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.member, university="NYU")
+
+        self.outsider = User.objects.create_user(
+            username="outsider",
+            email="outsider@columbia.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.outsider, university="Columbia")
+
+        self.private_community = Community.objects.create(
+            name="Private Community",
+            description="A private community",
+            privacy="private",
+            created_by=self.admin,
+        )
+
+        CommunityMember.objects.create(
+            community=self.private_community,
+            user=self.admin,
+            role="admin",
+            status="active",
+        )
+
+    def test_private_community_detail_non_member_redirects(self):
+        """Test non-member cannot see private community details"""
+        self.client.login(username="outsider@columbia.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:detail", args=[self.private_community.slug])
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_private_community_detail_member_can_access(self):
+        """Test member can see private community details"""
+        CommunityMember.objects.create(
+            community=self.private_community,
+            user=self.member,
+            role="member",
+            status="active",
+        )
+
+        self.client.login(username="member@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:detail", args=[self.private_community.slug])
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+
+class UniversityCommunityTests(TestCase):
+    """Tests for university-restricted communities"""
+
+    def setUp(self):
+        """Create test users and university community"""
+        self.client = Client()
+
+        self.nyu_user = User.objects.create_user(
+            username="nyustudent",
+            email="student@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.nyu_user, university="NYU")
+
+        self.columbia_user = User.objects.create_user(
+            username="columbiast",
+            email="student@columbia.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.columbia_user, university="Columbia")
+
+        self.nyu_community = Community.objects.create(
+            name="NYU Community",
+            description="NYU students only",
+            privacy="university",
+            university="NYU",
+            created_by=self.nyu_user,
+        )
+
+        CommunityMember.objects.create(
+            community=self.nyu_community,
+            user=self.nyu_user,
+            role="admin",
+            status="active",
+        )
+
+    def test_university_community_join_wrong_university(self):
+        """Test user from wrong university cannot join"""
+        self.client.login(username="student@columbia.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:join", args=[self.nyu_community.slug])
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(
+            CommunityMember.objects.filter(
+                community=self.nyu_community, user=self.columbia_user
+            ).exists()
+        )
+
+    def test_university_community_join_correct_university(self):
+        """Test user from correct university can join"""
+        # Create another NYU user
+        another_nyu = User.objects.create_user(
+            username="another",
+            email="another@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=another_nyu, university="NYU")
+
+        self.client.login(username="another@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:join", args=[self.nyu_community.slug])
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            CommunityMember.objects.filter(
+                community=self.nyu_community, user=another_nyu, status="active"
+            ).exists()
+        )
+
+
+class CommunitySettingsTests(TestCase):
+    """Tests for community settings"""
+
+    def setUp(self):
+        """Create test users and community"""
+        self.client = Client()
+
+        self.admin = User.objects.create_user(
+            username="admin",
+            email="admin@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.admin, university="NYU")
+
+        self.community = Community.objects.create(
+            name="Test Community",
+            description="Test",
+            privacy="public",
+            created_by=self.admin,
+        )
+
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.admin,
+            role="admin",
+            status="active",
+        )
+
+    def test_community_settings_get(self):
+        """Test GET request to settings page"""
+        self.client.login(username="admin@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:settings", args=[self.community.slug])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("form", response.context)
+
+    def test_community_settings_post_valid(self):
+        """Test updating community settings"""
+        self.client.login(username="admin@nyu.edu", password="testpass123")
+
+        data = {
+            "name": "Updated Name",
+            "description": "Updated description",
+            "privacy": "public",
+        }
+
+        response = self.client.post(
+            reverse("communities:settings", args=[self.community.slug]),
+            data,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.community.refresh_from_db()
+        self.assertEqual(self.community.name, "Updated Name")
+
+
+class AdditionalCoverageTests(TestCase):
+    """Additional tests to increase coverage"""
+
+    def setUp(self):
+        """Create test users and community"""
+        self.client = Client()
+
+        self.user1 = User.objects.create_user(
+            username="user1",
+            email="user1@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.user1, university="NYU")
+
+        self.user2 = User.objects.create_user(
+            username="user2",
+            email="user2@nyu.edu",
+            password="testpass123",
+            is_verified=True,
+        )
+        Profile.objects.create(user=self.user2, university="NYU")
+
+        self.community = Community.objects.create(
+            name="Test Community",
+            description="Test",
+            privacy="public",
+            created_by=self.user1,
+        )
+
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user1,
+            role="admin",
+            status="active",
+        )
+
+    def test_join_community_already_pending(self):
+        """Test joining community when request is already pending"""
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="pending",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:join", args=[self.community.slug])
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_join_community_banned(self):
+        """Test joining community when user is banned"""
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="banned",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:join", args=[self.community.slug])
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_leave_community_not_member(self):
+        """Test leaving community when not a member"""
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:leave", args=[self.community.slug])
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_promote_member_already_moderator(self):
+        """Test promoting member who is already moderator"""
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="moderator",
+            status="active",
+        )
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:promote_member", args=[self.community.slug, self.user2.id])
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_demote_member_already_member(self):
+        """Test demoting member who is already regular member"""
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:demote_member", args=[self.community.slug, self.user2.id])
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_create_post_form_error(self):
+        """Test create post with form errors"""
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:create_post", args=[self.community.slug]),
+            {"content": ""},  # Empty content should fail
+        )
+
+        self.assertEqual(response.status_code, 200)  # Re-renders form
+
+    def test_create_comment_form_error(self):
+        """Test create comment with form errors"""
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+        post = Post.objects.create(
+            community=self.community,
+            author=self.user1,
+            content="Test post",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:create_comment", args=[self.community.slug, post.id]),
+            {"content": ""},  # Empty content
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_edit_comment_get(self):
+        """Test GET request to edit comment"""
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+        post = Post.objects.create(
+            community=self.community,
+            author=self.user1,
+            content="Test post",
+        )
+
+        comment = Comment.objects.create(
+            post=post,
+            author=self.user2,
+            content="Test comment",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:edit_comment", args=[self.community.slug, post.id, comment.id])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("form", response.context)
+
+    def test_send_message_form_error(self):
+        """Test send message with form error (non-AJAX)"""
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:send_message", args=[self.community.slug]),
+            {"content": ""},  # Empty content
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_create_event_get(self):
+        """Test GET request to create event shows form"""
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:create_event", args=[self.community.slug])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("form", response.context)
+
+    def test_edit_event_get(self):
+        """Test GET request to edit event"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        start_time = timezone.now() + timedelta(days=1)
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test",
+            start_datetime=start_time,
+            end_datetime=start_time + timedelta(hours=2),
+            location="Test",
+        )
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.get(
+            reverse("communities:edit_event", args=[self.community.slug, event.id])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("form", response.context)
+
+    def test_rsvp_event_not_going_deletes_rsvp(self):
+        """Test RSVP not_going deletes existing RSVP"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+        start_time = timezone.now() + timedelta(days=1)
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test",
+            start_datetime=start_time,
+            end_datetime=start_time + timedelta(hours=2),
+            location="Test",
+        )
+
+        # First RSVP as going
+        EventRSVP.objects.create(event=event, user=self.user2, status="going")
+
+        # Then RSVP as not_going (should delete)
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:rsvp_event", args=[self.community.slug, event.id]),
+            {"status": "not_going"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(EventRSVP.objects.filter(event=event, user=self.user2).exists())
+
+    def test_rsvp_event_update_existing(self):
+        """Test updating existing RSVP"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+        start_time = timezone.now() + timedelta(days=1)
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test",
+            start_datetime=start_time,
+            end_datetime=start_time + timedelta(hours=2),
+            location="Test",
+        )
+
+        # First RSVP as interested
+        EventRSVP.objects.create(event=event, user=self.user2, status="interested")
+
+        # Then update to going
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:rsvp_event", args=[self.community.slug, event.id]),
+            {"status": "going"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        rsvp = EventRSVP.objects.get(event=event, user=self.user2)
+        self.assertEqual(rsvp.status, "going")
+
+    def test_cancel_event(self):
+        """Test canceling an event"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        start_time = timezone.now() + timedelta(days=1)
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test",
+            start_datetime=start_time,
+            end_datetime=start_time + timedelta(hours=2),
+            location="Test",
+        )
+
+        self.client.login(username="user1@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:cancel_event", args=[self.community.slug, event.id])
+        )
+
+        self.assertEqual(response.status_code, 302)
+        event.refresh_from_db()
+        self.assertTrue(event.is_cancelled)
+
+    def test_cancel_event_non_organizer_forbidden(self):
+        """Test non-organizer cannot cancel event"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        CommunityMember.objects.create(
+            community=self.community,
+            user=self.user2,
+            role="member",
+            status="active",
+        )
+
+        start_time = timezone.now() + timedelta(days=1)
+        event = Event.objects.create(
+            community=self.community,
+            organizer=self.user1,
+            title="Test Event",
+            description="Test",
+            start_datetime=start_time,
+            end_datetime=start_time + timedelta(hours=2),
+            location="Test",
+        )
+
+        self.client.login(username="user2@nyu.edu", password="testpass123")
+        response = self.client.post(
+            reverse("communities:cancel_event", args=[self.community.slug, event.id])
+        )
+
+        self.assertEqual(response.status_code, 403)
