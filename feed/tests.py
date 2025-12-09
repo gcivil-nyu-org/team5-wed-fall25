@@ -421,7 +421,7 @@ class UserStatsTests(TestCase):
         )
 
         # Create profiles
-        profile1 = Profile.objects.create(user=self.user, university="NYU")
+        Profile.objects.create(user=self.user, university="NYU")
         profile2 = Profile.objects.create(user=self.other_user, university="NYU")
         profile3 = Profile.objects.create(user=user3, university="NYU")
         profile4 = Profile.objects.create(user=user4, university="NYU")

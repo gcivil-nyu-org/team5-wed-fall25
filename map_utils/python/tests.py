@@ -15,11 +15,7 @@ class GeocodeAddressTests(TestCase):
         mock_response = Mock()
         mock_response.json.return_value = {
             "features": [
-                {
-                    "geometry": {
-                        "coordinates": [-73.9857, 40.7484]  # Times Square
-                    }
-                }
+                {"geometry": {"coordinates": [-73.9857, 40.7484]}}  # Times Square
             ]
         }
         mock_response.raise_for_status = Mock()
