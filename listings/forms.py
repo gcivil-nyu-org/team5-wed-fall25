@@ -39,6 +39,8 @@ class ListingForm(forms.ModelForm):
             "custom_amenities",
             "availability_start",
             "availability_end",
+            "latitude",
+            "longitude",
         ]
         widgets = {
             "title": forms.TextInput(
@@ -86,6 +88,8 @@ class ListingForm(forms.ModelForm):
             "availability_end": forms.DateInput(
                 attrs={"type": "date", "class": "form-control"}
             ),
+            "latitude": forms.HiddenInput(attrs={"id": "id_latitude"}),
+            "longitude": forms.HiddenInput(attrs={"id": "id_longitude"}),
         }
         labels = {
             "title": "Listing Title *",

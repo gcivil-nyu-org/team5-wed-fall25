@@ -5,10 +5,20 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'listings/css/create_listing.css' %}">
+<!-- Mapbox GL CSS -->
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+<!-- Mapbox Geocoder CSS -->
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css' type='text/css' />
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'listings/js/create_listing.js' %}"></script>
+<!-- Mapbox GL JS -->
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+<!-- Mapbox Geocoder Plugin -->
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+<!-- Listing location picker script -->
+<script src="{% static 'listings/js/listing_location_picker.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -94,6 +104,19 @@
     </ul>
     {% endif %}
   </div>
+
+  <!-- Map Picker -->
+  <div class="form-group">
+    <label>Confirm Location on Map</label>
+    <div id="listing-location-map" class="listing-location-map" data-mapbox-token="{{ mapbox_token }}">
+      <div class="map-loading">Loading map...</div>
+    </div>
+    <small>The location will be automatically geocoded based on the address you entered. You can click on the map or drag the pin to adjust the exact location if needed.</small>
+  </div>
+
+  <!-- Hidden fields for coordinates -->
+  {{ form.latitude }}
+  {{ form.longitude }}
 
   <!-- Rent -->
   <div class="form-group">

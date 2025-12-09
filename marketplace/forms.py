@@ -16,6 +16,8 @@ class ItemForm(forms.ModelForm):
             "street_address",
             "city",
             "zipcode",
+            "latitude",
+            "longitude",
         ]
         widgets = {
             "title": forms.TextInput(
@@ -59,6 +61,8 @@ class ItemForm(forms.ModelForm):
                     "class": "form-control",
                 }
             ),
+            "latitude": forms.HiddenInput(attrs={"id": "id_latitude"}),
+            "longitude": forms.HiddenInput(attrs={"id": "id_longitude"}),
         }
         labels = {
             "title": "Item Title *",

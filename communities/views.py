@@ -34,6 +34,9 @@ from .permissions import (
 )
 from .utils import validate_university_access
 
+# Import the geocoding utility for backend fallback
+from map_utils.python.utils import geocode_address
+
 
 @login_required
 def browse_communities(request):
@@ -977,6 +980,16 @@ def create_event(request, slug):
             event = form.save(commit=False)
             event.community = community
             event.organizer = request.user
+
+            # Prioritize manual coordinates from the form (set by interactive map)
+            # If not provided, fall back to backend geocoding
+            if (not event.latitude or not event.longitude) and event.location:
+                # Geocode the location to get coordinates
+                coordinates = geocode_address(event.location)
+                if coordinates:
+                    event.longitude = coordinates[0]
+                    event.latitude = coordinates[1]
+
             event.save()
 
             messages.success(request, "Event created successfully!")
@@ -1046,9 +1059,35 @@ def edit_event(request, slug, event_id):
         )
 
     if request.method == "POST":
+        # Store original coordinates BEFORE creating form (form modifies instance on init)
+        original_lat = event.latitude
+        original_lon = event.longitude
+
         form = EventForm(request.POST, request.FILES, instance=event)
         if form.is_valid():
-            form.save()
+            event = form.save(commit=False)
+
+            # Handle coordinates: prioritize manual pins, fallback to geocoding, preserve if unchanged
+            # If coordinates are None after form processing, they weren't manually set
+            if event.latitude is None or event.longitude is None:
+                # Check if location changed
+                if "location" in form.changed_data and event.location:
+                    # Location changed, try to re-geocode
+                    coordinates = geocode_address(event.location)
+                    if coordinates:
+                        event.longitude = coordinates[0]
+                        event.latitude = coordinates[1]
+                    elif original_lat is not None and original_lon is not None:
+                        # Geocoding failed, restore original if available
+                        event.latitude = original_lat
+                        event.longitude = original_lon
+                else:
+                    # Location didn't change, restore original coordinates
+                    event.latitude = original_lat
+                    event.longitude = original_lon
+            # else: coordinates are set (user manually placed pin via map), use them
+
+            event.save()
             messages.success(request, "Event updated successfully!")
             return redirect("communities:event_detail", slug=slug, event_id=event.id)
     else:
