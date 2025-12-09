@@ -141,6 +141,10 @@ def edit_listing(request, listing_id):  # noqa: C901
     listing = get_object_or_404(Listing, id=listing_id, user=request.user)
 
     if request.method == "POST":
+        # Store original coordinates BEFORE creating form (form modifies instance on init)
+        original_lat = listing.latitude
+        original_lon = listing.longitude
+
         form = ListingForm(request.POST, instance=listing)
         files = request.FILES.getlist("images")
         keep_existing = request.POST.get("keep_existing_images") == "on"
@@ -152,25 +156,29 @@ def edit_listing(request, listing_id):  # noqa: C901
             listing = form.save(commit=False)
             listing.is_edited = True
 
-            # **NEW: Re-geocode if address changed AND coordinates not manually set**
-            # Prioritize manual coordinates from the form (set by interactive map)
-            # Check if coordinates were manually updated (latitude/longitude in changed_data)
-            # or if address changed but coordinates weren't manually set
-            if "latitude" in form.changed_data or "longitude" in form.changed_data:
-                # User manually adjusted the pin, use those coordinates
-                pass  # Coordinates already set from form
-            elif any(
-                field in form.changed_data
-                for field in ["street_address", "city", "zipcode"]
-            ):
-                # Address changed but coordinates not manually set, re-geocode
-                full_address = (
-                    f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
-                )
-                coordinates = geocode_address(full_address)
-                if coordinates:
-                    listing.longitude = coordinates[0]
-                    listing.latitude = coordinates[1]
+            # Handle coordinates: prioritize manual pins, fallback to geocoding, preserve if unchanged
+            # If coordinates are None after form processing, they weren't manually set
+            if listing.latitude is None or listing.longitude is None:
+                # Check if address changed
+                if any(
+                    field in form.changed_data
+                    for field in ["street_address", "city", "zipcode"]
+                ):
+                    # Address changed, try to re-geocode
+                    full_address = f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
+                    coordinates = geocode_address(full_address)
+                    if coordinates:
+                        listing.longitude = coordinates[0]
+                        listing.latitude = coordinates[1]
+                    elif original_lat is not None and original_lon is not None:
+                        # Geocoding failed, restore original if available
+                        listing.latitude = original_lat
+                        listing.longitude = original_lon
+                else:
+                    # Address didn't change, restore original coordinates
+                    listing.latitude = original_lat
+                    listing.longitude = original_lon
+            # else: coordinates are set (user manually placed pin via map), use them
 
             listing.save()
 

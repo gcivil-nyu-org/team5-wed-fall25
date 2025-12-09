@@ -1059,21 +1059,33 @@ def edit_event(request, slug, event_id):
         )
 
     if request.method == "POST":
+        # Store original coordinates BEFORE creating form (form modifies instance on init)
+        original_lat = event.latitude
+        original_lon = event.longitude
+
         form = EventForm(request.POST, request.FILES, instance=event)
         if form.is_valid():
             event = form.save(commit=False)
 
-            # Prioritize manual coordinates from the form (set by interactive map)
-            # Check if coordinates were manually updated or if location changed
-            if "latitude" in form.changed_data or "longitude" in form.changed_data:
-                # User manually adjusted the pin, use those coordinates
-                pass  # Coordinates already set from form
-            elif "location" in form.changed_data and event.location:
-                # Location changed but coordinates not manually set, re-geocode
-                coordinates = geocode_address(event.location)
-                if coordinates:
-                    event.longitude = coordinates[0]
-                    event.latitude = coordinates[1]
+            # Handle coordinates: prioritize manual pins, fallback to geocoding, preserve if unchanged
+            # If coordinates are None after form processing, they weren't manually set
+            if event.latitude is None or event.longitude is None:
+                # Check if location changed
+                if "location" in form.changed_data and event.location:
+                    # Location changed, try to re-geocode
+                    coordinates = geocode_address(event.location)
+                    if coordinates:
+                        event.longitude = coordinates[0]
+                        event.latitude = coordinates[1]
+                    elif original_lat is not None and original_lon is not None:
+                        # Geocoding failed, restore original if available
+                        event.latitude = original_lat
+                        event.longitude = original_lon
+                else:
+                    # Location didn't change, restore original coordinates
+                    event.latitude = original_lat
+                    event.longitude = original_lon
+            # else: coordinates are set (user manually placed pin via map), use them
 
             event.save()
             messages.success(request, "Event updated successfully!")

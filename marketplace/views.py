@@ -89,7 +89,9 @@ def process_item_images(item, files, removed_image_ids):
             ItemImage.objects.create(item=item, image=file)
 
 
-def handle_item_form_submission(request, item, form, files, removed_image_ids):
+def handle_item_form_submission(
+    request, item, form, files, removed_image_ids, original_lat, original_lon
+):
     # print("inside handle_item_form_submission, item: ", item)
     """Process valid item form submission."""
     has_image_error = validate_image_requirements(item, files, removed_image_ids, form)
@@ -98,23 +100,29 @@ def handle_item_form_submission(request, item, form, files, removed_image_ids):
         item = form.save(commit=False)
         item.is_edited = True
 
-        # **NEW: Re-geocode if address changed AND coordinates not manually set**
-        # Prioritize manual coordinates from the form (set by interactive map)
-        # Check if coordinates were manually updated (latitude/longitude in changed_data)
-        # or if address changed but coordinates weren't manually set
-        if "latitude" in form.changed_data or "longitude" in form.changed_data:
-            # User manually adjusted the pin, use those coordinates
-            pass  # Coordinates already set from form
-        elif any(
-            field in form.changed_data
-            for field in ["street_address", "city", "zipcode"]
-        ):
-            # Address changed but coordinates not manually set, re-geocode
-            full_address = f"{item.street_address}, {item.city}, {item.zipcode}"
-            coordinates = geocode_address(full_address)
-            if coordinates:
-                item.longitude = coordinates[0]
-                item.latitude = coordinates[1]
+        # Handle coordinates: prioritize manual pins, fallback to geocoding, preserve if unchanged
+        # If coordinates are None after form processing, they weren't manually set
+        if item.latitude is None or item.longitude is None:
+            # Check if address changed
+            if any(
+                field in form.changed_data
+                for field in ["street_address", "city", "zipcode"]
+            ):
+                # Address changed, try to re-geocode
+                full_address = f"{item.street_address}, {item.city}, {item.zipcode}"
+                coordinates = geocode_address(full_address)
+                if coordinates:
+                    item.longitude = coordinates[0]
+                    item.latitude = coordinates[1]
+                elif original_lat is not None and original_lon is not None:
+                    # Geocoding failed, restore original if available
+                    item.latitude = original_lat
+                    item.longitude = original_lon
+            else:
+                # Address didn't change, restore original coordinates
+                item.latitude = original_lat
+                item.longitude = original_lon
+        # else: coordinates are set (user manually placed pin via map), use them
 
         item.save()
 
@@ -149,6 +157,10 @@ def edit_item(request, item_id):
     item = get_object_or_404(Item, id=item_id, user=request.user)
 
     if request.method == "POST":
+        # Store original coordinates BEFORE creating form (form modifies instance on init)
+        original_lat = item.latitude
+        original_lon = item.longitude
+
         form = ItemForm(request.POST, instance=item)
         files = request.FILES.getlist("images")
         removed_image_ids = parse_removed_image_ids(
@@ -156,7 +168,7 @@ def edit_item(request, item_id):
         )
 
         response = handle_item_form_submission(
-            request, item, form, files, removed_image_ids
+            request, item, form, files, removed_image_ids, original_lat, original_lon
         )
         if response:
             return response
@@ -204,7 +216,9 @@ def create_item(request):
                 coordinates = geocode_address(full_address)
                 if coordinates:
                     # Store coordinates for map display
-                    item.longitude = coordinates[0]  # longitude is first in Mapbox format
+                    item.longitude = coordinates[
+                        0
+                    ]  # longitude is first in Mapbox format
                     item.latitude = coordinates[1]  # latitude is second
 
             item.save()
