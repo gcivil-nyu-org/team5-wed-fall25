@@ -78,13 +78,16 @@ def create_listing(request):
             listing = form.save(commit=False)
             listing.user = request.user
 
-            # Geocode address - construct full address from components
-            full_address = (
-                f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
-            )
-            coords = geocode_address(full_address)
-            if coords:
-                listing.longitude, listing.latitude = coords[0], coords[1]
+            # Prioritize manual coordinates from the form (set by interactive map)
+            # If not provided, fall back to backend geocoding
+            if not listing.latitude or not listing.longitude:
+                # Geocode address - construct full address from components
+                full_address = (
+                    f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
+                )
+                coords = geocode_address(full_address)
+                if coords:
+                    listing.longitude, listing.latitude = coords[0], coords[1]
 
             listing.save()
 
@@ -110,7 +113,11 @@ def create_listing(request):
     else:
         form = ListingForm()
 
-    return render(request, "listings/create_listing.html", {"form": form})
+    context = {
+        "form": form,
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
+    }
+    return render(request, "listings/create_listing.html", context)
 
 
 def validate_images(files):
@@ -145,12 +152,18 @@ def edit_listing(request, listing_id):  # noqa: C901
             listing = form.save(commit=False)
             listing.is_edited = True
 
-            # **NEW: Re-geocode if address changed**
-            # Check if any address component was modified
-            if any(
+            # **NEW: Re-geocode if address changed AND coordinates not manually set**
+            # Prioritize manual coordinates from the form (set by interactive map)
+            # Check if coordinates were manually updated (latitude/longitude in changed_data)
+            # or if address changed but coordinates weren't manually set
+            if "latitude" in form.changed_data or "longitude" in form.changed_data:
+                # User manually adjusted the pin, use those coordinates
+                pass  # Coordinates already set from form
+            elif any(
                 field in form.changed_data
                 for field in ["street_address", "city", "zipcode"]
             ):
+                # Address changed but coordinates not manually set, re-geocode
                 full_address = (
                     f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
                 )
@@ -170,9 +183,12 @@ def edit_listing(request, listing_id):  # noqa: C901
         if listing.amenities:
             form.initial["amenities"] = listing.amenities.split(",")
 
-    return render(
-        request, "listings/edit_listing.html", {"form": form, "listing": listing}
-    )
+    context = {
+        "form": form,
+        "listing": listing,
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
+    }
+    return render(request, "listings/edit_listing.html", context)
 
 
 def _validate_listing_images(files, keep_existing, listing, form):

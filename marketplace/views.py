@@ -98,12 +98,18 @@ def handle_item_form_submission(request, item, form, files, removed_image_ids):
         item = form.save(commit=False)
         item.is_edited = True
 
-        # **NEW: Re-geocode if address changed**
-        # Check if address was modified
-        if any(
+        # **NEW: Re-geocode if address changed AND coordinates not manually set**
+        # Prioritize manual coordinates from the form (set by interactive map)
+        # Check if coordinates were manually updated (latitude/longitude in changed_data)
+        # or if address changed but coordinates weren't manually set
+        if "latitude" in form.changed_data or "longitude" in form.changed_data:
+            # User manually adjusted the pin, use those coordinates
+            pass  # Coordinates already set from form
+        elif any(
             field in form.changed_data
             for field in ["street_address", "city", "zipcode"]
         ):
+            # Address changed but coordinates not manually set, re-geocode
             full_address = f"{item.street_address}, {item.city}, {item.zipcode}"
             coordinates = geocode_address(full_address)
             if coordinates:
@@ -157,7 +163,12 @@ def edit_item(request, item_id):
     else:
         form = ItemForm(instance=item)
 
-    return render(request, "marketplace/edit_item.html", {"form": form, "item": item})
+    context = {
+        "form": form,
+        "item": item,
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
+    }
+    return render(request, "marketplace/edit_item.html", context)
 
 
 @login_required
@@ -184,14 +195,17 @@ def create_item(request):
             item = form.save(commit=False)
             item.user = request.user
 
-            # **NEW: Geocode the address to get coordinates**
-            # This happens automatically when user submits the form
-            full_address = f"{item.street_address}, {item.city}, {item.zipcode}"
-            coordinates = geocode_address(full_address)
-            if coordinates:
-                # Store coordinates for map display
-                item.longitude = coordinates[0]  # longitude is first in Mapbox format
-                item.latitude = coordinates[1]  # latitude is second
+            # Prioritize manual coordinates from the form (set by interactive map)
+            # If not provided, fall back to backend geocoding
+            if not item.latitude or not item.longitude:
+                # **NEW: Geocode the address to get coordinates**
+                # This happens automatically when user submits the form
+                full_address = f"{item.street_address}, {item.city}, {item.zipcode}"
+                coordinates = geocode_address(full_address)
+                if coordinates:
+                    # Store coordinates for map display
+                    item.longitude = coordinates[0]  # longitude is first in Mapbox format
+                    item.latitude = coordinates[1]  # latitude is second
 
             item.save()
 
@@ -208,7 +222,11 @@ def create_item(request):
     else:
         form = ItemForm()
 
-    return render(request, "marketplace/create_item.html", {"form": form})
+    context = {
+        "form": form,
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
+    }
+    return render(request, "marketplace/create_item.html", context)
 
 
 @login_required

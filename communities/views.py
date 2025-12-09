@@ -34,6 +34,9 @@ from .permissions import (
 )
 from .utils import validate_university_access
 
+# Import the geocoding utility for backend fallback
+from map_utils.python.utils import geocode_address
+
 
 @login_required
 def browse_communities(request):
@@ -977,6 +980,16 @@ def create_event(request, slug):
             event = form.save(commit=False)
             event.community = community
             event.organizer = request.user
+
+            # Prioritize manual coordinates from the form (set by interactive map)
+            # If not provided, fall back to backend geocoding
+            if (not event.latitude or not event.longitude) and event.location:
+                # Geocode the location to get coordinates
+                coordinates = geocode_address(event.location)
+                if coordinates:
+                    event.longitude = coordinates[0]
+                    event.latitude = coordinates[1]
+
             event.save()
 
             messages.success(request, "Event created successfully!")
@@ -1048,7 +1061,21 @@ def edit_event(request, slug, event_id):
     if request.method == "POST":
         form = EventForm(request.POST, request.FILES, instance=event)
         if form.is_valid():
-            form.save()
+            event = form.save(commit=False)
+
+            # Prioritize manual coordinates from the form (set by interactive map)
+            # Check if coordinates were manually updated or if location changed
+            if "latitude" in form.changed_data or "longitude" in form.changed_data:
+                # User manually adjusted the pin, use those coordinates
+                pass  # Coordinates already set from form
+            elif "location" in form.changed_data and event.location:
+                # Location changed but coordinates not manually set, re-geocode
+                coordinates = geocode_address(event.location)
+                if coordinates:
+                    event.longitude = coordinates[0]
+                    event.latitude = coordinates[1]
+
+            event.save()
             messages.success(request, "Event updated successfully!")
             return redirect("communities:event_detail", slug=slug, event_id=event.id)
     else:
