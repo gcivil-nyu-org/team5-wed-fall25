@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Community - CampusNest{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'communities/css/delete_community.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-card delete-community-container">
+	<h2 class="delete-community-title">Delete Community</h2>
+
+	<div class="delete-warning-box">
+		<strong class="delete-warning-title">Warning</strong>
+		<p class="delete-warning-text">
+			This action cannot be undone. Are you sure you want to permanently delete this community and all its content?
+		</p>
+	</div>
+
+	<!-- Community Preview -->
+	<div class="delete-community-preview">
+		<h3 class="delete-community-preview-title">{{ community.name }}</h3>
+
+		{% if community.cover_image %}
+		<img src="{{ community.cover_image.url }}" class="delete-community-preview-image" alt="{{ community.name }}">
+		{% endif %}
+
+		<div class="delete-community-detail">
+			<strong class="delete-community-detail-label">Description:</strong>
+			<span class="delete-community-detail-value">{{ community.description|truncatewords:30 }}</span>
+		</div>
+
+		<div class="delete-community-detail">
+			<strong class="delete-community-detail-label">Privacy:</strong>
+			<span class="delete-community-detail-value">{{ community.get_privacy_display }}</span>
+		</div>
+
+		{% if community.university %}
+		<div class="delete-community-detail">
+			<strong class="delete-community-detail-label">University:</strong>
+			<span class="delete-community-detail-value">{{ community.university }}</span>
+		</div>
+		{% endif %}
+
+		<div class="delete-community-detail">
+			<strong class="delete-community-detail-label">Created:</strong>
+			<span class="delete-community-detail-value">{{ community.created_at|date:"F d, Y" }}</span>
+		</div>
+	</div>
+
+	<!-- Deletion Info -->
+	<div class="deletion-info-box">
+		<strong class="deletion-info-title">What will be deleted:</strong>
+		<ul class="deletion-info-list">
+			<li>All community information</li>
+			<li>All {{ member_count }} member{{ member_count|pluralize }}</li>
+			<li>All {{ post_count }} post{{ post_count|pluralize }}</li>
+			<li>All {{ chat_message_count }} chat message{{ chat_message_count|pluralize }}</li>
+			<li>All {{ event_count }} event{{ event_count|pluralize }}</li>
+			<li>All uploaded images</li>
+		</ul>
+	</div>
+
+	<!-- Confirmation Form -->
+	<form method="POST" class="delete-form">
+		{% csrf_token %}
+
+		<div class="delete-form-buttons">
+			<button type="submit" class="btn-confirm-delete">
+				Yes, Delete Community
+			</button>
+
+			<a href="{% url 'communities:detail' community.slug %}" class="btn-cancel-delete">
+				Cancel
+			</a>
+		</div>
+	</form>
+
+	<p class="text-center delete-back-link-container">
+		Changed your mind? <a href="{% url 'communities:my_communities' %}" class="delete-back-link">Go back to My Communities</a>
+	</p>
+</div>
+{% endblock %}

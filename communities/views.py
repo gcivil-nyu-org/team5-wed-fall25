@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.db.models import Q, Count
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.conf import settings
 
 from .models import (
@@ -204,6 +204,47 @@ def community_settings(request, slug):
         "community": community,
     }
     return render(request, "communities/settings.html", context)
+
+
+@login_required
+def delete_community(request, slug):
+    """Delete a community with confirmation (creator or staff only)."""
+    community = get_object_or_404(Community, slug=slug, is_active=True)
+
+    # Authorization: Only creator or staff can delete
+    # Handle case where created_by is None (SET_NULL on delete)
+    if community.created_by != request.user and not request.user.is_staff:
+        raise Http404()
+
+    if request.method == "POST":
+        # Store community name for success message
+        community_name = community.name
+
+        # Hard delete (CASCADE will handle related objects)
+        community.delete()
+
+        messages.success(
+            request,
+            f'Community "{community_name}" and all related content have been permanently deleted.',
+        )
+        return redirect("communities:my_communities")
+
+    # GET request - show confirmation page with cascade stats
+    member_count = CommunityMember.objects.filter(
+        community=community, status="active"
+    ).count()
+    post_count = Post.objects.filter(community=community).count()
+    event_count = Event.objects.filter(community=community).count()
+    chat_message_count = ChatMessage.objects.filter(thread__community=community).count()
+
+    context = {
+        "community": community,
+        "member_count": member_count,
+        "post_count": post_count,
+        "event_count": event_count,
+        "chat_message_count": chat_message_count,
+    }
+    return render(request, "communities/delete_community.html", context)
 
 
 @login_required
