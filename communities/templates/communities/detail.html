@@ -31,6 +31,9 @@
                 <a href="{% url 'communities:event_list' community.slug %}" class="btn-primary">📅 Events</a>
                 {% if is_admin %}
                     <a href="{% url 'communities:settings' community.slug %}" class="btn-secondary">Settings</a>
+                    {% if community.created_by == request.user %}
+                        <a href="{% url 'communities:delete_community' community.slug %}" class="btn-danger">Delete Community</a>
+                    {% endif %}
                 {% endif %}
                 {% if can_manage %}
                     <a href="{% url 'communities:members' community.slug %}" class="btn-secondary">Manage Members</a>
@@ -71,7 +74,7 @@
         {% if posts %}
             <div class="posts-feed">
                 {% for post in posts %}
-                    <div class="post-card">
+                    <a href="{% url 'communities:post_detail' community.slug post.id %}" class="post-card">
                         <div class="post-card-header">
                             <div class="post-author-info">
                                 <div class="post-avatar">
@@ -113,11 +116,11 @@
                         {% endif %}
 
                         <div class="post-card-footer">
-                            <a href="{% url 'communities:post_detail' community.slug post.id %}" class="post-link">
+                            <span class="post-link">
                                 💬 {{ post.comment_count }} comment{{ post.comment_count|pluralize }}
-                            </a>
+                            </span>
                         </div>
-                    </div>
+                    </a>
                 {% endfor %}
             </div>
         {% else %}
@@ -366,11 +369,16 @@
     background: #1a1a1a;
     border-radius: 8px;
     padding: 1.5rem;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: block;
+    color: inherit;
+    cursor: pointer;
 }
 
 .post-card:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .post-card-header {

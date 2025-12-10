@@ -16,6 +16,7 @@ urlpatterns = [
     # Community Detail & Management
     path("<slug:slug>/", views.community_detail, name="detail"),
     path("<slug:slug>/settings/", views.community_settings, name="settings"),
+    path("<slug:slug>/delete/", views.delete_community, name="delete_community"),
     # Membership Actions
     path("<slug:slug>/join/", views.join_community, name="join"),
     path("<slug:slug>/leave/", views.leave_community, name="leave"),

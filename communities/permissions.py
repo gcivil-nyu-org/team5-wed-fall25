@@ -3,7 +3,8 @@ Permission helpers and decorators for communities app.
 """
 
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.contrib import messages
 from functools import wraps
 from .models import Community, CommunityMember
 
@@ -103,7 +104,11 @@ def require_membership(view_func):
 
     @wraps(view_func)
     def wrapper(request, slug, *args, **kwargs):
-        community = get_object_or_404(Community, slug=slug)
+        try:
+            community = Community.objects.get(slug=slug, is_active=True)
+        except Community.DoesNotExist:
+            messages.warning(request, "This community no longer exists.")
+            return redirect("communities:browse")
         check_membership(request.user, community)
         return view_func(request, slug, *args, **kwargs)
 
@@ -124,7 +129,11 @@ def require_moderator(view_func):
 
     @wraps(view_func)
     def wrapper(request, slug, *args, **kwargs):
-        community = get_object_or_404(Community, slug=slug)
+        try:
+            community = Community.objects.get(slug=slug, is_active=True)
+        except Community.DoesNotExist:
+            messages.warning(request, "This community no longer exists.")
+            return redirect("communities:browse")
         if not can_moderate(request.user, community):
             raise PermissionDenied("You must be a moderator or admin")
         return view_func(request, slug, *args, **kwargs)
@@ -146,7 +155,11 @@ def require_admin(view_func):
 
     @wraps(view_func)
     def wrapper(request, slug, *args, **kwargs):
-        community = get_object_or_404(Community, slug=slug)
+        try:
+            community = Community.objects.get(slug=slug, is_active=True)
+        except Community.DoesNotExist:
+            messages.warning(request, "This community no longer exists.")
+            return redirect("communities:browse")
         if not is_admin(request.user, community):
             raise PermissionDenied("You must be an admin")
         return view_func(request, slug, *args, **kwargs)

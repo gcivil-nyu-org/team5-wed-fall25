@@ -1,0 +1,186 @@
+/* Delete Community Styles */
+
+/* ========================================
+   Delete Community Container
+   ======================================== */
+
+.delete-community-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.delete-community-title {
+    color: var(--color-danger);
+    margin-bottom: 1.5rem;
+}
+
+/* ========================================
+   Warning Box
+   ======================================== */
+
+.delete-warning-box {
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid var(--color-warning);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.delete-warning-title {
+    color: #fcd34d;
+    font-size: 1rem;
+}
+
+.delete-warning-text {
+    margin: 0.75rem 0 0 0;
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   Community Preview Card
+   ======================================== */
+
+.delete-community-preview {
+    background: var(--color-surface-elevated);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-border);
+}
+
+.delete-community-preview-title {
+    margin-bottom: 1rem;
+    color: var(--color-text-primary);
+}
+
+.delete-community-preview-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.delete-community-detail {
+    margin-bottom: 0.875rem;
+}
+
+.delete-community-detail:last-child {
+    margin-bottom: 0;
+}
+
+.delete-community-detail-label {
+    color: var(--color-text-primary);
+}
+
+.delete-community-detail-value {
+    color: var(--color-text-secondary);
+    margin-left: 0.5rem;
+}
+
+/* ========================================
+   Deletion Info Box
+   ======================================== */
+
+.deletion-info-box {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid var(--color-danger);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.deletion-info-title {
+    color: #fca5a5;
+    font-size: 1rem;
+}
+
+.deletion-info-list {
+    margin: 0.75rem 0 0 1.25rem;
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+}
+
+/* ========================================
+   Confirmation Form
+   ======================================== */
+
+.delete-form {
+    margin-top: 2rem;
+}
+
+.delete-form-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-confirm-delete {
+    background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+    padding: 0.875rem 2rem;
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+    width: auto;
+}
+
+.btn-confirm-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+}
+
+.btn-cancel-delete {
+    display: inline-block;
+    padding: 0.875rem 2rem;
+    background: var(--color-surface-elevated);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: 1px solid var(--color-border);
+}
+
+.btn-cancel-delete:hover {
+    background: var(--color-surface-hover);
+    transform: translateY(-1px);
+}
+
+/* ========================================
+   Back Link
+   ======================================== */
+
+.delete-back-link-container {
+    margin-top: 1.5rem;
+    color: var(--color-text-secondary);
+}
+
+.delete-back-link {
+    color: var(--color-primary-light);
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .delete-form-buttons {
+        flex-direction: column;
+    }
+
+    .btn-confirm-delete,
+    .btn-cancel-delete {
+        width: 100%;
+    }
+}

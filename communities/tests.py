@@ -3028,13 +3028,20 @@ class PrivateCommunityTests(TestCase):
         )
 
     def test_private_community_detail_non_member_redirects(self):
-        """Test non-member cannot see private community details"""
+        """Test non-member can see basic community info and join request button"""
         self.client.login(username="outsider@columbia.edu", password="testpass123")
         response = self.client.get(
             reverse("communities:detail", args=[self.private_community.slug])
         )
 
-        self.assertEqual(response.status_code, 302)
+        # Non-members should be able to see the page (to access join request button)
+        self.assertEqual(response.status_code, 200)
+
+        # But should see the join request button
+        self.assertContains(response, "Request to Join")
+
+        # And should NOT see member-only content like posts
+        self.assertNotContains(response, "Community Posts")
 
     def test_private_community_detail_member_can_access(self):
         """Test member can see private community details"""
