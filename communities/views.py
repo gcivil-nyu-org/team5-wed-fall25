@@ -114,7 +114,11 @@ def create_community(request):
 
 def community_detail(request, slug):
     """Community home page."""
-    community = get_object_or_404(Community, slug=slug, is_active=True)
+    try:
+        community = Community.objects.get(slug=slug, is_active=True)
+    except Community.DoesNotExist:
+        messages.warning(request, "This community no longer exists.")
+        return redirect("communities:browse")
 
     # Check if user is a member
     is_member = False
@@ -127,13 +131,6 @@ def community_detail(request, slug):
             is_member = membership.status == "active"
         except CommunityMember.DoesNotExist:
             pass
-
-    # For private communities, only members can see details
-    if community.privacy == "private" and not is_member and not request.user.is_staff:
-        messages.warning(
-            request, "This is a private community. Request to join to see details."
-        )
-        return redirect("communities:browse")
 
     # Get member count
     active_members = (
