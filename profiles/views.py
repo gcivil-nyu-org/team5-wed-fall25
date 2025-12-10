@@ -52,6 +52,11 @@ def create_profile(request):
 
 @login_required
 def edit_profile(request):
+    # Check if profile exists, redirect to create if not
+    if not hasattr(request.user, "profile"):
+        messages.info(request, "Please create your profile first.")
+        return redirect("create_profile")
+
     profile = request.user.profile
     if request.method == "POST":
         form = ProfileForm(request.POST, request.FILES, instance=profile)
@@ -59,6 +64,8 @@ def edit_profile(request):
             form.save()
             messages.success(request, "Profile updated successfully!")
             return redirect("view_profile")
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = ProfileForm(instance=profile)
     return render(request, "profiles/edit_profile.html", {"form": form})

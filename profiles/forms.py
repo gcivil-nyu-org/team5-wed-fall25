@@ -136,6 +136,10 @@ class ProfileForm(forms.ModelForm):
     def clean_profile_photo(self):
         photo = self.cleaned_data.get("profile_photo")
 
+        # If photo is False (cleared) or None (not changed), return as is
+        if photo is False or photo is None:
+            return photo
+
         # Photo is optional, so only validate if provided
         if photo and hasattr(photo, "content_type"):
             # Check file size
@@ -146,15 +150,29 @@ class ProfileForm(forms.ModelForm):
             if photo.content_type not in ["image/jpeg", "image/png", "image/webp"]:
                 raise forms.ValidationError("Only JPG, PNG, and WebP formats allowed.")
 
-        # If no new photo provided during edit, keep the existing one
-        # Django will handle this automatically with instance=profile
-
         return photo
 
     def clean_move_in_date(self):
         move_in_date = self.cleaned_data.get("move_in_date")
-        if move_in_date and move_in_date < timezone.now().date():
-            raise forms.ValidationError("Move-in date cannot be in the past.")
+
+        # Only validate future dates for new profiles or when date is being changed
+        if move_in_date:
+            # If editing existing profile
+            if self.instance and self.instance.pk:
+                # Allow keeping the existing date even if it's now in the past
+                # Compare with the original date from database, not the form's initial
+                original_date = Profile.objects.get(pk=self.instance.pk).move_in_date
+                if original_date != move_in_date:
+                    # Only validate if user is changing the date
+                    if move_in_date < timezone.now().date():
+                        raise forms.ValidationError(
+                            "Move-in date cannot be in the past."
+                        )
+            else:
+                # For new profiles, always validate
+                if move_in_date < timezone.now().date():
+                    raise forms.ValidationError("Move-in date cannot be in the past.")
+
         return move_in_date
 
     def clean(self):

@@ -126,7 +126,6 @@ class Profile(models.Model):
         null=True,
         blank=True,
         verbose_name="Preferred Move-In Date",
-        validators=[validate_future_or_today_date],
     )
 
     def __str__(self):
