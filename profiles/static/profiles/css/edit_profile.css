@@ -461,6 +461,43 @@
    ======================================== */
 
 .date-picker-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.date-picker-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* Style the calendar icon */
+.date-picker-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.date-picker-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Firefox date picker styling */
+.date-picker-input::-moz-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+/*
+.date-picker-input {
     position: relative;
     font-weight: 500 !important;
     transition: all 0.3s ease !important;
@@ -478,8 +515,9 @@
     background-color: #ffffff !important;
     box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1) !important;
 }
-
+*/
 /* Calendar icon enhancement for better visibility */
+/*
 .date-picker-input::-webkit-calendar-picker-indicator {
     cursor: pointer;
     filter: invert(48%) sepia(79%) saturate(500%) hue-rotate(86deg) brightness(96%) contrast(87%);
@@ -493,3 +531,4 @@
     background-color: rgba(76, 175, 80, 0.1);
     border-radius: 4px;
 }
+*/

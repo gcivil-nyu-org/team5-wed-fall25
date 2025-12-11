@@ -93,14 +93,17 @@ def roommate_search(request):
         }
 
         # Only include lifestyle preferences if they're not set to "no_preference"
-        if user_profile.smoking_preference and user_profile.smoking_preference != "no_preference":
+        if user_profile.smoking_preference :
             initial_data["smoking_preference"] = [user_profile.smoking_preference]
+        # and user_profile.smoking_preference != "no_preference":
 
-        if user_profile.pet_preference and user_profile.pet_preference != "no_preference":
+        if user_profile.pet_preference :
             initial_data["pet_preference"] = [user_profile.pet_preference]
+        # and user_profile.pet_preference != "no_preference":
 
-        if user_profile.cleanliness_preference and user_profile.cleanliness_preference != "no_preference":
+        if user_profile.cleanliness_preference :
             initial_data["cleanliness_preference"] = [user_profile.cleanliness_preference]
+            # and user_profile.cleanliness_preference != "no_preference"
 
         form = RoommateSearchForm(initial_data)
     elif clear_filters:

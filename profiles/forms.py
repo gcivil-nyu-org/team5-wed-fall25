@@ -93,7 +93,6 @@ class ProfileForm(forms.ModelForm):
             "move_in_date": forms.DateInput(
                 attrs={
                     "type": "date",
-                    "style": "width: 100%; padding: 12px; border: 2px solid #4CAF50; border-radius: 6px; font-size: 16px; background-color: #f9f9f9; cursor: pointer;",
                     "class": "date-picker-input",
                 }
             ),
