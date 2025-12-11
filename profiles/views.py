@@ -75,7 +75,41 @@ def view_profile(request):
 @login_required
 def roommate_search(request):
     """Display roommate search page with filters"""
-    form = RoommateSearchForm(request.GET or None)
+    # Check if user has a profile
+    user_profile = getattr(request.user, "profile", None)
+
+    # Check if user wants to clear filters
+    clear_filters = request.GET.get('clear', None)
+
+    # If no GET parameters and user has a profile, 
+    # then auto-populate with user preferences
+    if not request.GET and user_profile:
+        # Auto-populate on first visit (no GET parameters at all)
+        initial_data = {
+            "budget_min": user_profile.budget_min,
+            "budget_max": user_profile.budget_max,
+            "location": user_profile.location,
+            "university": [user_profile.university],
+        }
+
+        # Only include lifestyle preferences if they're not set to "no_preference"
+        if user_profile.smoking_preference and user_profile.smoking_preference != "no_preference":
+            initial_data["smoking_preference"] = [user_profile.smoking_preference]
+
+        if user_profile.pet_preference and user_profile.pet_preference != "no_preference":
+            initial_data["pet_preference"] = [user_profile.pet_preference]
+
+        if user_profile.cleanliness_preference and user_profile.cleanliness_preference != "no_preference":
+            initial_data["cleanliness_preference"] = [user_profile.cleanliness_preference]
+
+        form = RoommateSearchForm(initial_data)
+    elif clear_filters:
+        # User clicked "Clear Filters" - show empty form with no filters
+        form = RoommateSearchForm()
+    else:
+        # User submitted the form with filters & use GET data
+        form = RoommateSearchForm(request.GET or None)
+    
     profiles = Profile.objects.filter(visibility=True).exclude(user=request.user)
 
     # Apply filters
