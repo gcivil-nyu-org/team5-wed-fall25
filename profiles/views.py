@@ -72,51 +72,124 @@ def view_profile(request):
     return render(request, "profiles/view_profile.html", {"profile": profile})
 
 
+# @login_required
+# def roommate_search(request):
+#     """Display roommate search page with filters"""
+#     # Check if user has a profile
+#     user_profile = getattr(request.user, "profile", None)
+
+#     # Check if user wants to clear filters
+#     clear_filters = request.GET.get('clear', None)
+#     # If no GET parameters and user has a profile,
+#     # then auto-populate with user preferences
+#     if not request.GET and user_profile:
+#         # Auto-populate on first visit (no GET parameters at all)
+#         initial_data = {
+#             "budget_min": user_profile.budget_min,
+#             "budget_max": user_profile.budget_max,
+#             "location": user_profile.location,
+#             "university": [user_profile.university],
+#         }
+
+#         # Only include lifestyle preferences if they're not set to "no_preference"
+#         if user_profile.smoking_preference:
+#             initial_data["smoking_preference"] = [user_profile.smoking_preference]
+#         # and user_profile.smoking_preference != "no_preference":
+
+#         if user_profile.pet_preference:
+#             initial_data["pet_preference"] = [user_profile.pet_preference]
+#         # and user_profile.pet_preference != "no_preference":
+
+#         if user_profile.cleanliness_preference:
+#             initial_data["cleanliness_preference"] = [user_profile.cleanliness_preference]
+#             # and user_profile.cleanliness_preference != "no_preference"
+
+#         form = RoommateSearchForm(initial_data)
+#     elif clear_filters:
+#         # User clicked "Clear Filters" - show empty form with no filters
+#         form = RoommateSearchForm()
+#     else:
+#         # User submitted the form with filters & use GET data
+#         form = RoommateSearchForm(request.GET or None)
+#     profiles = Profile.objects.filter(visibility=True).exclude(user=request.user)
+#     # Apply filters
+#     if form.is_valid():
+#         # Lifestyle filters - "no_preference" in filter means show ALL profiles
+#         # Only apply filter if "no_preference" is NOT selected
+#         smoking_prefs = form.cleaned_data.get("smoking_preference")
+#         if smoking_prefs and "no_preference" not in smoking_prefs:
+#             profiles = profiles.filter(smoking_preference__in=smoking_prefs)
+
+#         pet_prefs = form.cleaned_data.get("pet_preference")
+#         if pet_prefs and "no_preference" not in pet_prefs:
+#             profiles = profiles.filter(pet_preference__in=pet_prefs)
+
+#         cleanliness_prefs = form.cleaned_data.get("cleanliness_preference")
+#         if cleanliness_prefs and "no_preference" not in cleanliness_prefs:
+#             profiles = profiles.filter(cleanliness_preference__in=cleanliness_prefs)
+
+#         # Housing filters
+#         budget_min = form.cleaned_data.get("budget_min")
+#         if budget_min is not None:
+#             profiles = profiles.filter(budget_max__gte=budget_min)
+
+#         budget_max = form.cleaned_data.get("budget_max")
+#         if budget_max is not None:
+#             profiles = profiles.filter(budget_min__lte=budget_max)
+
+#         location = form.cleaned_data.get("location")
+#         if location:
+#             profiles = profiles.filter(location__icontains=location)
+
+#         universities = form.cleaned_data.get("university")
+#         if universities:
+#             profiles = profiles.filter(university__in=universities)
+
+#     # Get user's favorites for display
+#     user_favorites = Favorite.objects.filter(user=request.user).values_list(
+#         "favorite_profile_id", flat=True
+#     )
+
+#     # Get connection request statuses
+#     sent_requests = ConnectionRequest.objects.filter(
+#         from_user=request.user
+#     ).values_list("to_user_id", flat=True)
+
+#     context = {
+#         "form": form,
+#         "profiles": profiles,
+#         "user_favorites": user_favorites,
+#         "sent_requests": sent_requests,
+#     }
+
+
+#     return render(request, "profiles/roommate_search.html", context)
 @login_required
 def roommate_search(request):
     """Display roommate search page with filters"""
-    form = RoommateSearchForm(request.GET or None)
+    user_profile = getattr(request.user, "profile", None)
+    clear_filters = request.GET.get("clear", None)
+
+    # Determine which form to use
+    if not request.GET and user_profile:
+        # Auto-populate with user preferences on first visit
+        initial_data = _build_initial_filter_data(user_profile)
+        form = RoommateSearchForm(initial_data)
+    elif clear_filters:
+        # Show empty form when clearing filters
+        form = RoommateSearchForm()
+    else:
+        # Use GET data for manual filter submission
+        form = RoommateSearchForm(request.GET or None)
+
+    # Get base profiles and apply filters
     profiles = Profile.objects.filter(visibility=True).exclude(user=request.user)
+    profiles = _apply_search_filters(profiles, form)
 
-    # Apply filters
-    if form.is_valid():
-        # Lifestyle filters - "no_preference" in filter means show ALL profiles
-        # Only apply filter if "no_preference" is NOT selected
-        smoking_prefs = form.cleaned_data.get("smoking_preference")
-        if smoking_prefs and "no_preference" not in smoking_prefs:
-            profiles = profiles.filter(smoking_preference__in=smoking_prefs)
-
-        pet_prefs = form.cleaned_data.get("pet_preference")
-        if pet_prefs and "no_preference" not in pet_prefs:
-            profiles = profiles.filter(pet_preference__in=pet_prefs)
-
-        cleanliness_prefs = form.cleaned_data.get("cleanliness_preference")
-        if cleanliness_prefs and "no_preference" not in cleanliness_prefs:
-            profiles = profiles.filter(cleanliness_preference__in=cleanliness_prefs)
-
-        # Housing filters
-        budget_min = form.cleaned_data.get("budget_min")
-        if budget_min is not None:
-            profiles = profiles.filter(budget_max__gte=budget_min)
-
-        budget_max = form.cleaned_data.get("budget_max")
-        if budget_max is not None:
-            profiles = profiles.filter(budget_min__lte=budget_max)
-
-        location = form.cleaned_data.get("location")
-        if location:
-            profiles = profiles.filter(location__icontains=location)
-
-        universities = form.cleaned_data.get("university")
-        if universities:
-            profiles = profiles.filter(university__in=universities)
-
-    # Get user's favorites for display
+    # Get user-specific data
     user_favorites = Favorite.objects.filter(user=request.user).values_list(
         "favorite_profile_id", flat=True
     )
-
-    # Get connection request statuses
     sent_requests = ConnectionRequest.objects.filter(
         from_user=request.user
     ).values_list("to_user_id", flat=True)
@@ -129,6 +202,66 @@ def roommate_search(request):
     }
 
     return render(request, "profiles/roommate_search.html", context)
+
+
+def _apply_search_filters(profiles, form):
+    """Apply search filters to profiles queryset"""
+    if not form.is_valid():
+        return profiles
+
+    # Lifestyle filters
+    smoking_prefs = form.cleaned_data.get("smoking_preference")
+    if smoking_prefs and "no_preference" not in smoking_prefs:
+        profiles = profiles.filter(smoking_preference__in=smoking_prefs)
+
+    pet_prefs = form.cleaned_data.get("pet_preference")
+    if pet_prefs and "no_preference" not in pet_prefs:
+        profiles = profiles.filter(pet_preference__in=pet_prefs)
+
+    cleanliness_prefs = form.cleaned_data.get("cleanliness_preference")
+    if cleanliness_prefs and "no_preference" not in cleanliness_prefs:
+        profiles = profiles.filter(cleanliness_preference__in=cleanliness_prefs)
+
+    # Housing filters
+    budget_min = form.cleaned_data.get("budget_min")
+    if budget_min is not None:
+        profiles = profiles.filter(budget_max__gte=budget_min)
+
+    budget_max = form.cleaned_data.get("budget_max")
+    if budget_max is not None:
+        profiles = profiles.filter(budget_min__lte=budget_max)
+
+    location = form.cleaned_data.get("location")
+    if location:
+        profiles = profiles.filter(location__icontains=location)
+
+    universities = form.cleaned_data.get("university")
+    if universities:
+        profiles = profiles.filter(university__in=universities)
+
+    return profiles
+
+
+def _build_initial_filter_data(user_profile):
+    """Build initial filter data from user profile preferences"""
+    initial_data = {
+        "budget_min": user_profile.budget_min,
+        "budget_max": user_profile.budget_max,
+        "location": user_profile.location,
+        "university": [user_profile.university],
+    }
+
+    # Add lifestyle preferences if they exist
+    if user_profile.smoking_preference:
+        initial_data["smoking_preference"] = [user_profile.smoking_preference]
+
+    if user_profile.pet_preference:
+        initial_data["pet_preference"] = [user_profile.pet_preference]
+
+    if user_profile.cleanliness_preference:
+        initial_data["cleanliness_preference"] = [user_profile.cleanliness_preference]
+
+    return initial_data
 
 
 @login_required

@@ -118,7 +118,7 @@
                 <button type="submit" class="btn-search">
                     🔍 Search
                 </button>
-                <a href="{% url 'roommate_search' %}" class="btn-clear-filters">
+                <a href="{% url 'roommate_search' %}?clear=1" class="btn-clear-filters">
                     Clear Filters
                 </a>
             </div>
@@ -207,7 +207,7 @@
             <div class="empty-state">
                 <p class="empty-state-title">😔 No matches found</p>
                 <p class="empty-state-text">Try adjusting your filters to find more roommates.</p>
-                <a href="{% url 'roommate_search' %}" class="btn-empty-state">
+                <a href="{% url 'roommate_search' %}?clear=1" class="btn-empty-state">
                     Clear Filters
                 </a>
             </div>
