@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load tz %}
 
 {% block title %}{{ event.title }} - {{ community.name }} - CampusNest{% endblock %}
 
@@ -42,7 +43,7 @@
                     <div>
                         <div class="meta-label">Start</div>
                         <div class="meta-value">{{ event.start_datetime|date:"l, F j, Y" }}</div>
-                        <div class="meta-value">{{ event.start_datetime|date:"g:i A" }}</div>
+                        <div class="meta-value">{{ event.start_datetime|date:"g:i A T" }}</div>
                     </div>
                 </div>
 
@@ -53,7 +54,7 @@
                     <div>
                         <div class="meta-label">End</div>
                         <div class="meta-value">{{ event.end_datetime|date:"l, F j, Y" }}</div>
-                        <div class="meta-value">{{ event.end_datetime|date:"g:i A" }}</div>
+                        <div class="meta-value">{{ event.end_datetime|date:"g:i A T" }}</div>
                     </div>
                 </div>
 
