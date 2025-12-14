@@ -20,40 +20,43 @@
             {% if community.university %}
                 <span class="badge badge-university">{{ community.university }}</span>
             {% endif %}
-            <span class="member-count">{{ community.member_count }} members</span>
         </div>
     </div>
 
     <div class="community-actions">
         {% if user.is_authenticated %}
             {% if is_member %}
-                <a href="{% url 'communities:chat_thread' community.slug %}" class="btn-primary">💬 Chat</a>
-                <a href="{% url 'communities:event_list' community.slug %}" class="btn-primary">📅 Events</a>
-                {% if is_admin %}
-                    <a href="{% url 'communities:settings' community.slug %}" class="btn-secondary">Settings</a>
-                {% endif %}
-                {% if can_manage %}
-                    <a href="{% url 'communities:members' community.slug %}" class="btn-secondary">Manage Members</a>
-                    {% if community.privacy == 'private' %}
-                        <a href="{% url 'communities:join_requests' community.slug %}" class="btn-secondary">Join Requests</a>
+                <div class="primary-actions">
+                    <a href="{% url 'communities:chat_thread' community.slug %}" class="btn-action">💬 Chat</a>
+                    <a href="{% url 'communities:event_list' community.slug %}" class="btn-action">📅 Events</a>
+                    <a href="{% url 'communities:members' community.slug %}" class="btn-action">👥 {{ community.member_count }} Members</a>
+                </div>
+                <div class="secondary-actions">
+                    {% if is_admin %}
+                        <a href="{% url 'communities:settings' community.slug %}" class="btn-secondary">⚙️ Settings</a>
                     {% endif %}
-                {% endif %}
-                {% if not is_admin %}
-                    <form method="post" action="{% url 'communities:leave' community.slug %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to leave this community?')">Leave Community</button>
-                    </form>
-                {% endif %}
+                    {% if can_manage %}
+                        {% if community.privacy == 'private' %}
+                            <a href="{% url 'communities:join_requests' community.slug %}" class="btn-secondary">📋 Join Requests</a>
+                        {% endif %}
+                    {% endif %}
+                    {% if not is_admin %}
+                        <form method="post" action="{% url 'communities:leave' community.slug %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to leave this community?')">🚪 Leave Community</button>
+                        </form>
+                    {% endif %}
+                </div>
             {% else %}
                 {% if membership and membership.status == 'pending' %}
-                    <span class="status-pending">Join Request Pending</span>
+                    <span class="status-pending">⏳ Join Request Pending</span>
                 {% elif membership and membership.status == 'banned' %}
-                    <span class="status-banned">You are banned from this community</span>
+                    <span class="status-banned">🚫 You are banned from this community</span>
                 {% else %}
                     <form method="post" action="{% url 'communities:join' community.slug %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn-primary">
-                            {% if community.privacy == 'private' %}Request to Join{% else %}Join Community{% endif %}
+                        <button type="submit" class="btn-join">
+                            {% if community.privacy == 'private' %}🔒 Request to Join{% else %}✨ Join Community{% endif %}
                         </button>
                     </form>
                 {% endif %}
@@ -179,175 +182,236 @@
             </div>
         </div>
     {% endif %}
-
-    <!-- Recent Members -->
-    <div class="community-content">
-        <h2>Recent Members</h2>
-        {% if active_members %}
-            <div class="members-list">
-                {% for member in active_members %}
-                    <div class="member-item">
-                        <div class="member-avatar">
-                            {% if member.user.profile.profile_photo %}
-                                <img src="{{ member.user.profile.profile_photo.url }}" alt="{{ member.user.username }}">
-                            {% else %}
-                                <span>{{ member.user.username|slice:":1"|upper }}</span>
-                            {% endif %}
-                        </div>
-                        <div class="member-info">
-                            <strong>{{ member.user.get_full_name|default:member.user.username }}</strong>
-                            <span class="badge badge-{{ member.role }}">{{ member.get_role_display }}</span>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-            <a href="{% url 'communities:members' community.slug %}" class="view-all">View all members →</a>
-        {% else %}
-            <p>No members yet.</p>
-        {% endif %}
-    </div>
 {% endif %}
 
 <style>
+/* Community Header */
 .community-header {
-    background: #2a2a2a;
-    border-radius: 8px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
     overflow: hidden;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
 }
 
 .community-cover, .community-cover-default {
     width: 100%;
-    height: 200px;
+    height: 280px;
     object-fit: cover;
 }
 
 .community-cover-default {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 4rem;
-    font-weight: bold;
+    font-size: 5rem;
+    font-weight: 800;
     color: white;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 .community-header-content {
-    padding: 1.5rem;
+    padding: 2rem;
 }
 
 .community-header-content h1 {
-    margin: 0 0 0.5rem 0;
-    color: #fff;
+    margin: 0 0 0.75rem 0;
+    color: var(--color-text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-accent-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .community-header-content p {
-    color: #9ca3af;
-    margin: 0 0 1rem 0;
+    color: var(--color-text-secondary);
+    margin: 0 0 1.25rem 0;
+    font-size: 1.0625rem;
+    line-height: 1.7;
 }
 
-.community-actions {
-    padding: 0 1.5rem 1.5rem;
+.community-badges {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.badge {
+    padding: 0.375rem 0.875rem;
+    border-radius: var(--radius-md);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-public {
+    background: var(--color-surface-elevated);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-light);
+}
+
+.badge-private {
+    background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+}
+
+.badge-university {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+.member-count {
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+/* Community Actions */
+.community-actions {
+    padding: 0 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.primary-actions {
+    display: flex;
+    gap: 0.75rem;
     flex-wrap: wrap;
 }
 
-.btn-primary, .btn-secondary, .btn-danger {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
+.secondary-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
-.btn-primary { background: #667eea; color: white; }
-.btn-secondary { background: #374151; color: white; }
-.btn-danger { background: #ef4444; color: white; }
+.btn-action {
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+    color: white;
+}
+
+.btn-secondary {
+    padding: 0.875rem 1.5rem;
+    background: var(--color-surface-elevated);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-danger {
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+}
+
+.btn-join {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
+}
+
+.btn-join:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px rgba(59, 130, 246, 0.5);
+}
 
 .status-pending {
-    padding: 0.5rem 1rem;
-    background: #f59e0b;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%);
     color: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-weight: 600;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
 }
 
 .status-banned {
-    padding: 0.5rem 1rem;
-    background: #ef4444;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
     color: white;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-weight: 600;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
 }
 
+/* Community Content */
 .community-content {
-    background: #2a2a2a;
-    padding: 1.5rem;
-    border-radius: 8px;
+    background: var(--color-surface);
+    padding: 2rem;
+    border-radius: var(--radius-2xl);
+    margin-bottom: 2rem;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
 }
 
 .community-content h2 {
-    color: #fff;
+    color: var(--color-text-primary);
     margin-top: 0;
-}
-
-.members-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.member-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background: #1a1a1a;
-    border-radius: 6px;
-}
-
-.member-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    flex-shrink: 0;
-}
-
-.member-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.member-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.member-info strong {
-    color: #fff;
-}
-
-.view-all {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.view-all:hover {
-    text-decoration: underline;
+    margin-bottom: 1.5rem;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 /* Posts Feed Styles */
@@ -355,7 +419,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.posts-header h2 {
+    margin: 0;
 }
 
 .posts-feed {
@@ -365,43 +433,66 @@
 }
 
 .post-card {
-    background: #1a1a1a;
-    border-radius: 8px;
-    padding: 1.5rem;
-    transition: transform 0.2s, box-shadow 0.2s;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 1.75rem;
+    transition: all 0.3s ease;
     text-decoration: none;
     display: block;
     color: inherit;
     cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.post-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
 }
 
 .post-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--color-border-light);
+}
+
+.post-card:hover::before {
+    transform: scaleY(1);
 }
 
 .post-card-header {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
 }
 
 .post-author-info {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.875rem;
     align-items: flex-start;
 }
 
 .post-avatar {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     overflow: hidden;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-weight: bold;
+    font-weight: 700;
+    font-size: 1.125rem;
     flex-shrink: 0;
+    border: 2px solid var(--color-border-light);
 }
 
 .post-avatar img {
@@ -410,30 +501,40 @@
     object-fit: cover;
 }
 
+.post-author-info strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
 .post-meta {
-    color: #9ca3af;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
-    margin-top: 0.125rem;
+    margin-top: 0.25rem;
 }
 
 .pinned-badge {
-    color: #f59e0b;
+    color: var(--color-warning);
     margin-left: 0.5rem;
+    font-weight: 600;
 }
 
 .post-card-title {
-    color: #fff;
-    margin: 0 0 0.75rem 0;
-    font-size: 1.25rem;
+    color: var(--color-text-primary);
+    margin: 0 0 0.875rem 0;
+    font-size: 1.375rem;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+    line-height: 1.4;
 }
 
 .post-card-content {
-    color: #e5e7eb;
-    margin-bottom: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.25rem;
+    line-height: 1.7;
 }
 
 .post-card-content p {
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 0.875rem 0;
 }
 
 .post-card-content p:last-child {
@@ -443,52 +544,65 @@
 .post-card-images {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
     position: relative;
 }
 
 .post-card-images img {
     width: 100%;
-    height: 150px;
+    height: 160px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    transition: transform 0.2s ease;
+}
+
+.post-card-images img:hover {
+    transform: scale(1.02);
 }
 
 .more-images {
     position: absolute;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    right: 0.75rem;
+    bottom: 0.75rem;
+    background: rgba(10, 14, 26, 0.9);
     color: white;
     padding: 0.5rem 1rem;
-    border-radius: 6px 0 6px 0;
+    border-radius: var(--radius-md);
     font-weight: 600;
+    font-size: 0.875rem;
+    backdrop-filter: blur(10px);
 }
 
 .post-card-footer {
     padding-top: 1rem;
-    border-top: 1px solid #374151;
+    border-top: 1px solid var(--color-border);
 }
 
 .post-link {
-    color: #9ca3af;
+    color: var(--color-text-muted);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
 }
 
-.post-link:hover {
-    color: #667eea;
+.post-card:hover .post-link {
+    color: var(--color-primary-light);
 }
 
 .empty-posts {
     text-align: center;
-    padding: 3rem;
-    color: #9ca3af;
+    padding: 4rem 2rem;
+    color: var(--color-text-secondary);
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-xl);
+    border: 1px dashed var(--color-border);
 }
 
 .empty-posts p {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.0625rem;
 }
 
 /* Events Section Styles */
@@ -496,32 +610,39 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.events-header h2 {
+    margin: 0;
 }
 
 .events-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
 }
 
 .event-card {
-    background: #1a1a1a;
-    border-radius: 8px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
     overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s ease;
     text-decoration: none;
     display: block;
+    box-shadow: var(--shadow-sm);
 }
 
 .event-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--color-border-light);
 }
 
 .event-card-cover, .event-card-cover-default {
     width: 100%;
-    height: 180px;
+    height: 200px;
     overflow: hidden;
 }
 
@@ -529,10 +650,15 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.event-card:hover .event-card-cover img {
+    transform: scale(1.05);
 }
 
 .event-card-cover-default {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -540,57 +666,122 @@
 }
 
 .event-card-content {
-    padding: 1.25rem;
+    padding: 1.5rem;
 }
 
 .event-card-title {
-    color: #fff;
-    font-size: 1.125rem;
-    font-weight: 600;
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
     margin: 0 0 1rem 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-height: 1.4;
 }
 
 .event-card-meta {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.625rem;
     margin-bottom: 1rem;
 }
 
 .event-meta-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    color: #9ca3af;
-    font-size: 0.875rem;
+    gap: 0.625rem;
+    color: var(--color-text-secondary);
+    font-size: 0.9375rem;
 }
 
 .meta-icon {
-    width: 16px;
-    height: 16px;
-    color: #667eea;
+    width: 18px;
+    height: 18px;
+    color: var(--color-primary);
     flex-shrink: 0;
 }
 
 .event-card-rsvp {
     display: flex;
-    gap: 1rem;
+    gap: 1.25rem;
     padding-top: 1rem;
-    border-top: 1px solid #374151;
+    border-top: 1px solid var(--color-border);
 }
 
 .rsvp-count {
-    color: #9ca3af;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .events-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
 }
 
 @media (max-width: 768px) {
+    .community-header-content {
+        padding: 1.5rem;
+    }
+
+    .community-actions {
+        padding: 0 1.5rem 1.5rem;
+    }
+
+    .primary-actions,
+    .secondary-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-action,
+    .btn-secondary,
+    .btn-danger,
+    .btn-join {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .community-content {
+        padding: 1.5rem;
+    }
+
+    .posts-header,
+    .events-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
     .events-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .post-card-images {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .community-cover,
+    .community-cover-default {
+        height: 200px;
+    }
+
+    .community-cover-default {
+        font-size: 3.5rem;
+    }
+
+    .community-header-content h1 {
+        font-size: 2rem;
+    }
+
+    .post-card-images {
         grid-template-columns: 1fr;
     }
 }
