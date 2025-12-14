@@ -60,6 +60,16 @@
         box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
     }
 
+    .message-btn-detail {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .message-btn-detail:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+    }
+
     .connection-status-badge {
         flex: 1;
         min-width: 200px;
@@ -158,6 +168,10 @@
                             🤍 Add to Favorites
                         {% endif %}
                     </button>
+
+                    <a href="{% url 'messaging:with_user' profile.user.id %}" class="action-btn message-btn-detail" style="text-decoration: none;">
+                        💬 Send Message
+                    </a>
 
                     {% if connection_request %}
                         <div class="connection-status-badge {{ connection_request.status }}">

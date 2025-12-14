@@ -26,12 +26,8 @@ class Thread(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["listing", "user_a", "user_b"],
-                name="unique_thread_per_listing_pair",
-            ),
-            models.UniqueConstraint(
-                fields=["item", "user_a", "user_b"],
-                name="unique_thread_per_item_pair",
+                fields=["user_a", "user_b"],
+                name="unique_thread_per_user_pair",
             ),
             models.CheckConstraint(
                 condition=~Q(user_a=F("user_b")), name="prevent_self_thread"
@@ -54,14 +50,20 @@ class Thread(models.Model):
         return self.user_b if user.id == self.user_a_id else self.user_a
 
     def get_related_object(self):
-        """Return the listing or item associated with this thread."""
+        """Return the listing, item, or None (roommate conversation) associated with this thread."""
         return self.listing if self.listing else self.item
+
+    def is_roommate_conversation(self):
+        """Check if this is a direct roommate-to-roommate conversation."""
+        return self.listing is None and self.item is None
 
     def __str__(self):
         if self.listing:
             return f"Thread(listing={self.listing_id}, users=({self.user_a_id},{self.user_b_id}))"
-        else:
+        elif self.item:
             return f"Thread(item={self.item_id}, users=({self.user_a_id},{self.user_b_id}))"
+        else:
+            return f"Thread(roommate, users=({self.user_a_id},{self.user_b_id}))"
 
 
 class Message(models.Model):
