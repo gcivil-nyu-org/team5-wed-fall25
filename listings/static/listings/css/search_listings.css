@@ -202,8 +202,8 @@
 }
 
 .filter-checkboxes {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 0.75rem;
 }
 
@@ -554,6 +554,10 @@
     .filter-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+    }
+
+    .filter-checkboxes {
+        grid-template-columns: 1fr;
     }
 
     .filter-buttons {
