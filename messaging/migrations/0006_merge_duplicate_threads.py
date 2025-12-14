@@ -30,18 +30,28 @@ def merge_duplicate_threads(apps, schema_editor):
             primary_thread = threads[0]
             duplicate_threads = threads[1:]
 
-            print(f"Merging {len(duplicate_threads)} duplicate thread(s) for user pair {key}")
+            print(
+                f"Merging {len(duplicate_threads)} duplicate thread(s) for user pair {key}"
+            )
 
             # Move all messages from duplicates to primary thread
             for dup_thread in duplicate_threads:
-                msg_count = Message.objects.filter(thread=dup_thread).update(thread=primary_thread)
-                print(f"  Moved {msg_count} messages from thread {dup_thread.id} to {primary_thread.id}")
+                msg_count = Message.objects.filter(thread=dup_thread).update(
+                    thread=primary_thread
+                )
+                print(
+                    f"  Moved {msg_count} messages from thread {dup_thread.id} to {primary_thread.id}"
+                )
                 # Delete the duplicate thread
                 dup_thread.delete()
                 merged_count += 1
 
             # Update the primary thread's updated_at to reflect latest activity
-            latest_message = Message.objects.filter(thread=primary_thread).order_by("-created_at").first()
+            latest_message = (
+                Message.objects.filter(thread=primary_thread)
+                .order_by("-created_at")
+                .first()
+            )
             if latest_message:
                 primary_thread.updated_at = latest_message.created_at
                 primary_thread.save(update_fields=["updated_at"])

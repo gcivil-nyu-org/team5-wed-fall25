@@ -99,9 +99,7 @@ def _create_thread_for_listing(request, listing_id, recipient_id, body):
         user_a, user_b = user_b, user_a
 
     # Get or create the unified thread for this user pair
-    thread, _created = Thread.objects.get_or_create(
-        user_a=user_a, user_b=user_b
-    )
+    thread, _created = Thread.objects.get_or_create(user_a=user_a, user_b=user_b)
 
     Message.objects.create(thread=thread, sender=request.user, body=body)
     messages.success(request, "Message sent.")
@@ -125,9 +123,7 @@ def _create_thread_for_item(request, item_id, recipient_id, body):
         user_a, user_b = user_b, user_a
 
     # Get or create the unified thread for this user pair
-    thread, _created = Thread.objects.get_or_create(
-        user_a=user_a, user_b=user_b
-    )
+    thread, _created = Thread.objects.get_or_create(user_a=user_a, user_b=user_b)
 
     Message.objects.create(thread=thread, sender=request.user, body=body)
     messages.success(request, "Message sent.")
@@ -147,9 +143,7 @@ def _create_thread_for_roommate(request, recipient_id, body):
         user_a, user_b = user_b, user_a
 
     # Get or create the unified thread for this user pair
-    thread, _created = Thread.objects.get_or_create(
-        user_a=user_a, user_b=user_b
-    )
+    thread, _created = Thread.objects.get_or_create(user_a=user_a, user_b=user_b)
 
     Message.objects.create(thread=thread, sender=request.user, body=body)
     messages.success(request, "Message sent.")
@@ -250,9 +244,7 @@ def get_or_create_roommate_thread(request, user_id):
         user_a, user_b = user_b, user_a
 
     # Get or create the unified thread for this user pair
-    thread, created = Thread.objects.get_or_create(
-        user_a=user_a, user_b=user_b
-    )
+    thread, created = Thread.objects.get_or_create(user_a=user_a, user_b=user_b)
 
     # Redirect to the thread
     return redirect("messaging:thread", thread_id=thread.id)
