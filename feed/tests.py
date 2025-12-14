@@ -141,6 +141,9 @@ class FeaturedListingsTests(TestCase):
         self.user2 = User.objects.create_user(
             username="user2", email="user2@nyu.edu", password="pass123"
         )
+        self.user3 = User.objects.create_user(
+            username="user3", email="user3@nyu.edu", password="pass123"
+        )
 
         # Create listings
         self.listing1 = Listing.objects.create(
@@ -195,13 +198,13 @@ class FeaturedListingsTests(TestCase):
             )
 
         self.thread2 = Thread.objects.create(
-            listing=self.listing2, user_a=self.user1, user_b=self.user2
+            listing=self.listing2, user_a=self.user1, user_b=self.user3
         )
         # Create 2 messages for listing2
         for i in range(2):
             Message.objects.create(
                 thread=self.thread2,
-                sender=self.user2,
+                sender=self.user3,
                 body=f"Message {i} about listing 2",
             )
 
