@@ -31,9 +31,6 @@
                 <a href="{% url 'communities:event_list' community.slug %}" class="btn-primary">📅 Events</a>
                 {% if is_admin %}
                     <a href="{% url 'communities:settings' community.slug %}" class="btn-secondary">Settings</a>
-                    {% if community.created_by == request.user %}
-                        <a href="{% url 'communities:delete_community' community.slug %}" class="btn-danger">Delete Community</a>
-                    {% endif %}
                 {% endif %}
                 {% if can_manage %}
                     <a href="{% url 'communities:members' community.slug %}" class="btn-secondary">Manage Members</a>
@@ -41,10 +38,12 @@
                         <a href="{% url 'communities:join_requests' community.slug %}" class="btn-secondary">Join Requests</a>
                     {% endif %}
                 {% endif %}
-                <form method="post" action="{% url 'communities:leave' community.slug %}" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to leave this community?')">Leave Community</button>
-                </form>
+                {% if not is_admin %}
+                    <form method="post" action="{% url 'communities:leave' community.slug %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to leave this community?')">Leave Community</button>
+                    </form>
+                {% endif %}
             {% else %}
                 {% if membership and membership.status == 'pending' %}
                     <span class="status-pending">Join Request Pending</span>
@@ -87,7 +86,7 @@
                                 <div>
                                     <strong>{{ post.author.get_full_name|default:post.author.username }}</strong>
                                     <div class="post-meta">
-                                        {{ post.created_at|date:"M d, Y 'at' g:i A" }}
+                                        {{ post.created_at|date:"M d, Y g:i A" }}
                                         {% if post.is_pinned %}
                                             <span class="pinned-badge">📌 Pinned</span>
                                         {% endif %}
