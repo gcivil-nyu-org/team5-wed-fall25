@@ -242,4 +242,112 @@
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
 <!-- Event location picker script -->
 <script src="{% static 'communities/js/event_location_picker.js' %}"></script>
+
+<!-- Real-time date validation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startInput = document.getElementById('{{ form.start_datetime.id_for_label }}');
+    const endInput = document.getElementById('{{ form.end_datetime.id_for_label }}');
+
+    // Set minimum datetime to now (prevents selecting past dates in picker)
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+    if (startInput) startInput.setAttribute('min', minDateTime);
+    if (endInput) endInput.setAttribute('min', minDateTime);
+
+    // Create error message containers
+    function createErrorContainer(input) {
+        const existingError = input.parentElement.querySelector('.validation-error');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'validation-error';
+        errorDiv.style.cssText = `
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            color: #fca5a5;
+            font-size: 0.875rem;
+            display: none;
+        `;
+        input.parentElement.appendChild(errorDiv);
+        return errorDiv;
+    }
+
+    const startError = createErrorContainer(startInput);
+    const endError = createErrorContainer(endInput);
+
+    function validateDates() {
+        const now = new Date();
+        const startValue = startInput.value;
+        const endValue = endInput.value;
+
+        let isValid = true;
+
+        // Validate start datetime
+        if (startValue) {
+            const startDate = new Date(startValue);
+            if (startDate < now) {
+                startError.textContent = 'Event cannot start in the past.';
+                startError.style.display = 'block';
+                startInput.style.borderColor = '#ef4444';
+                isValid = false;
+            } else {
+                startError.style.display = 'none';
+                startInput.style.borderColor = '#374151';
+            }
+        }
+
+        // Validate end datetime
+        if (endValue) {
+            const endDate = new Date(endValue);
+            if (endDate < now) {
+                endError.textContent = 'Event cannot end in the past.';
+                endError.style.display = 'block';
+                endInput.style.borderColor = '#ef4444';
+                isValid = false;
+            } else if (startValue && endDate <= new Date(startValue)) {
+                endError.textContent = 'End time must be after start time.';
+                endError.style.display = 'block';
+                endInput.style.borderColor = '#ef4444';
+                isValid = false;
+            } else {
+                endError.style.display = 'none';
+                endInput.style.borderColor = '#374151';
+            }
+        }
+
+        return isValid;
+    }
+
+    // Add event listeners
+    startInput.addEventListener('change', validateDates);
+    startInput.addEventListener('blur', validateDates);
+    endInput.addEventListener('change', validateDates);
+    endInput.addEventListener('blur', validateDates);
+
+    // Validate on form submission
+    const form = document.querySelector('.event-form');
+    form.addEventListener('submit', function(e) {
+        if (!validateDates()) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = document.querySelector('.validation-error[style*="display: block"]');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -250,24 +250,43 @@ class EventForm(forms.ModelForm):
             "cover_image": "Optional event cover image",
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Convert datetime fields from UTC to local timezone for display
+        from django.utils import timezone
+
+        if self.instance and self.instance.pk:
+            # When editing an existing event, convert UTC to local time
+            if self.instance.start_datetime:
+                local_start = timezone.localtime(self.instance.start_datetime)
+                self.initial['start_datetime'] = local_start.strftime('%Y-%m-%dT%H:%M')
+            if self.instance.end_datetime:
+                local_end = timezone.localtime(self.instance.end_datetime)
+                self.initial['end_datetime'] = local_end.strftime('%Y-%m-%dT%H:%M')
+
     def clean(self):
-        """Validate that end_datetime is after start_datetime"""
+        """Validate that end_datetime is after start_datetime and both are in the future"""
         cleaned_data = super().clean()
         start = cleaned_data.get("start_datetime")
         end = cleaned_data.get("end_datetime")
 
         if start and end:
-            if end <= start:
-                raise ValidationError(
-                    {"end_datetime": "End time must be after start time."}
-                )
-
             # Validate that event times are in the future
             from django.utils import timezone
 
             if start < timezone.now():
                 raise ValidationError(
                     {"start_datetime": "Event cannot start in the past."}
+                )
+
+            if end < timezone.now():
+                raise ValidationError(
+                    {"end_datetime": "Event cannot end in the past."}
+                )
+
+            if end <= start:
+                raise ValidationError(
+                    {"end_datetime": "End time must be after start time."}
                 )
 
         return cleaned_data
