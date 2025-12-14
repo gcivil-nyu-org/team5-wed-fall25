@@ -173,6 +173,7 @@
 .post-actions {
     display: flex;
     gap: 0.5rem;
+    align-items: center;
 }
 
 .btn-icon {
@@ -180,7 +181,21 @@
     border: none;
     font-size: 1.25rem;
     cursor: pointer;
-    padding: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+    width: auto;
+}
+
+.btn-icon:hover {
+    background: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+    transform: translateY(-2px);
 }
 
 .post-title {
