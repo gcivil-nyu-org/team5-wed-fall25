@@ -27,7 +27,7 @@
             <div>
                 <strong>{{ post.author.get_full_name|default:post.author.username }}</strong>
                 <div class="post-meta">
-                    {{ post.created_at|date:"M d, Y 'at' g:i A" }}
+                    {{ post.created_at|date:"M d, Y g:i A" }}
                     {% if post.is_edited %}
                         <span class="edited-badge">(edited)</span>
                     {% endif %}

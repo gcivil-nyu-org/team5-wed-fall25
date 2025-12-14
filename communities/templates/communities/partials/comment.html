@@ -11,7 +11,7 @@
             <div>
                 <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
                 <div class="comment-meta">
-                    {{ comment.created_at|date:"M d, Y 'at' g:i A" }}
+                    {{ comment.created_at|date:"M d, Y g:i A" }}
                     {% if comment.is_edited %}
                         <span class="edited-badge">(edited)</span>
                     {% endif %}
