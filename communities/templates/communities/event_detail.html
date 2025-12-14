@@ -6,6 +6,7 @@
 {% block extra_css %}
 <!-- Mapbox GL CSS - Required for map styling -->
 <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+<link rel="stylesheet" href="{% static 'listings/css/image_lightbox.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -14,7 +15,7 @@
     <div class="event-header">
         {% if event.cover_image %}
             <div class="event-cover-large">
-                <img src="{{ event.cover_image.url }}" alt="{{ event.title }}">
+                <img src="{{ event.cover_image.url }}" alt="{{ event.title }}" class="event-cover-image">
             </div>
         {% endif %}
 
@@ -573,4 +574,6 @@
 <!-- Event map initialization script -->
 <script src="{% static 'communities/js/event_map.js' %}"></script>
 {% endif %}
+<!-- Image lightbox script -->
+<script src="{% static 'listings/js/image_lightbox.js' %}"></script>
 {% endblock %}

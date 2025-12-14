@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{{ post.title|default:"Post" }} - {{ community.name }} - CampusNest{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'listings/css/image_lightbox.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -273,4 +278,8 @@
     padding: 2rem;
 }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'listings/js/image_lightbox.js' %}"></script>
 {% endblock %}

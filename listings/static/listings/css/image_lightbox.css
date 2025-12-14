@@ -136,15 +136,19 @@
   z-index: 10000;
 }
 
-/* Make gallery images clickable (both listing and marketplace images) */
+/* Make gallery images clickable (listing, marketplace, and community images) */
 .gallery-image,
-.item-gallery-image {
+.item-gallery-image,
+.post-image,
+.event-cover-image {
   cursor: pointer !important;
 }
 
 /* Enhanced hover effect for clickable images */
 .image-gallery .gallery-image:hover,
-.item-gallery-container .item-gallery-image:hover {
+.item-gallery-container .item-gallery-image:hover,
+.post-images .post-image:hover,
+.event-cover-large .event-cover-image:hover {
   transform: scale(1.05) !important;
   box-shadow: 0 5px 20px rgba(74, 158, 255, 0.5) !important;
 }

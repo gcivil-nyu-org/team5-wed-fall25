@@ -12,36 +12,28 @@ class ImageLightbox {
   }
 
   init() {
-    // Get all gallery images (supports both listing and marketplace images)
-    const galleryImages = document.querySelectorAll('.gallery-image, .item-gallery-image');
-
-    console.log('Image Lightbox: Found', galleryImages.length, 'images');
+    // Get all gallery images (supports listing, marketplace, and community images)
+    const galleryImages = document.querySelectorAll('.gallery-image, .item-gallery-image, .post-image, .event-cover-image');
 
     if (galleryImages.length === 0) {
-      console.log('Image Lightbox: No images found, skipping initialization');
       return; // No images to display
     }
 
     // Store image URLs
     this.images = Array.from(galleryImages).map(img => img.src);
-    console.log('Image Lightbox: Image URLs:', this.images);
 
     // Create lightbox modal
     this.createLightbox();
-    console.log('Image Lightbox: Modal created');
 
     // Add click handlers to gallery images
     galleryImages.forEach((img, index) => {
       img.addEventListener('click', () => {
-        console.log('Image Lightbox: Image clicked, index:', index);
         this.openLightbox(index);
       });
-      console.log('Image Lightbox: Added click handler to image', index);
     });
 
     // Keyboard navigation
     document.addEventListener('keydown', (e) => this.handleKeyboard(e));
-    console.log('Image Lightbox: Keyboard navigation enabled');
   }
 
   createLightbox() {
@@ -178,7 +170,5 @@ class ImageLightbox {
 
 // Initialize lightbox when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Image Lightbox: Initializing...');
-  const lightbox = new ImageLightbox();
-  console.log('Image Lightbox: Initialized with', lightbox.images.length, 'images');
+  new ImageLightbox();
 });
