@@ -7,7 +7,8 @@
 <!-- Mapbox GL CSS - Required for map styling -->
 <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
 <link rel="stylesheet" href="{% static 'listings/css/view_listing.css' %}">
-<link rel="stylesheet" href="{% static 'listings/css/listing_map.css' %}">
+<link rel="stylesheet" href="{% static 'map_utils/css/listing_map.css' %}">
+<link rel="stylesheet" href="{% static 'listings/css/image_lightbox.css' %}">
 {% if not is_owner %}
 <link rel="stylesheet" href="{% static 'listings/css/message_modal.css' %}">
 {% endif %}
@@ -182,11 +183,12 @@
 {% endblock %}
 
 {% block extra_js %}
-{% if not is_owner %}
 <!-- Mapbox GL JS Library - Required for interactive maps -->
 <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
 <!-- Our custom map initialization script -->
-<script src="{% static 'listings/js/listing_map.js' %}"></script>
+<script src="{% static 'map_utils/js/listing_map.js' %}"></script>
+<!-- Image lightbox script -->
+<script src="{% static 'listings/js/image_lightbox.js' %}"></script>
 {% if not is_owner %}
 <script src="{% static 'listings/js/message_modal.js' %}"></script>
 {% endif %}

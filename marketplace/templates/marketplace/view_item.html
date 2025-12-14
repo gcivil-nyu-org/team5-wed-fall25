@@ -7,6 +7,7 @@
 <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
 <link rel="stylesheet" href="{% static 'marketplace/css/view_item.css' %}">
 <link rel="stylesheet" href="{% static 'map_utils/css/map.css' %}" />
+<link rel="stylesheet" href="{% static 'listings/css/image_lightbox.css' %}">
 {% if not is_owner %}
 <link rel="stylesheet" href="{% static 'marketplace/css/message_modal.css' %}">
 {% endif %}
@@ -173,6 +174,8 @@
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
 <!-- Our custom map initialization script -->
 <script src="{% static 'map_utils/js/listing_map.js' %}"></script>
+<!-- Image lightbox script -->
+<script src="{% static 'listings/js/image_lightbox.js' %}"></script>
 {% if not is_owner %}
 <script src="{% static 'marketplace/js/message_modal.js' %}"></script>
 {% endif %}
