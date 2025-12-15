@@ -329,6 +329,22 @@
     background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-primary) 100%);
 }
 
+/* Limit nesting depth - after 3 levels, stop indenting */
+.replies .replies .replies {
+    margin-left: 0;
+    padding-left: 1rem;
+}
+
+.replies .replies .replies .replies {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+}
+
+.replies .replies .replies .replies::before {
+    display: none;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .comment {
