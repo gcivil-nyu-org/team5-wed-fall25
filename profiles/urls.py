@@ -43,4 +43,9 @@ urlpatterns = [
         views.my_connections,
         name="my_connections",
     ),
+    path(
+        "roommates/<int:user_id>/disconnect/",
+        views.disconnect,
+        name="disconnect",
+    ),
 ]

@@ -518,6 +518,36 @@ def my_connections(request, user_id):
     return render(request, "profiles/my_connections.html", context)
 
 
+@login_required
+@require_POST
+def disconnect(request, user_id):
+    """Remove a connection with another user"""
+    from django.db.models import Q
+
+    other_user = get_object_or_404(User, id=user_id)
+
+    # Prevent disconnecting from yourself
+    if other_user == request.user:
+        messages.error(request, "You cannot disconnect from yourself.")
+        return redirect("my_connections", user_id=request.user.id)
+
+    # Find the connection request (could be in either direction)
+    connection_request = ConnectionRequest.objects.filter(
+        Q(from_user=request.user, to_user=other_user, status="accepted")
+        | Q(from_user=other_user, to_user=request.user, status="accepted")
+    ).first()
+
+    if connection_request:
+        connection_request.delete()
+        messages.success(
+            request, f"You are no longer connected with {other_user.first_name}."
+        )
+    else:
+        messages.error(request, "Connection not found.")
+
+    return redirect("my_connections", user_id=request.user.id)
+
+
 @staff_member_required
 def admin_dashboard(request):
     profiles = Profile.objects.all().order_by("-created_at")

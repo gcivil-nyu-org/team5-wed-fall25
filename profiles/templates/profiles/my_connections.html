@@ -67,9 +67,18 @@
                             <a href="{% url 'roommate_detail' connection_profile.user.id %}" class="btn-view-profile">
                                 View Profile
                             </a>
-                            <a href="{% url 'messaging:with_user' connection_profile.user.id %}" class="remove-favorite-btn" style="text-decoration: none; text-align: center;">
-                                Message
-                            </a>
+                            {% if is_own_profile %}
+                                <form method="post" action="{% url 'disconnect' connection_profile.user.id %}" style="margin: 0; flex: 1;" class="disconnect-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="remove-favorite-btn disconnect-btn" style="width: 100%;">
+                                        Disconnect
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'messaging:with_user' connection_profile.user.id %}" class="remove-favorite-btn" style="text-decoration: none; text-align: center;">
+                                    Message
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -87,4 +96,29 @@
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add confirmation dialog for disconnect buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const disconnectForms = document.querySelectorAll('.disconnect-form');
+
+        disconnectForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Get the user's name from the profile card
+                const card = this.closest('.favorite-card');
+                const userName = card.querySelector('.profile-name').textContent.trim();
+
+                // Show confirmation dialog
+                if (confirm(`Are you sure you want to disconnect from ${userName}? This action cannot be undone.`)) {
+                    // If confirmed, submit the form
+                    this.submit();
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
