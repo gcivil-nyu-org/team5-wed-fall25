@@ -270,3 +270,32 @@
   box-shadow:0 0 30px rgba(37,211,102,.4);
   filter:brightness(1.03);
 }
+
+
+.my-listing-badge-rented {
+    background-color: #dc3545;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.btn-mark-rented {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.status-rented {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.status-available {
+    color: #28a745;
+    font-weight: bold;
+}

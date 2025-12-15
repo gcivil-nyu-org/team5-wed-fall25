@@ -27,6 +27,7 @@ class Listing(models.Model):
     availability_end = models.DateField(validators=[validate_future_date])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)  # Add this field
+    is_rented = models.BooleanField(default=False)
     is_edited = models.BooleanField(default=False)  # Add this field
     is_active = models.BooleanField(default=True)
     latitude = models.FloatField(null=True, blank=True)

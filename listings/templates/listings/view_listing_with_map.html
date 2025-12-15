@@ -17,6 +17,11 @@
     {% if listing.is_edited %}
     <span class="edited-badge"> EDITED </span>
     {% endif %}
+    {% if listing.is_rented %}
+      <span class="listing-badge-rented">
+          RENTED
+      </span>
+    {% endif %}
   </div>
 
   <!-- Image Gallery -->
@@ -113,7 +118,7 @@
         {% endif %}
       </div>
 
-      <div>
+      <!-- <div>
         <strong class="detail-field-label">Status:</strong>
         <p class="detail-field-value">
           {% if listing.is_active %}
@@ -122,7 +127,19 @@
           <span class="status-inactive">✗ Inactive</span>
           {% endif %}
         </p>
+      </div> -->
+
+      <div class="listing-detail-group">
+          <strong class="listing-detail-label">Status:</strong>
+          <p class="listing-detail-value">
+              {% if listing.is_rented %}
+              <span class="status-rented">✗ Rented</span>
+              {% else %}
+              <span class="status-available">✓ Available</span>
+              {% endif %}
+          </p>
       </div>
+
     </div>
   </div>
 
@@ -148,9 +165,17 @@
   <br>
   <div class="action-buttons-container">
     {% if is_owner or request.user.is_staff %}
-    <a href="{% url 'edit_listing' listing.id %}" class="btn-edit">
-      Edit Listing
-    </a>
+      {% if not listing.is_rented %}
+        <a href="{% url 'edit_listing' listing.id %}" class="btn-edit">
+          Edit Listing
+        </a>
+        <form method="POST" action="{% url 'mark_as_rented' listing.id %}" class="mark-rented-form">
+            {% csrf_token %}
+            <button type="submit" class="btn-mark-as-rented">
+                Mark as Rented
+            </button>
+        </form>
+      {% endif %}
     <a href="{% url 'delete_listing' listing.id %}" class="btn-delete">
       Delete Listing
     </a>
