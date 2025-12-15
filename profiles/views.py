@@ -69,7 +69,16 @@ def view_profile(request):
     profile = getattr(request.user, "profile", None)
     if not profile:
         return redirect("create_profile")
-    return render(request, "profiles/view_profile.html", {"profile": profile})
+
+    # Get connection count for the current user
+    connection_count = profile.get_connection_count()
+
+    context = {
+        "profile": profile,
+        "connection_count": connection_count,
+    }
+
+    return render(request, "profiles/view_profile.html", context)
 
 
 # @login_required
@@ -325,10 +334,14 @@ def roommate_detail(request, user_id):
         if connection_request:
             connection_request.is_received = True
 
+    # Get connection count for the profile being viewed
+    connection_count = profile.get_connection_count()
+
     context = {
         "profile": profile,
         "is_favorited": is_favorited,
         "connection_request": connection_request,
+        "connection_count": connection_count,
     }
 
     return render(request, "profiles/roommate_detail.html", context)
@@ -471,6 +484,37 @@ def respond_to_request(request, request_id):
         messages.info(request, "Request rejected.")
 
     return redirect("connection_requests")
+
+
+@login_required
+def my_connections(request, user_id):
+    """Display a user's connections (LinkedIn-style)"""
+    # Get the user whose connections we want to view
+    user = get_object_or_404(User, id=user_id)
+
+    # Check if user has a profile
+    if not hasattr(user, "profile"):
+        messages.error(request, "This user has not completed their profile yet.")
+        return redirect("roommate_search")
+
+    profile = user.profile
+
+    # Get all connections for this user
+    connections = profile.get_connections()
+
+    # Get profiles for all connections (filter out users without profiles)
+    connection_profiles = []
+    for connection_user in connections:
+        if hasattr(connection_user, "profile"):
+            connection_profiles.append(connection_user.profile)
+
+    context = {
+        "profile": profile,
+        "connections": connection_profiles,
+        "is_own_profile": user == request.user,
+    }
+
+    return render(request, "profiles/my_connections.html", context)
 
 
 @staff_member_required

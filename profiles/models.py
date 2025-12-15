@@ -188,6 +188,37 @@ class Profile(models.Model):
         icon = icons.get(value, "")
         return f"{icon} {display}"
 
+    def get_connection_count(self):
+        """Get the total number of accepted connections (LinkedIn-style)"""
+        from django.db.models import Q
+
+        # Count accepted connection requests where user is either sender or receiver
+        count = ConnectionRequest.objects.filter(
+            Q(from_user=self.user, status="accepted")
+            | Q(to_user=self.user, status="accepted")
+        ).count()
+        return count
+
+    def get_connections(self):
+        """Get all accepted connections (returns list of User objects)"""
+        from django.db.models import Q
+
+        # Get all accepted connection requests
+        accepted_requests = ConnectionRequest.objects.filter(
+            Q(from_user=self.user, status="accepted")
+            | Q(to_user=self.user, status="accepted")
+        ).select_related("from_user", "to_user")
+
+        # Extract the other user from each connection
+        connections = []
+        for request in accepted_requests:
+            if request.from_user == self.user:
+                connections.append(request.to_user)
+            else:
+                connections.append(request.from_user)
+
+        return connections
+
 
 class Favorite(models.Model):
     """Model to track favorited roommate profiles"""

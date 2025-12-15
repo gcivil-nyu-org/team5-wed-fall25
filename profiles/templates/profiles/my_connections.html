@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_own_profile %}My Connections{% else %}{{ profile.user.first_name }}'s Connections{% endif %} - CampusNest{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'profiles/css/my_favorites.css' %}">
+<style>
+    .connections-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .connections-count {
+        color: var(--color-text-secondary);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-card favorites-container">
+    <div class="connections-header">
+        <h1 class="favorites-heading">🤝 {% if is_own_profile %}My Connections{% else %}{{ profile.user.first_name }}'s Connections{% endif %}</h1>
+        <span class="connections-count">{{ connections|length }} connection{% if connections|length != 1 %}s{% endif %}</span>
+    </div>
+
+    <a href="{% url 'roommate_search' %}" class="back-link">
+        ← Back to Search
+    </a>
+
+    {% if connections %}
+        <div class="favorites-grid">
+            {% for connection_profile in connections %}
+                <div class="favorite-card">
+                    <div class="favorite-card-content">
+                        <!-- Profile Photo -->
+                        <div class="profile-photo-container">
+                            {% if connection_profile.profile_photo %}
+                                <img src="{{ connection_profile.profile_photo.url }}"
+                                     alt="{{ connection_profile.user.first_name }}"
+                                     class="profile-photo-img">
+                            {% else %}
+                                <div class="profile-photo-placeholder">
+                                    {{ connection_profile.user.first_name.0 }}{{ connection_profile.user.last_name.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Name & University -->
+                        <h3 class="profile-name">{{ connection_profile.user.first_name }} {{ connection_profile.user.last_name }}</h3>
+                        <p class="profile-university">{{ connection_profile.get_university_display }}</p>
+
+                        <!-- Budget & Location -->
+                        <div class="profile-info-box">
+                            <p>💰 ${{ connection_profile.budget_min }} - ${{ connection_profile.budget_max }}/mo</p>
+                            {% if connection_profile.location %}
+                                <p>📍 {{ connection_profile.location }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <a href="{% url 'roommate_detail' connection_profile.user.id %}" class="btn-view-profile">
+                                View Profile
+                            </a>
+                            <a href="{% url 'messaging:with_user' connection_profile.user.id %}" class="remove-favorite-btn" style="text-decoration: none; text-align: center;">
+                                Message
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p class="empty-state-title">😔 No connections yet</p>
+            <p class="empty-state-text">{% if is_own_profile %}Start connecting with potential roommates to build your network!{% else %}This user has no connections yet.{% endif %}</p>
+            {% if is_own_profile %}
+                <a href="{% url 'roommate_search' %}" class="btn-find-roommates">
+                    Find Roommates
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

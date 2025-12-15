@@ -38,4 +38,9 @@ urlpatterns = [
         views.respond_to_request,
         name="respond_to_request",
     ),
+    path(
+        "roommates/connections/<int:user_id>/",
+        views.my_connections,
+        name="my_connections",
+    ),
 ]
