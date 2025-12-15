@@ -3,52 +3,70 @@
 {% block title %}Browse Communities - CampusNest{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>Browse Communities</h1>
-    <a href="{% url 'communities:create' %}" class="btn-primary">Create Community</a>
-</div>
+<div class="browse-container">
+    <div class="page-header-enhanced">
+        <div class="header-left">
+            <h1>Browse Communities</h1>
+            <p class="header-subtitle">Discover and join communities that match your interests</p>
+        </div>
+        <a href="{% url 'communities:create' %}" class="btn-create-community">Create Community</a>
+    </div>
 
-{% if communities %}
-    <div class="communities-grid">
-        {% for community in communities %}
-            <div class="community-card">
-                {% if community.cover_image %}
-                    <img src="{{ community.cover_image.url }}" alt="{{ community.name }}" class="community-cover">
-                {% else %}
-                    <div class="community-cover-placeholder">
-                        <span>{{ community.name|slice:":1" }}</span>
-                    </div>
-                {% endif %}
-
-                <div class="community-info">
-                    <h3>{{ community.name }}</h3>
-                    <p class="community-description">{{ community.description|truncatewords:20 }}</p>
-
-                    <div class="community-meta">
-                        <span class="badge badge-{{ community.privacy }}">{{ community.get_privacy_display }}</span>
-                        {% if community.university %}
-                            <span class="badge badge-university">{{ community.university }}</span>
-                        {% endif %}
-                        <span class="member-count">{{ community.member_count_actual }} members</span>
-                    </div>
-
-                    <div class="community-actions">
-                        {% if community.id in user_memberships %}
-                            <a href="{% url 'communities:detail' community.slug %}" class="btn-secondary">View Community</a>
+    {% if communities %}
+        <div class="communities-grid">
+            {% for community in communities %}
+                <div class="community-card">
+                    <div class="card-cover-section">
+                        {% if community.cover_image %}
+                            <img src="{{ community.cover_image.url }}" alt="{{ community.name }}" class="community-cover">
                         {% else %}
-                            <a href="{% url 'communities:detail' community.slug %}" class="btn-primary">Explore</a>
+                            <div class="community-cover-placeholder">
+                                <span>{{ community.name|slice:":1" }}</span>
+                            </div>
                         {% endif %}
+                        {% if community.id in user_memberships %}
+                            <div class="member-indicator">Joined</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-body-section">
+                        <h3 class="community-name">{{ community.name }}</h3>
+                        <p class="community-description">{{ community.description|truncatewords:20 }}</p>
+
+                        <div class="community-meta">
+                            <span class="badge badge-{{ community.privacy }}">{{ community.get_privacy_display }}</span>
+                            {% if community.university %}
+                                <span class="badge badge-university">{{ community.university }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="community-stats">
+                            <div class="stat-item">
+                                <span class="stat-icon">👥</span>
+                                <span class="stat-text">{{ community.member_count_actual }} members</span>
+                            </div>
+                        </div>
+
+                        <div class="card-footer-actions">
+                            {% if community.id in user_memberships %}
+                                <a href="{% url 'communities:detail' community.slug %}" class="btn-view">View Community</a>
+                            {% else %}
+                                <a href="{% url 'communities:detail' community.slug %}" class="btn-explore">Explore →</a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <div class="empty-state">
-        <p>No communities yet. Be the first to create one!</p>
-        <a href="{% url 'communities:create' %}" class="btn-primary">Create Community</a>
-    </div>
-{% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state-enhanced">
+            <div class="empty-icon">🏘️</div>
+            <h2>No Communities Yet</h2>
+            <p>Be the first to create a community and bring people together!</p>
+            <a href="{% url 'communities:create' %}" class="btn-create-first">Create First Community</a>
+        </div>
+    {% endif %}
+</div>
 
 <style>
 .page-header {
