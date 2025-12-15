@@ -47,7 +47,7 @@
 
                         <!-- Action Buttons -->
                         <div class="action-buttons">
-                            <a href="{% url 'roommate_detail' favorite.favorite_profile.user.id %}" class="btn-view-profile">
+                            <a href="{% url 'roommate_detail' favorite.favorite_profile.user.id %}?next={{ request.path }}" class="btn-view-profile">
                                 View Profile
                             </a>
 

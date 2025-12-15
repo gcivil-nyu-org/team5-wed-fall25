@@ -337,11 +337,15 @@ def roommate_detail(request, user_id):
     # Get connection count for the profile being viewed
     connection_count = profile.get_connection_count()
 
+    # Get the "next" parameter for context-aware back button
+    next_url = request.GET.get("next", None)
+
     context = {
         "profile": profile,
         "is_favorited": is_favorited,
         "connection_request": connection_request,
         "connection_count": connection_count,
+        "next_url": next_url,
     }
 
     return render(request, "profiles/roommate_detail.html", context)

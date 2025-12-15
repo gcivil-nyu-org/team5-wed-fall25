@@ -25,7 +25,7 @@
 
         <div class="chat-header-info">
             <!-- Avatar: make clickable -->
-            <a href="{% url 'roommate_detail' other.id %}" class="chat-user-avatar" title="View profile">
+            <a href="{% url 'roommate_detail' other.id %}?next={{ request.path }}" class="chat-user-avatar" title="View profile">
                 {% if other.profile and other.profile.profile_photo %}
                     <img src="{{ other.profile.profile_photo.url }}" alt="{{ other.first_name }}" class="chat-avatar-image">
                 {% else %}
@@ -38,7 +38,7 @@
             <div class="chat-user-info">
                 <!-- Name: make clickable -->
                 <h1 class="chat-user-name">
-                    <a href="{% url 'roommate_detail' other.id %}" class="profile-link">
+                    <a href="{% url 'roommate_detail' other.id %}?next={{ request.path }}" class="profile-link">
                         {{ other.first_name|default:other.username }}
                     </a>
                 </h1>
@@ -60,7 +60,7 @@
                     <div class="message-row {% if m.sender_id == request.user.id %}message-sent{% else %}message-received{% endif %}" data-message-id="{{ m.id }}">
                         <!-- Avatar (for received messages) -->
                         {% if m.sender_id != request.user.id %}
-                            <a href="{% url 'roommate_detail' m.sender.id %}" class="message-avatar" title="View profile">
+                            <a href="{% url 'roommate_detail' m.sender.id %}?next={{ request.path }}" class="message-avatar" title="View profile">
                                 {% if m.sender.profile and m.sender.profile.profile_photo %}
                                     <img src="{{ m.sender.profile.profile_photo.url }}" alt="{{ m.sender.first_name }}" class="message-avatar-image">
                                 {% else %}

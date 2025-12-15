@@ -125,7 +125,11 @@
       <a href="{% url 'delete_item' item.id %}" class="btn-delete-item">
         Delete Item
       </a>
-      {% if is_owner %}
+      {% if next_url %}
+      <a href="{{ next_url }}" class="btn-back-to-items">
+        ← Back
+      </a>
+      {% elif is_owner %}
       <a href="{% url 'my_items' %}" class="btn-back-to-items">
         Back to My Items
       </a>
@@ -139,9 +143,15 @@
       <button onclick="showMessageForm()" class="btn-edit-item message-modal-trigger">
         Contact Seller
       </button>
+      {% if next_url %}
+      <a href="{{ next_url }}" class="btn-back-to-items">
+        ← Back
+      </a>
+      {% else %}
       <a href="{% url 'browse_marketplace' %}" class="btn-back-to-items">
         Back to Marketplace
       </a>
+      {% endif %}
     {% endif %}
   </div>
 </div>

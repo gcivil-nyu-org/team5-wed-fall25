@@ -32,7 +32,7 @@
             <div class="conversation-card {% if unread %}conversation-unread{% endif %}">
                 <div class="conversation-header">
                     <!-- User Avatar (clickable) -->
-                    <a href="{% url 'roommate_detail' other.id %}" class="conversation-avatar" title="View profile">
+                    <a href="{% url 'roommate_detail' other.id %}?next={{ request.path }}" class="conversation-avatar" title="View profile">
                         {% if other.profile and other.profile.profile_photo %}
                             <img src="{{ other.profile.profile_photo.url }}" alt="{{ other.first_name }}" class="avatar-image">
                         {% else %}
@@ -48,7 +48,7 @@
                     <!-- Conversation Info -->
                     <div class="conversation-info">
                         <h3 class="conversation-name">
-                            <a href="{% url 'roommate_detail' other.id %}" class="profile-link">
+                            <a href="{% url 'roommate_detail' other.id %}?next={{ request.path }}" class="profile-link">
                                 {{ other.first_name|default:other.username }}
                             </a>
                         </h3>

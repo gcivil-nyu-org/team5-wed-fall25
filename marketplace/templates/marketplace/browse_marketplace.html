@@ -138,7 +138,7 @@
         </p>
 
         <!-- View Details Button -->
-        <a href="{% url 'view_item' item.id %}" class="btn-view-details">
+        <a href="{% url 'view_item' item.id %}?next={{ request.path }}" class="btn-view-details">
           View Details
         </a>
       </div>

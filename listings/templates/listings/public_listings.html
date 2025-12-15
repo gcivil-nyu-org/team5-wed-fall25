@@ -181,7 +181,7 @@
 					<strong>Posted:</strong> {{ listing.created_at|date:"F d, Y" }}
 				</p>
 				<div class="listing-actions">
-					<a href="{% url 'view_listing' listing.id %}" class="btn-listing btn-view">
+					<a href="{% url 'view_listing' listing.id %}?next={{ request.path }}" class="btn-listing btn-view">
 						View Details
 					</a>
 				</div>

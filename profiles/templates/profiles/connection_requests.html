@@ -65,7 +65,7 @@
                         <!-- Action Buttons -->
                         <div class="connection-request-actions">
                             {% if request.from_user.profile %}
-                                <a href="{% url 'roommate_detail' request.from_user.id %}"
+                                <a href="{% url 'roommate_detail' request.from_user.id %}?next={{ request.path }}"
                                    class="connection-request-view-profile">
                                     View Profile
                                 </a>

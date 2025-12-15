@@ -119,9 +119,15 @@
 <div class="view-profile-wrapper">
     <!-- Back Button -->
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem 1rem;">
-        <a href="{% url 'roommate_search' %}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; font-size: 0.9375rem; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.5rem;">
-            ← Back to Search
-        </a>
+        {% if next_url %}
+            <a href="{{ next_url }}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; font-size: 0.9375rem; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.5rem;">
+                ← Back
+            </a>
+        {% else %}
+            <a href="{% url 'roommate_search' %}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; font-size: 0.9375rem; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.5rem;">
+                ← Back to Search
+            </a>
+        {% endif %}
     </div>
 
     <!-- Header with Profile Photo and Basic Info -->
