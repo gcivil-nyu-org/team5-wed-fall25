@@ -1496,9 +1496,7 @@ class DisconnectViewTests(TestCase):
 
         self.assertEqual(response.status_code, 302)
         messages = list(get_messages(response.wsgi_request))
-        self.assertTrue(
-            any("Connection not found" in str(msg) for msg in messages)
-        )
+        self.assertTrue(any("Connection not found" in str(msg) for msg in messages))
 
     def test_disconnect_self(self):
         """Test that user cannot disconnect from themselves"""
@@ -1508,7 +1506,10 @@ class DisconnectViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         messages = list(get_messages(response.wsgi_request))
         self.assertTrue(
-            any("cannot disconnect from yourself" in str(msg).lower() for msg in messages)
+            any(
+                "cannot disconnect from yourself" in str(msg).lower()
+                for msg in messages
+            )
         )
 
     def test_disconnect_not_logged_in(self):
@@ -1527,6 +1528,9 @@ class DisconnectViewTests(TestCase):
 
         url = reverse("disconnect", kwargs={"user_id": self.user2.id})
         response = self.client.post(url)
+
+        # Should redirect
+        self.assertEqual(response.status_code, 302)
 
         # Should not delete pending request
         self.assertTrue(
@@ -1601,6 +1605,4 @@ class ConnectionRequestsFilterTests(TestCase):
         received_requests = list(response.context["received_requests"])
 
         # Should not include the accepted request from user3
-        self.assertNotIn(
-            self.user3, [req.from_user for req in received_requests]
-        )
+        self.assertNotIn(self.user3, [req.from_user for req in received_requests])
