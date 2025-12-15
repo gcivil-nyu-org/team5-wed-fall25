@@ -26,27 +26,23 @@
     <div class="community-actions">
         {% if user.is_authenticated %}
             {% if is_member %}
-                <div class="primary-actions">
-                    <a href="{% url 'communities:chat_thread' community.slug %}" class="btn-action">💬 Chat</a>
-                    <a href="{% url 'communities:event_list' community.slug %}" class="btn-action">📅 Events</a>
-                    <a href="{% url 'communities:members' community.slug %}" class="btn-action">👥 {{ community.member_count }} Members</a>
-                </div>
-                <div class="secondary-actions">
-                    {% if is_admin %}
-                        <a href="{% url 'communities:settings' community.slug %}" class="btn-secondary">⚙️ Settings</a>
+                <a href="{% url 'communities:chat_thread' community.slug %}" class="btn-action">💬 Chat</a>
+                <a href="{% url 'communities:event_list' community.slug %}" class="btn-action">📅 Events</a>
+                <a href="{% url 'communities:members' community.slug %}" class="btn-action">👥 {{ community.member_count }} Members</a>
+                {% if is_admin %}
+                    <a href="{% url 'communities:settings' community.slug %}" class="btn-secondary">⚙️ Settings</a>
+                {% endif %}
+                {% if can_manage %}
+                    {% if community.privacy == 'private' %}
+                        <a href="{% url 'communities:join_requests' community.slug %}" class="btn-secondary">📋 Join Requests</a>
                     {% endif %}
-                    {% if can_manage %}
-                        {% if community.privacy == 'private' %}
-                            <a href="{% url 'communities:join_requests' community.slug %}" class="btn-secondary">📋 Join Requests</a>
-                        {% endif %}
-                    {% endif %}
-                    {% if not is_admin %}
-                        <form method="post" action="{% url 'communities:leave' community.slug %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to leave this community?')">🚪 Leave Community</button>
-                        </form>
-                    {% endif %}
-                </div>
+                {% endif %}
+                {% if not is_admin %}
+                    <form method="post" action="{% url 'communities:leave' community.slug %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to leave this community?')">🚪 Leave Community</button>
+                    </form>
+                {% endif %}
             {% else %}
                 {% if membership and membership.status == 'pending' %}
                     <span class="status-pending">⏳ Join Request Pending</span>
@@ -70,7 +66,7 @@
     <div class="community-content">
         <div class="posts-header">
             <h2>Community Posts</h2>
-            <a href="{% url 'communities:create_post' community.slug %}" class="btn-primary">Create Post</a>
+            <a href="{% url 'communities:create_post' community.slug %}" class="btn-create-post">Create Post</a>
         </div>
 
         {% if posts %}
@@ -128,7 +124,7 @@
         {% else %}
             <div class="empty-posts">
                 <p>No posts yet. Be the first to share something!</p>
-                <a href="{% url 'communities:create_post' community.slug %}" class="btn-primary">Create First Post</a>
+                <a href="{% url 'communities:create_post' community.slug %}" class="btn-create-post">Create First Post</a>
             </div>
         {% endif %}
     </div>
@@ -138,7 +134,7 @@
         <div class="community-content">
             <div class="events-header">
                 <h2>Upcoming Events</h2>
-                <a href="{% url 'communities:event_list' community.slug %}" class="btn-primary">View All Events</a>
+                <a href="{% url 'communities:event_list' community.slug %}" class="btn-view-events">View All Events</a>
             </div>
 
             <div class="events-grid">
@@ -277,20 +273,9 @@
 .community-actions {
     padding: 0 2rem 2rem;
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.primary-actions {
-    display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
-}
-
-.secondary-actions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+    align-items: center;
 }
 
 .btn-action {
@@ -412,6 +397,33 @@
     margin-top: 0;
     margin-bottom: 1.5rem;
     font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Create Post & View Events Buttons */
+.btn-create-post,
+.btn-view-events {
+    padding: 0.875rem 1.75rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    white-space: nowrap;
+}
+
+.btn-create-post:hover,
+.btn-view-events:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+    color: white;
 }
 
 /* Posts Feed Styles */
@@ -731,12 +743,7 @@
 
     .community-actions {
         padding: 0 1.5rem 1.5rem;
-    }
-
-    .primary-actions,
-    .secondary-actions {
         flex-direction: column;
-        width: 100%;
     }
 
     .btn-action,
@@ -756,6 +763,12 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
+    }
+
+    .btn-create-post,
+    .btn-view-events {
+        width: 100%;
+        justify-content: center;
     }
 
     .events-grid {
