@@ -449,9 +449,10 @@ def my_favorites(request):
 
 @login_required
 def connection_requests(request):
-    """Display received connection requests"""
+    """Display received connection requests (pending only)"""
+    # Only show pending requests - accepted ones are in "My Connections"
     received_requests = (
-        ConnectionRequest.objects.filter(to_user=request.user)
+        ConnectionRequest.objects.filter(to_user=request.user, status="pending")
         .select_related("from_user", "from_user__profile")
         .order_by("-created_at")
     )
