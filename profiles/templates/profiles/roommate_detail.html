@@ -174,15 +174,25 @@
                     </a>
 
                     {% if connection_request %}
-                        <div class="connection-status-badge {{ connection_request.status }}">
-                            {% if connection_request.status == 'pending' %}
-                                ⏳ Request Pending
-                            {% elif connection_request.status == 'accepted' %}
+                        {% if connection_request.status == 'accepted' %}
+                            <div class="connection-status-badge accepted">
                                 ✓ Connected
+                            </div>
+                        {% elif connection_request.status == 'pending' %}
+                            {% if connection_request.is_received %}
+                                <a href="{% url 'connection_requests' %}" class="action-btn connect-btn-detail" style="text-decoration: none;">
+                                    📬 Respond to Request
+                                </a>
                             {% else %}
-                                ✗ Request Rejected
+                                <div class="connection-status-badge pending">
+                                    ⏳ Request Pending
+                                </div>
                             {% endif %}
-                        </div>
+                        {% else %}
+                            <div class="connection-status-badge rejected">
+                                ✗ Request Rejected
+                            </div>
+                        {% endif %}
                     {% else %}
                         <form method="post" action="{% url 'send_connection_request' profile.user.id %}" style="flex: 1; min-width: 200px;">
                             {% csrf_token %}
