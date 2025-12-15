@@ -1217,3 +1217,392 @@ class ProfileFormValidationTests(TestCase):
         # With valid photo upload
         form = ProfileForm(data=form_data, files={"profile_photo": photo})
         self.assertTrue(form.is_valid())
+
+
+class ProfileConnectionMethodsTests(TestCase):
+    """Test Profile model connection methods"""
+
+    def setUp(self):
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user3 = User.objects.create_user(
+            email="user3@nyu.edu",
+            username="user3",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        self.profile1 = Profile.objects.create(user=self.user1, university="NYU")
+        self.profile2 = Profile.objects.create(user=self.user2, university="NYU")
+        self.profile3 = Profile.objects.create(user=self.user3, university="Columbia")
+
+    def test_get_connection_count_no_connections(self):
+        """Test connection count with no connections"""
+        count = self.profile1.get_connection_count()
+        self.assertEqual(count, 0)
+
+    def test_get_connection_count_one_sent_accepted(self):
+        """Test connection count with one sent accepted request"""
+        ConnectionRequest.objects.create(
+            from_user=self.user1, to_user=self.user2, status="accepted"
+        )
+        count = self.profile1.get_connection_count()
+        self.assertEqual(count, 1)
+
+    def test_get_connection_count_one_received_accepted(self):
+        """Test connection count with one received accepted request"""
+        ConnectionRequest.objects.create(
+            from_user=self.user2, to_user=self.user1, status="accepted"
+        )
+        count = self.profile1.get_connection_count()
+        self.assertEqual(count, 1)
+
+    def test_get_connection_count_multiple_connections(self):
+        """Test connection count with multiple accepted connections"""
+        ConnectionRequest.objects.create(
+            from_user=self.user1, to_user=self.user2, status="accepted"
+        )
+        ConnectionRequest.objects.create(
+            from_user=self.user3, to_user=self.user1, status="accepted"
+        )
+        count = self.profile1.get_connection_count()
+        self.assertEqual(count, 2)
+
+    def test_get_connection_count_ignores_pending(self):
+        """Test that connection count ignores pending requests"""
+        ConnectionRequest.objects.create(
+            from_user=self.user1, to_user=self.user2, status="pending"
+        )
+        count = self.profile1.get_connection_count()
+        self.assertEqual(count, 0)
+
+    def test_get_connection_count_ignores_rejected(self):
+        """Test that connection count ignores rejected requests"""
+        ConnectionRequest.objects.create(
+            from_user=self.user1, to_user=self.user2, status="rejected"
+        )
+        count = self.profile1.get_connection_count()
+        self.assertEqual(count, 0)
+
+    def test_get_connections_no_connections(self):
+        """Test get_connections with no connections"""
+        connections = self.profile1.get_connections()
+        self.assertEqual(len(connections), 0)
+
+    def test_get_connections_one_sent_accepted(self):
+        """Test get_connections with one sent accepted request"""
+        ConnectionRequest.objects.create(
+            from_user=self.user1, to_user=self.user2, status="accepted"
+        )
+        connections = self.profile1.get_connections()
+        self.assertEqual(len(connections), 1)
+        self.assertIn(self.user2, connections)
+
+    def test_get_connections_one_received_accepted(self):
+        """Test get_connections with one received accepted request"""
+        ConnectionRequest.objects.create(
+            from_user=self.user2, to_user=self.user1, status="accepted"
+        )
+        connections = self.profile1.get_connections()
+        self.assertEqual(len(connections), 1)
+        self.assertIn(self.user2, connections)
+
+    def test_get_connections_multiple(self):
+        """Test get_connections with multiple accepted connections"""
+        ConnectionRequest.objects.create(
+            from_user=self.user1, to_user=self.user2, status="accepted"
+        )
+        ConnectionRequest.objects.create(
+            from_user=self.user3, to_user=self.user1, status="accepted"
+        )
+        connections = self.profile1.get_connections()
+        self.assertEqual(len(connections), 2)
+        self.assertIn(self.user2, connections)
+        self.assertIn(self.user3, connections)
+
+    def test_get_connections_ignores_pending(self):
+        """Test that get_connections ignores pending requests"""
+        ConnectionRequest.objects.create(
+            from_user=self.user1, to_user=self.user2, status="pending"
+        )
+        connections = self.profile1.get_connections()
+        self.assertEqual(len(connections), 0)
+
+
+class MyConnectionsViewTests(TestCase):
+    """Test my_connections view"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user3 = User.objects.create_user(
+            email="user3@nyu.edu",
+            username="user3",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        self.profile1 = Profile.objects.create(user=self.user1, university="NYU")
+        self.profile2 = Profile.objects.create(user=self.user2, university="NYU")
+        self.profile3 = Profile.objects.create(user=self.user3, university="Columbia")
+
+        # Create some connections
+        ConnectionRequest.objects.create(
+            from_user=self.user1, to_user=self.user2, status="accepted"
+        )
+        ConnectionRequest.objects.create(
+            from_user=self.user3, to_user=self.user1, status="accepted"
+        )
+
+        self.client.login(email="user1@nyu.edu", password="TestPassword123!")
+
+    def test_my_connections_view_success(self):
+        """Test viewing own connections"""
+        url = reverse("my_connections", kwargs={"user_id": self.user1.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "profiles/my_connections.html")
+        self.assertTrue(response.context["is_own_profile"])
+        self.assertEqual(len(response.context["connections"]), 2)
+
+    def test_my_connections_view_other_user(self):
+        """Test viewing another user's connections"""
+        url = reverse("my_connections", kwargs={"user_id": self.user2.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["is_own_profile"])
+
+    def test_my_connections_no_connections(self):
+        """Test viewing connections when user has none"""
+        # Create a new user with no connections
+        user4 = User.objects.create_user(
+            email="user4@nyu.edu",
+            username="user4",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        Profile.objects.create(user=user4, university="NYU")
+
+        url = reverse("my_connections", kwargs={"user_id": user4.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["connections"]), 0)
+
+    def test_my_connections_not_logged_in(self):
+        """Test accessing connections page when not logged in"""
+        self.client.logout()
+        url = reverse("my_connections", kwargs={"user_id": self.user1.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
+    def test_my_connections_user_without_profile(self):
+        """Test viewing connections for user without profile"""
+        user_no_profile = User.objects.create_user(
+            email="noprofile@nyu.edu",
+            username="noprofile",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        url = reverse("my_connections", kwargs={"user_id": user_no_profile.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("roommate_search"))
+
+
+class DisconnectViewTests(TestCase):
+    """Test disconnect view"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        self.profile1 = Profile.objects.create(user=self.user1, university="NYU")
+        self.profile2 = Profile.objects.create(user=self.user2, university="NYU")
+
+        self.client.login(email="user1@nyu.edu", password="TestPassword123!")
+
+    def test_disconnect_success_sent_request(self):
+        """Test disconnecting from a user (current user sent request)"""
+        ConnectionRequest.objects.create(
+            from_user=self.user1, to_user=self.user2, status="accepted"
+        )
+
+        url = reverse("disconnect", kwargs={"user_id": self.user2.id})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, reverse("my_connections", kwargs={"user_id": self.user1.id})
+        )
+        self.assertFalse(
+            ConnectionRequest.objects.filter(
+                from_user=self.user1, to_user=self.user2
+            ).exists()
+        )
+
+    def test_disconnect_success_received_request(self):
+        """Test disconnecting from a user (current user received request)"""
+        ConnectionRequest.objects.create(
+            from_user=self.user2, to_user=self.user1, status="accepted"
+        )
+
+        url = reverse("disconnect", kwargs={"user_id": self.user2.id})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(
+            ConnectionRequest.objects.filter(
+                from_user=self.user2, to_user=self.user1
+            ).exists()
+        )
+
+    def test_disconnect_no_connection(self):
+        """Test disconnecting when no connection exists"""
+        url = reverse("disconnect", kwargs={"user_id": self.user2.id})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 302)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("Connection not found" in str(msg) for msg in messages))
+
+    def test_disconnect_self(self):
+        """Test that user cannot disconnect from themselves"""
+        url = reverse("disconnect", kwargs={"user_id": self.user1.id})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 302)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(
+            any(
+                "cannot disconnect from yourself" in str(msg).lower()
+                for msg in messages
+            )
+        )
+
+    def test_disconnect_not_logged_in(self):
+        """Test accessing disconnect when not logged in"""
+        self.client.logout()
+        url = reverse("disconnect", kwargs={"user_id": self.user2.id})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
+    def test_disconnect_pending_request(self):
+        """Test that pending requests are not disconnected"""
+        ConnectionRequest.objects.create(
+            from_user=self.user1, to_user=self.user2, status="pending"
+        )
+
+        url = reverse("disconnect", kwargs={"user_id": self.user2.id})
+        response = self.client.post(url)
+
+        # Should redirect
+        self.assertEqual(response.status_code, 302)
+
+        # Should not delete pending request
+        self.assertTrue(
+            ConnectionRequest.objects.filter(
+                from_user=self.user1, to_user=self.user2, status="pending"
+            ).exists()
+        )
+
+    def test_disconnect_user_not_found(self):
+        """Test disconnecting from non-existent user"""
+        url = reverse("disconnect", kwargs={"user_id": 99999})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 404)
+
+
+class ConnectionRequestsFilterTests(TestCase):
+    """Test that connection_requests view only shows pending requests"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user3 = User.objects.create_user(
+            email="user3@nyu.edu",
+            username="user3",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        Profile.objects.create(user=self.user1, university="NYU")
+        Profile.objects.create(user=self.user2, university="NYU")
+        Profile.objects.create(user=self.user3, university="Columbia")
+
+        # Create requests with different statuses
+        ConnectionRequest.objects.create(
+            from_user=self.user2, to_user=self.user1, status="pending"
+        )
+        ConnectionRequest.objects.create(
+            from_user=self.user3, to_user=self.user1, status="accepted"
+        )
+
+        self.client.login(email="user1@nyu.edu", password="TestPassword123!")
+
+    def test_connection_requests_only_shows_pending(self):
+        """Test that only pending requests are shown"""
+        url = reverse("connection_requests")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        received_requests = response.context["received_requests"]
+
+        # Should only show the pending request
+        self.assertEqual(len(received_requests), 1)
+        self.assertEqual(received_requests[0].status, "pending")
+        self.assertEqual(received_requests[0].from_user, self.user2)
+
+    def test_connection_requests_excludes_accepted(self):
+        """Test that accepted requests are not shown"""
+        url = reverse("connection_requests")
+        response = self.client.get(url)
+
+        received_requests = list(response.context["received_requests"])
+
+        # Should not include the accepted request from user3
+        self.assertNotIn(self.user3, [req.from_user for req in received_requests])

@@ -7,6 +7,7 @@
 <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
 <link rel="stylesheet" href="{% static 'marketplace/css/view_item.css' %}">
 <link rel="stylesheet" href="{% static 'map_utils/css/map.css' %}" />
+<link rel="stylesheet" href="{% static 'listings/css/image_lightbox.css' %}">
 {% if not is_owner %}
 <link rel="stylesheet" href="{% static 'marketplace/css/message_modal.css' %}">
 {% endif %}
@@ -124,7 +125,11 @@
       <a href="{% url 'delete_item' item.id %}" class="btn-delete-item">
         Delete Item
       </a>
-      {% if is_owner %}
+      {% if next_url %}
+      <a href="{{ next_url }}" class="btn-back-to-items">
+        ← Back
+      </a>
+      {% elif is_owner %}
       <a href="{% url 'my_items' %}" class="btn-back-to-items">
         Back to My Items
       </a>
@@ -138,9 +143,15 @@
       <button onclick="showMessageForm()" class="btn-edit-item message-modal-trigger">
         Contact Seller
       </button>
+      {% if next_url %}
+      <a href="{{ next_url }}" class="btn-back-to-items">
+        ← Back
+      </a>
+      {% else %}
       <a href="{% url 'browse_marketplace' %}" class="btn-back-to-items">
         Back to Marketplace
       </a>
+      {% endif %}
     {% endif %}
   </div>
 </div>
@@ -173,6 +184,8 @@
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
 <!-- Our custom map initialization script -->
 <script src="{% static 'map_utils/js/listing_map.js' %}"></script>
+<!-- Image lightbox script -->
+<script src="{% static 'listings/js/image_lightbox.js' %}"></script>
 {% if not is_owner %}
 <script src="{% static 'marketplace/js/message_modal.js' %}"></script>
 {% endif %}

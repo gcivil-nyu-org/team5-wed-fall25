@@ -69,7 +69,16 @@ def view_profile(request):
     profile = getattr(request.user, "profile", None)
     if not profile:
         return redirect("create_profile")
-    return render(request, "profiles/view_profile.html", {"profile": profile})
+
+    # Get connection count for the current user
+    connection_count = profile.get_connection_count()
+
+    context = {
+        "profile": profile,
+        "connection_count": connection_count,
+    }
+
+    return render(request, "profiles/view_profile.html", context)
 
 
 # @login_required
@@ -190,15 +199,33 @@ def roommate_search(request):
     user_favorites = Favorite.objects.filter(user=request.user).values_list(
         "favorite_profile_id", flat=True
     )
-    sent_requests = ConnectionRequest.objects.filter(
-        from_user=request.user
-    ).values_list("to_user_id", flat=True)
+
+    # Get connection requests in BOTH directions (LinkedIn-style bidirectional)
+    # Check requests sent by current user
+    sent_requests = ConnectionRequest.objects.filter(from_user=request.user)
+    # Check requests received by current user
+    received_requests = ConnectionRequest.objects.filter(to_user=request.user)
+
+    # Build a dictionary mapping user_id to connection info
+    connection_status = {}
+    for req in sent_requests:
+        connection_status[req.to_user_id] = {
+            "status": req.status,
+            "direction": "sent",  # Current user sent this request
+        }
+    for req in received_requests:
+        # Only add if not already in dict (sent takes precedence for display)
+        if req.from_user_id not in connection_status:
+            connection_status[req.from_user_id] = {
+                "status": req.status,
+                "direction": "received",  # Current user received this request
+            }
 
     context = {
         "form": form,
         "profiles": profiles,
         "user_favorites": user_favorites,
-        "sent_requests": sent_requests,
+        "connection_status": connection_status,
     }
 
     return render(request, "profiles/roommate_search.html", context)
@@ -292,15 +319,33 @@ def roommate_detail(request, user_id):
         user=request.user, favorite_profile=profile
     ).exists()
 
-    # Check connection request status
+    # Check connection request status in BOTH directions (LinkedIn-style bidirectional)
+    # Check if current user sent a request
     connection_request = ConnectionRequest.objects.filter(
         from_user=request.user, to_user=profile.user
     ).first()
+
+    # If no request sent by current user, check if they received one
+    if not connection_request:
+        connection_request = ConnectionRequest.objects.filter(
+            from_user=profile.user, to_user=request.user
+        ).first()
+        # Mark that this request was received (for template to show different UI)
+        if connection_request:
+            connection_request.is_received = True
+
+    # Get connection count for the profile being viewed
+    connection_count = profile.get_connection_count()
+
+    # Get the "next" parameter for context-aware back button
+    next_url = request.GET.get("next", None)
 
     context = {
         "profile": profile,
         "is_favorited": is_favorited,
         "connection_request": connection_request,
+        "connection_count": connection_count,
+        "next_url": next_url,
     }
 
     return render(request, "profiles/roommate_detail.html", context)
@@ -348,19 +393,39 @@ def send_connection_request(request, user_id):
         messages.error(request, "This user does not have a profile.")
         return redirect("roommate_search")
 
-    # Check if request already exists
-    existing_request = ConnectionRequest.objects.filter(
+    # Check if request already exists in EITHER direction (LinkedIn-style bidirectional)
+    # Check if current user already sent a request
+    existing_sent_request = ConnectionRequest.objects.filter(
         from_user=request.user, to_user=to_user
     ).first()
 
-    if existing_request:
-        if existing_request.status == "pending":
+    # Check if the other user already sent a request to current user
+    existing_received_request = ConnectionRequest.objects.filter(
+        from_user=to_user, to_user=request.user
+    ).first()
+
+    # If current user already sent a request
+    if existing_sent_request:
+        if existing_sent_request.status == "pending":
             messages.info(request, "You already sent a request to this user.")
-        elif existing_request.status == "accepted":
+        elif existing_sent_request.status == "accepted":
             messages.info(request, "You are already connected with this user.")
         else:
             messages.info(request, "Your previous request was rejected.")
         return redirect("roommate_detail", user_id=user_id)
+
+    # If the other user already sent a request (redirect to connection requests page)
+    if existing_received_request:
+        if existing_received_request.status == "pending":
+            messages.info(
+                request,
+                f"{to_user.first_name} already sent you a connection request. "
+                f"Please respond to their request instead.",
+            )
+            return redirect("connection_requests")
+        elif existing_received_request.status == "accepted":
+            messages.info(request, "You are already connected with this user.")
+            return redirect("roommate_detail", user_id=user_id)
 
     # Create new connection request
     message = request.POST.get("message", "")
@@ -388,9 +453,10 @@ def my_favorites(request):
 
 @login_required
 def connection_requests(request):
-    """Display received connection requests"""
+    """Display received connection requests (pending only)"""
+    # Only show pending requests - accepted ones are in "My Connections"
     received_requests = (
-        ConnectionRequest.objects.filter(to_user=request.user)
+        ConnectionRequest.objects.filter(to_user=request.user, status="pending")
         .select_related("from_user", "from_user__profile")
         .order_by("-created_at")
     )
@@ -423,6 +489,67 @@ def respond_to_request(request, request_id):
         messages.info(request, "Request rejected.")
 
     return redirect("connection_requests")
+
+
+@login_required
+def my_connections(request, user_id):
+    """Display a user's connections (LinkedIn-style)"""
+    # Get the user whose connections we want to view
+    user = get_object_or_404(User, id=user_id)
+
+    # Check if user has a profile
+    if not hasattr(user, "profile"):
+        messages.error(request, "This user has not completed their profile yet.")
+        return redirect("roommate_search")
+
+    profile = user.profile
+
+    # Get all connections for this user
+    connections = profile.get_connections()
+
+    # Get profiles for all connections (filter out users without profiles)
+    connection_profiles = []
+    for connection_user in connections:
+        if hasattr(connection_user, "profile"):
+            connection_profiles.append(connection_user.profile)
+
+    context = {
+        "profile": profile,
+        "connections": connection_profiles,
+        "is_own_profile": user == request.user,
+    }
+
+    return render(request, "profiles/my_connections.html", context)
+
+
+@login_required
+@require_POST
+def disconnect(request, user_id):
+    """Remove a connection with another user"""
+    from django.db.models import Q
+
+    other_user = get_object_or_404(User, id=user_id)
+
+    # Prevent disconnecting from yourself
+    if other_user == request.user:
+        messages.error(request, "You cannot disconnect from yourself.")
+        return redirect("my_connections", user_id=request.user.id)
+
+    # Find the connection request (could be in either direction)
+    connection_request = ConnectionRequest.objects.filter(
+        Q(from_user=request.user, to_user=other_user, status="accepted")
+        | Q(from_user=other_user, to_user=request.user, status="accepted")
+    ).first()
+
+    if connection_request:
+        connection_request.delete()
+        messages.success(
+            request, f"You are no longer connected with {other_user.first_name}."
+        )
+    else:
+        messages.error(request, "Connection not found.")
+
+    return redirect("my_connections", user_id=request.user.id)
 
 
 @staff_member_required

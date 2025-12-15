@@ -249,10 +249,13 @@ def view_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)
     # Check if this is the user's own item for edit/delete permissions
     is_owner = item.user == request.user
+    # Get the "next" parameter for context-aware back button
+    next_url = request.GET.get("next", None)
     context = {
         "item": item,
         "is_owner": is_owner,
         "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
+        "next_url": next_url,
     }
     return render(request, "marketplace/view_item.html", context)
 

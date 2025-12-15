@@ -870,3 +870,342 @@ class GetNewMessagesWithProfilePhotoTests(TestCase):
         self.assertEqual(len(data["messages"]), 1)
         # Check that profile_photo_url is present and not None
         self.assertIsNotNone(data["messages"][0]["profile_photo_url"])
+
+
+class MarketplaceItemMessagingTests(TestCase):
+    """Test messaging functionality for marketplace items"""
+
+    def setUp(self):
+        from marketplace.models import Item
+
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        Profile.objects.create(user=self.user1, university="nyu")
+        Profile.objects.create(user=self.user2, university="nyu")
+
+        self.item = Item.objects.create(
+            user=self.user1,
+            title="Test Textbook",
+            description="Great condition",
+            condition="good",
+            category="textbooks",
+            price=50.00,
+            street_address="123 Test St",
+            city="New York",
+            zipcode="10012",
+        )
+
+    def test_start_thread_for_item_success(self):
+        """Test creating thread for marketplace item"""
+        self.client.login(username="user2@nyu.edu", password="TestPassword123!")
+
+        response = self.client.post(
+            reverse("messaging:start_thread"),
+            {
+                "item_id": self.item.id,
+                "recipient_id": self.user1.id,
+                "body": "Interested in buying this",
+            },
+        )
+
+        # Should create thread and redirect
+        self.assertEqual(Thread.objects.count(), 1)
+        thread = Thread.objects.first()
+        self.assertRedirects(
+            response, reverse("messaging:thread", kwargs={"thread_id": thread.id})
+        )
+        self.assertEqual(thread.messages.count(), 1)
+        self.assertEqual(thread.messages.first().body, "Interested in buying this")
+
+    def test_start_thread_for_item_empty_message(self):
+        """Test starting thread for item with empty message"""
+        self.client.login(username="user2@nyu.edu", password="TestPassword123!")
+
+        response = self.client.post(
+            reverse("messaging:start_thread"),
+            {
+                "item_id": self.item.id,
+                "recipient_id": self.user1.id,
+                "body": "",
+            },
+        )
+
+        self.assertEqual(Thread.objects.count(), 0)
+        self.assertRedirects(
+            response, reverse("view_item", kwargs={"item_id": self.item.id})
+        )
+
+    def test_start_thread_for_own_item(self):
+        """Test user cannot message themselves about their own item"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.post(
+            reverse("messaging:start_thread"),
+            {
+                "item_id": self.item.id,
+                "recipient_id": self.user1.id,
+                "body": "Test",
+            },
+        )
+
+        self.assertEqual(Thread.objects.count(), 0)
+        self.assertRedirects(
+            response, reverse("view_item", kwargs={"item_id": self.item.id})
+        )
+
+    def test_start_thread_for_item_invalid_recipient(self):
+        """Test starting thread with wrong recipient for item"""
+        self.client.login(username="user2@nyu.edu", password="TestPassword123!")
+
+        response = self.client.post(
+            reverse("messaging:start_thread"),
+            {
+                "item_id": self.item.id,
+                "recipient_id": 9999,  # Wrong ID
+                "body": "Test",
+            },
+        )
+
+        self.assertEqual(Thread.objects.count(), 0)
+        self.assertRedirects(
+            response, reverse("view_item", kwargs={"item_id": self.item.id})
+        )
+
+    def test_start_thread_for_item_reuses_existing(self):
+        """Test starting thread reuses existing item thread"""
+        self.client.login(username="user2@nyu.edu", password="TestPassword123!")
+
+        # Create first thread
+        self.client.post(
+            reverse("messaging:start_thread"),
+            {
+                "item_id": self.item.id,
+                "recipient_id": self.user1.id,
+                "body": "First message",
+            },
+        )
+
+        # Try to create another thread for same item/users
+        self.client.post(
+            reverse("messaging:start_thread"),
+            {
+                "item_id": self.item.id,
+                "recipient_id": self.user1.id,
+                "body": "Second message",
+            },
+        )
+
+        # Should still only have one thread (unified threads)
+        self.assertEqual(Thread.objects.count(), 1)
+        # But two messages
+        self.assertEqual(Message.objects.count(), 2)
+
+
+class RoommateMessagingTests(TestCase):
+    """Test direct roommate-to-roommate messaging"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        Profile.objects.create(user=self.user1, university="nyu")
+        Profile.objects.create(user=self.user2, university="nyu")
+
+    def test_start_roommate_thread_success(self):
+        """Test creating direct roommate thread"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.post(
+            reverse("messaging:start_roommate_thread"),
+            {
+                "recipient_id": self.user2.id,
+                "body": "Hi, interested in being roommates?",
+            },
+        )
+
+        # Should create thread and redirect
+        self.assertEqual(Thread.objects.count(), 1)
+        thread = Thread.objects.first()
+        self.assertRedirects(
+            response, reverse("messaging:thread", kwargs={"thread_id": thread.id})
+        )
+        self.assertEqual(thread.messages.count(), 1)
+        self.assertEqual(
+            thread.messages.first().body, "Hi, interested in being roommates?"
+        )
+
+    def test_start_roommate_thread_empty_message(self):
+        """Test starting roommate thread with empty message"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.post(
+            reverse("messaging:start_roommate_thread"),
+            {
+                "recipient_id": self.user2.id,
+                "body": "",
+            },
+        )
+
+        self.assertEqual(Thread.objects.count(), 0)
+        self.assertRedirects(
+            response, reverse("roommate_detail", kwargs={"user_id": self.user2.id})
+        )
+
+    def test_start_roommate_thread_with_self(self):
+        """Test user cannot message themselves"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.post(
+            reverse("messaging:start_roommate_thread"),
+            {
+                "recipient_id": self.user1.id,
+                "body": "Test",
+            },
+            follow=False,
+        )
+
+        self.assertEqual(Thread.objects.count(), 0)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url, reverse("roommate_detail", kwargs={"user_id": self.user1.id})
+        )
+
+    def test_start_roommate_thread_get_redirects(self):
+        """Test GET request redirects to inbox"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+        response = self.client.get(reverse("messaging:start_roommate_thread"))
+        self.assertRedirects(response, reverse("messaging:inbox"))
+
+    def test_start_roommate_thread_missing_recipient(self):
+        """Test starting roommate thread without recipient_id"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.post(
+            reverse("messaging:start_roommate_thread"),
+            {"body": "Test"},
+        )
+
+        self.assertEqual(Thread.objects.count(), 0)
+        self.assertRedirects(response, reverse("roommate_search"))
+
+    def test_get_or_create_roommate_thread_success(self):
+        """Test get or create roommate thread without initial message"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("messaging:with_user", kwargs={"user_id": self.user2.id})
+        )
+
+        # Should create thread and redirect
+        self.assertEqual(Thread.objects.count(), 1)
+        thread = Thread.objects.first()
+        self.assertRedirects(
+            response, reverse("messaging:thread", kwargs={"thread_id": thread.id})
+        )
+        # No initial message
+        self.assertEqual(thread.messages.count(), 0)
+
+    def test_get_or_create_roommate_thread_reuses_existing(self):
+        """Test get or create reuses existing thread"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Create first time
+        self.client.get(
+            reverse("messaging:with_user", kwargs={"user_id": self.user2.id})
+        )
+        thread1 = Thread.objects.first()
+
+        # Try again
+        self.client.get(
+            reverse("messaging:with_user", kwargs={"user_id": self.user2.id})
+        )
+        thread2 = Thread.objects.first()
+
+        # Should still only have one thread
+        self.assertEqual(Thread.objects.count(), 1)
+        self.assertEqual(thread1.id, thread2.id)
+
+    def test_get_or_create_roommate_thread_with_self(self):
+        """Test get or create with self fails"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        response = self.client.get(
+            reverse("messaging:with_user", kwargs={"user_id": self.user1.id}),
+            follow=False,
+        )
+
+        self.assertEqual(Thread.objects.count(), 0)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url, reverse("roommate_detail", kwargs={"user_id": self.user1.id})
+        )
+
+
+class InboxWithItemThreadTests(TestCase):
+    """Test inbox view with marketplace item threads"""
+
+    def setUp(self):
+        from marketplace.models import Item
+
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+            email="user1@nyu.edu",
+            username="user1",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+        self.user2 = User.objects.create_user(
+            email="user2@nyu.edu",
+            username="user2",
+            password="TestPassword123!",
+            is_verified=True,
+        )
+
+        Profile.objects.create(user=self.user1, university="nyu")
+        Profile.objects.create(user=self.user2, university="nyu")
+
+        self.item = Item.objects.create(
+            user=self.user1,
+            title="Test Item",
+            description="Test",
+            condition="good",
+            category="textbooks",
+            price=50.00,
+        )
+
+    def test_inbox_with_item_thread(self):
+        """Test inbox displays threads for marketplace items"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Create thread for item
+        thread = Thread.objects.create(
+            item=self.item, user_a=self.user1, user_b=self.user2
+        )
+        Message.objects.create(thread=thread, sender=self.user2, body="Interested")
+
+        response = self.client.get(reverse("messaging:inbox"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["rows"]), 1)

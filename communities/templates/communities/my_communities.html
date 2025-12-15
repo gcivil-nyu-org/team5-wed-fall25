@@ -3,115 +3,403 @@
 {% block title %}My Communities - CampusNest{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>My Communities</h1>
-    <a href="{% url 'communities:browse' %}" class="btn-secondary">Browse All</a>
-</div>
+<div class="my-communities-container">
+    <div class="page-header-enhanced">
+        <div class="header-left">
+            <h1>My Communities</h1>
+            <p class="header-subtitle">Manage and explore your community memberships</p>
+        </div>
+        <a href="{% url 'communities:browse' %}" class="btn-browse-all">
+            Browse All Communities
+        </a>
+    </div>
 
-{% if memberships %}
-    <div class="communities-list">
-        {% for membership in memberships %}
-            <div class="community-item">
-                <div class="community-main">
-                    {% if membership.community.cover_image %}
-                        <img src="{{ membership.community.cover_image.url }}" alt="{{ membership.community.name }}" class="community-thumb">
-                    {% else %}
-                        <div class="community-thumb-placeholder">
-                            {{ membership.community.name|slice:":1" }}
-                        </div>
-                    {% endif %}
+    {% if memberships %}
+        <div class="communities-grid">
+            {% for membership in memberships %}
+                <div class="community-card">
+                    <div class="card-header-section">
+                        {% if membership.community.cover_image %}
+                            <div class="community-avatar">
+                                <img src="{{ membership.community.cover_image.url }}" alt="{{ membership.community.name }}">
+                            </div>
+                        {% else %}
+                            <div class="community-avatar avatar-placeholder">
+                                <span>{{ membership.community.name|slice:":1" }}</span>
+                            </div>
+                        {% endif %}
 
-                    <div class="community-details">
-                        <h3>
-                            <a href="{% url 'communities:detail' membership.community.slug %}">{{ membership.community.name }}</a>
+                        <span class="role-badge role-{{ membership.role }}">
+                            {{ membership.get_role_display }}
+                        </span>
+                    </div>
+
+                    <div class="card-body">
+                        <h3 class="community-title">
+                            <a href="{% url 'communities:detail' membership.community.slug %}">
+                                {{ membership.community.name }}
+                            </a>
                         </h3>
-                        <p>{{ membership.community.description|truncatewords:15 }}</p>
-                        <div class="community-meta">
-                            <span class="badge badge-{{ membership.role }}">{{ membership.get_role_display }}</span>
-                            <span class="member-count">{{ membership.community.member_count }} members</span>
-                            <span class="join-date">Joined {{ membership.joined_at|date:"M d, Y" }}</span>
+                        <p class="community-desc">{{ membership.community.description|truncatewords:20 }}</p>
+                    </div>
+
+                    <div class="card-stats">
+                        <div class="stat-box">
+                            <span class="stat-value">{{ membership.community.member_count }}</span>
+                            <span class="stat-label">Members</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-box">
+                            <span class="stat-value">{{ membership.joined_at|date:"M d, Y" }}</span>
+                            <span class="stat-label">Joined</span>
                         </div>
                     </div>
-                </div>
 
-                <div class="community-actions">
-                    <a href="{% url 'communities:detail' membership.community.slug %}" class="btn-primary">View</a>
+                    <div class="card-footer-section">
+                        <a href="{% url 'communities:detail' membership.community.slug %}" class="btn-view">
+                            View Community →
+                        </a>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <div class="empty-state">
-        <p>You haven't joined any communities yet.</p>
-        <a href="{% url 'communities:browse' %}" class="btn-primary">Browse Communities</a>
-    </div>
-{% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state-enhanced">
+            <div class="empty-icon">🏘️</div>
+            <h2>No Communities Yet</h2>
+            <p>You haven't joined any communities. Start exploring and connect with others!</p>
+            <a href="{% url 'communities:browse' %}" class="btn-explore">
+                Explore Communities
+            </a>
+        </div>
+    {% endif %}
+</div>
 
 <style>
-.communities-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+.my-communities-container {
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.community-item {
-    background: #2a2a2a;
-    border-radius: 8px;
-    padding: 1.5rem;
+/* Enhanced Page Header */
+.page-header-enhanced {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--color-border);
 }
 
-.community-main {
-    display: flex;
-    gap: 1rem;
-    flex: 1;
+.header-left h1 {
+    margin-bottom: 0.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-accent-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-.community-thumb, .community-thumb-placeholder {
-    width: 80px;
-    height: 80px;
-    border-radius: 8px;
-    object-fit: cover;
-    flex-shrink: 0;
+.header-subtitle {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    margin: 0;
 }
 
-.community-thumb-placeholder {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    font-weight: bold;
+.btn-browse-all {
+    padding: 0.875rem 1.75rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    white-space: nowrap;
+}
+
+.btn-browse-all:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
     color: white;
 }
 
-.community-details h3 {
-    margin: 0 0 0.5rem 0;
+/* Communities Grid */
+.communities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
 }
 
-.community-details h3 a {
-    color: #fff;
+/* Community Card */
+.community-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 1.75rem;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.community-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.community-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--color-border-light);
+}
+
+.community-card:hover::before {
+    transform: scaleX(1);
+}
+
+/* Card Header */
+.card-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+}
+
+.community-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--color-border-light);
+    transition: all 0.3s ease;
+}
+
+.community-card:hover .community-avatar {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.community-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: white;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Role Badge */
+.role-badge {
+    padding: 0.375rem 0.875rem;
+    border-radius: var(--radius-md);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-admin {
+    background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+.role-moderator {
+    background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+}
+
+.role-member {
+    background: var(--color-surface-elevated);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-light);
+}
+
+/* Card Body */
+.card-body {
+    margin-bottom: 1.5rem;
+}
+
+.community-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.375rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+}
+
+.community-title a {
+    color: var(--color-text-primary);
     text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-.community-details h3 a:hover {
-    color: #667eea;
+.community-title a:hover {
+    color: var(--color-primary-light);
 }
 
-.community-details p {
-    color: #9ca3af;
-    margin: 0 0 0.5rem 0;
+.community-desc {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+    font-size: 0.9375rem;
 }
 
-.badge-admin { background: #ef4444; color: white; }
-.badge-moderator { background: #f59e0b; color: white; }
-.badge-member { background: #6b7280; color: white; }
+/* Card Stats */
+.card-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 1rem;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.25rem;
+}
 
-.join-date {
-    color: #6b7280;
-    font-size: 0.875rem;
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.stat-value {
+    color: var(--color-text-primary);
+    font-size: 1.125rem;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.stat-label {
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--color-border);
+}
+
+/* Card Footer */
+.card-footer-section {
+    margin-top: auto;
+}
+
+.btn-view {
+    display: block;
+    width: 100%;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.btn-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+    color: white;
+}
+
+/* Empty State */
+.empty-state-enhanced {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: var(--color-surface);
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+}
+
+.empty-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.empty-state-enhanced h2 {
+    color: var(--color-text-primary);
+    margin-bottom: 0.75rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.empty-state-enhanced p {
+    color: var(--color-text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.0625rem;
+}
+
+.btn-explore {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.btn-explore:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header-enhanced {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .btn-browse-all {
+        width: 100%;
+        text-align: center;
+    }
+
+    .communities-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .empty-state-enhanced {
+        padding: 3rem 1.5rem;
+    }
 }
 </style>
 {% endblock %}

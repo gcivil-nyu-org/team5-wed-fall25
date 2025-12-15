@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load profile_extras %}
 
 {% block title %}Find Roommates - CampusNest{% endblock %}
 
@@ -189,16 +190,30 @@
                             </div>
 
                             <!-- Connection Request Status -->
-                            {% if profile.user.id in sent_requests %}
-                                <p class="connection-status">✓ Request Sent</p>
-                            {% else %}
-                                <form method="post" action="{% url 'send_connection_request' profile.user.id %}" class="connection-form">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn-connect">
-                                        Connect
-                                    </button>
-                                </form>
-                            {% endif %}
+                            {% with conn_info=connection_status|get_item:profile.user.id %}
+                                {% if conn_info %}
+                                    {% if conn_info.status == "accepted" %}
+                                        <p class="connection-status connected">✓ Connected</p>
+                                    {% elif conn_info.status == "pending" %}
+                                        {% if conn_info.direction == "sent" %}
+                                            <p class="connection-status pending">⏳ Request Sent</p>
+                                        {% else %}
+                                            <a href="{% url 'connection_requests' %}" class="connection-status received">
+                                                📬 Respond to Request
+                                            </a>
+                                        {% endif %}
+                                    {% elif conn_info.status == "rejected" %}
+                                        <p class="connection-status rejected">✗ Request Rejected</p>
+                                    {% endif %}
+                                {% else %}
+                                    <form method="post" action="{% url 'send_connection_request' profile.user.id %}" class="connection-form">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-connect">
+                                            Connect
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            {% endwith %}
                         </div>
                     </div>
                 {% endfor %}

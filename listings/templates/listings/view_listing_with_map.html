@@ -7,6 +7,7 @@
 />
 <link rel="stylesheet" href="{% static 'listings/css/view_listing.css' %}" />
 <link rel="stylesheet" href="{% static 'map_utils/css/map.css' %}" />
+<link rel="stylesheet" href="{% static 'listings/css/image_lightbox.css' %}" />
 {% if not is_owner %}
 <link rel="stylesheet" href="{% static 'listings/css/message_modal.css' %}" />
 {% endif %} {% endblock %} {% block content %}
@@ -153,7 +154,11 @@
     <a href="{% url 'delete_listing' listing.id %}" class="btn-delete">
       Delete Listing
     </a>
-    {% if is_owner %}
+    {% if next_url %}
+    <a href="{{ next_url }}" class="btn-back">
+      ← Back
+    </a>
+    {% elif is_owner %}
     <a href="{% url 'my_listings' %}" class="btn-back">
       Back to My Listings
     </a>
@@ -166,9 +171,15 @@
     <button onclick="showMessageForm()" class="btn-edit message-modal-trigger">
       Contact Seller
     </button>
+    {% if next_url %}
+    <a href="{{ next_url }}" class="btn-back">
+      ← Back
+    </a>
+    {% else %}
     <a href="{% url 'public_listings' %}" class="btn-back">
       Back to Browse
     </a>
+    {% endif %}
     {% endif %}
   </div>
 </div>
@@ -178,8 +189,7 @@
 <div id="messageModal" class="message-modal-overlay">
   <div class="message-modal-container">
     <h3 class="message-modal-heading">
-      Send Message to {{ listing.user.first_name|default:listing.user.username
-      }}
+      Send Message to {{ listing.user.first_name|default:listing.user.username }}
     </h3>
     <form
       method="post"
@@ -219,6 +229,8 @@
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
 <!-- Our custom map initialization script -->
 <script src="{% static 'map_utils/js/listing_map.js' %}"></script>
+<!-- Image lightbox script -->
+<script src="{% static 'listings/js/image_lightbox.js' %}"></script>
 {% if not is_owner %}
 <script src="{% static 'listings/js/message_modal.js' %}"></script>
 {% endif %} {% endblock %}

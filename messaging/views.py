@@ -21,7 +21,7 @@ def inbox(request):
     """
     threads = (
         Thread.objects.filter(Q(user_a=request.user) | Q(user_b=request.user))
-        .select_related("listing", "user_a", "user_b")
+        .select_related("listing", "item", "user_a", "user_b")
         .prefetch_related("messages")
     )
 
@@ -98,9 +98,8 @@ def _create_thread_for_listing(request, listing_id, recipient_id, body):
     if user_a.id > user_b.id:
         user_a, user_b = user_b, user_a
 
-    thread, _created = Thread.objects.get_or_create(
-        listing=listing, item=None, user_a=user_a, user_b=user_b
-    )
+    # Get or create the unified thread for this user pair
+    thread, _created = Thread.objects.get_or_create(user_a=user_a, user_b=user_b)
 
     Message.objects.create(thread=thread, sender=request.user, body=body)
     messages.success(request, "Message sent.")
@@ -123,9 +122,28 @@ def _create_thread_for_item(request, item_id, recipient_id, body):
     if user_a.id > user_b.id:
         user_a, user_b = user_b, user_a
 
-    thread, _created = Thread.objects.get_or_create(
-        listing=None, item=item, user_a=user_a, user_b=user_b
-    )
+    # Get or create the unified thread for this user pair
+    thread, _created = Thread.objects.get_or_create(user_a=user_a, user_b=user_b)
+
+    Message.objects.create(thread=thread, sender=request.user, body=body)
+    messages.success(request, "Message sent.")
+    return redirect("messaging:thread", thread_id=thread.id)
+
+
+def _create_thread_for_roommate(request, recipient_id, body):
+    """Helper function to create a direct roommate-to-roommate thread."""
+    recipient = get_object_or_404(User, pk=recipient_id)
+
+    if request.user.id == recipient.id:
+        messages.error(request, "You cannot message yourself.")
+        return redirect("roommate_detail", user_id=recipient_id)
+
+    user_a, user_b = (request.user, recipient)
+    if user_a.id > user_b.id:
+        user_a, user_b = user_b, user_a
+
+    # Get or create the unified thread for this user pair
+    thread, _created = Thread.objects.get_or_create(user_a=user_a, user_b=user_b)
 
     Message.objects.create(thread=thread, sender=request.user, body=body)
     messages.success(request, "Message sent.")
@@ -183,6 +201,53 @@ def send_message(request, thread_id):
     Message.objects.create(thread=t, sender=request.user, body=body)
     dj_messages.success(request, "Message sent.")
     return redirect("messaging:thread", thread_id=thread_id)
+
+
+@login_required
+def start_roommate_thread(request):
+    """
+    Creates (or finds) a direct roommate-to-roommate thread,
+    posts the initial message, and redirects to the thread page.
+    """
+    if request.method != "POST":
+        return redirect("messaging:inbox")
+
+    body = (request.POST.get("body") or "").strip()
+    recipient_id = request.POST.get("recipient_id")
+
+    if not recipient_id:
+        messages.error(request, "Invalid request.")
+        return redirect("roommate_search")
+
+    if not body:
+        messages.error(request, "Message cannot be empty.")
+        return redirect("roommate_detail", user_id=recipient_id)
+
+    return _create_thread_for_roommate(request, recipient_id, body)
+
+
+@login_required
+def get_or_create_roommate_thread(request, user_id):
+    """
+    Get or create a unified thread with a user and redirect to it.
+    No initial message required - just jump into the conversation.
+    """
+    recipient = get_object_or_404(User, pk=user_id)
+
+    if request.user.id == recipient.id:
+        messages.error(request, "You cannot message yourself.")
+        return redirect("roommate_detail", user_id=user_id)
+
+    # Canonicalize user order
+    user_a, user_b = (request.user, recipient)
+    if user_a.id > user_b.id:
+        user_a, user_b = user_b, user_a
+
+    # Get or create the unified thread for this user pair
+    thread, created = Thread.objects.get_or_create(user_a=user_a, user_b=user_b)
+
+    # Redirect to the thread
+    return redirect("messaging:thread", thread_id=thread.id)
 
 
 @login_required

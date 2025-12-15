@@ -268,12 +268,16 @@ def view_listing(request, listing_id):
     full_address = f"{listing.street_address}, {listing.city}, NY {listing.zipcode}"
     share_text = f"Check out this CampusNest listing: {listing.title} — ${listing.rent}/mo at {full_address}. {share_url}"
 
+    # Get the "next" parameter for context-aware back button
+    next_url = request.GET.get("next", None)
+
     context = {
         "listing": listing,
         "is_owner": is_owner,
         "share_url": share_url,
         "share_text": share_text,
         "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
+        "next_url": next_url,
     }
 
     return render(

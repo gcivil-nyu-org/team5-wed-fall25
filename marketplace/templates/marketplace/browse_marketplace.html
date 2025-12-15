@@ -26,7 +26,7 @@
         <h2 class="filter-section-title">Refine Your Search</h2>
 
         <form method="GET" id="filterForm">
-            <!-- Filter Grid Row 1 -->
+            <!-- Filters -->
             <div class="filter-grid">
                 <!-- Keyword Search -->
                 <div>
@@ -67,10 +67,7 @@
                         class="filter-input"
                     >
                 </div>
-            </div>
 
-            <!-- Filter Grid Row 2 -->
-            <div class="filter-grid">
                 <!-- Max Price -->
                 <div>
                     <label class="filter-input-label">💰 Max Price ($)</label>
@@ -141,7 +138,7 @@
         </p>
 
         <!-- View Details Button -->
-        <a href="{% url 'view_item' item.id %}" class="btn-view-details">
+        <a href="{% url 'view_item' item.id %}?next={{ request.path }}" class="btn-view-details">
           View Details
         </a>
       </div>

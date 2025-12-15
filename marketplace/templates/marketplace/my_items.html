@@ -63,7 +63,7 @@
                     {% endif %}
                 </p>
                 <div class="my-item-actions">
-                    <a href="{% url 'view_item' item.id %}" class="btn-view-item">
+                    <a href="{% url 'view_item' item.id %}?next={{ request.path }}" class="btn-view-item">
                         View Details
                     </a>
                     {% if not item.is_sold %}

@@ -60,6 +60,16 @@
         box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
     }
 
+    .message-btn-detail {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .message-btn-detail:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+    }
+
     .connection-status-badge {
         flex: 1;
         min-width: 200px;
@@ -109,9 +119,15 @@
 <div class="view-profile-wrapper">
     <!-- Back Button -->
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem 1rem;">
-        <a href="{% url 'roommate_search' %}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; font-size: 0.9375rem; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.5rem;">
-            ← Back to Search
-        </a>
+        {% if next_url %}
+            <a href="{{ next_url }}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; font-size: 0.9375rem; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.5rem;">
+                ← Back
+            </a>
+        {% else %}
+            <a href="{% url 'roommate_search' %}" style="color: var(--color-primary-light); text-decoration: none; font-weight: 600; font-size: 0.9375rem; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.5rem;">
+                ← Back to Search
+            </a>
+        {% endif %}
     </div>
 
     <!-- Header with Profile Photo and Basic Info -->
@@ -159,16 +175,30 @@
                         {% endif %}
                     </button>
 
+                    <a href="{% url 'messaging:with_user' profile.user.id %}" class="action-btn message-btn-detail" style="text-decoration: none;">
+                        💬 Send Message
+                    </a>
+
                     {% if connection_request %}
-                        <div class="connection-status-badge {{ connection_request.status }}">
-                            {% if connection_request.status == 'pending' %}
-                                ⏳ Request Pending
-                            {% elif connection_request.status == 'accepted' %}
+                        {% if connection_request.status == 'accepted' %}
+                            <div class="connection-status-badge accepted">
                                 ✓ Connected
+                            </div>
+                        {% elif connection_request.status == 'pending' %}
+                            {% if connection_request.is_received %}
+                                <a href="{% url 'connection_requests' %}" class="action-btn connect-btn-detail" style="text-decoration: none;">
+                                    📬 Respond to Request
+                                </a>
                             {% else %}
-                                ✗ Request Rejected
+                                <div class="connection-status-badge pending">
+                                    ⏳ Request Pending
+                                </div>
                             {% endif %}
-                        </div>
+                        {% else %}
+                            <div class="connection-status-badge rejected">
+                                ✗ Request Rejected
+                            </div>
+                        {% endif %}
                     {% else %}
                         <form method="post" action="{% url 'send_connection_request' profile.user.id %}" style="flex: 1; min-width: 200px;">
                             {% csrf_token %}
@@ -319,6 +349,17 @@
                             <div>
                                 <p class="account-label">Member Since</p>
                                 <p class="account-value">{{ profile.created_at|date:"F Y" }}</p>
+                            </div>
+                        </div>
+                        <div class="account-item">
+                            <svg class="account-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                            </svg>
+                            <div>
+                                <p class="account-label">Connections</p>
+                                <a href="{% url 'my_connections' profile.user.id %}" class="account-value" style="color: var(--color-primary); text-decoration: none; font-weight: 600; cursor: pointer;">
+                                    {{ connection_count }} connection{% if connection_count != 1 %}s{% endif %}
+                                </a>
                             </div>
                         </div>
                         <div class="verification-badge">
