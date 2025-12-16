@@ -298,7 +298,7 @@ def my_listings(request):
 def public_listings(request):  # noqa: C901
     """Display all active listings including user's own with search and filtering"""
     listings = (
-        Listing.objects.filter(is_active=True)
+        Listing.objects.filter(is_active=True, is_rented=False)
         .select_related("user")
         .prefetch_related("images")
         .order_by("-created_at")
@@ -410,3 +410,29 @@ def public_listings(request):  # noqa: C901
     }
 
     return render(request, "listings/public_listings.html", context)
+
+
+@login_required
+def mark_as_rented(request, listing_id):
+    """Mark a listing as rented"""
+    listing = get_object_or_404(Listing, id=listing_id, user=request.user)
+
+    if request.method == "POST":
+        listing.is_rented = True
+        listing_title = listing.title
+        user_email = request.user.email
+        listing.save()
+
+        # Send confirmation email
+        send_mail(
+            subject="Your CampusNest Listing Has Been Rented",
+            message=f"Your listing '{listing_title}' has been marked as rented successfully.",
+            from_email="noreply@campusnest.com",
+            recipient_list=[user_email],
+            fail_silently=True,
+        )
+
+        messages.success(request, f"Listing '{listing.title}' marked as rented!")
+        return redirect("my_listings")
+
+    return redirect("view_listing", listing_id=listing.id)

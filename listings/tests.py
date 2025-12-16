@@ -135,6 +135,7 @@ class ListingModelTests(TestCase):
 
         self.assertFalse(listing.is_edited)
         self.assertTrue(listing.is_active)
+        self.assertFalse(listing.is_rented)
         self.assertGreaterEqual(listing.created_at, before)
         self.assertLessEqual(listing.created_at, after)
         self.assertEqual(listing.amenities, "")
@@ -1864,6 +1865,23 @@ class PublicListingsViewTests(TestCase):
         # Should include the East Village listing
         self.assertIn(east_village_listing, listings)
 
+    def test_public_listings_excludes_rented(self):
+        """Test that rented listings do not appear in public listings"""
+        self.client.login(username="user1@nyu.edu", password="TestPassword123!")
+
+        # Mark listing1 as rented
+        self.listing1.is_rented = True
+        self.listing1.save()
+
+        response = self.client.get(reverse("public_listings"))
+        listings = response.context["listings"]
+
+        # listing1 should not appear since it's rented
+        self.assertNotIn(self.listing1, listings)
+        # Other active listings should still appear
+        self.assertIn(self.listing2, listings)
+        self.assertIn(self.listing3, listings)
+
     def test_location_filter_specific_neighborhood(self):
         """Test that specific neighborhood search still works"""
         self.client.login(username="user1@nyu.edu", password="TestPassword123!")
@@ -1931,3 +1949,80 @@ class PublicListingsViewTests(TestCase):
                 )
                 listings = response.context["listings"]
                 self.assertIn(brooklyn_listing, listings)
+
+
+class MarkAsRentedViewTests(TestCase):
+    """Test the mark_as_rented view functionality"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            email="test@nyu.edu", username="testuser", password="testpw0rd"
+        )
+        self.user2 = User.objects.create_user(
+            email="test2@nyu.edu", username="testuser2", password="testpw0rd"
+        )
+        self.future_start = timezone.now().date() + timedelta(days=7)
+        self.future_end = timezone.now().date() + timedelta(days=37)
+        self.listing = Listing.objects.create(
+            user=self.user,
+            title="Test Listing",
+            street_address="123 Main St",
+            city="New York",
+            zipcode="10012",
+            rent=Decimal("1500.00"),
+            description="Test description with at least 20 characters",
+            availability_start=self.future_start,
+            availability_end=self.future_end,
+        )
+
+    def test_mark_as_rented_success(self):
+        """Test marking listing as rented"""
+        self.client.login(email="test@nyu.edu", password="testpw0rd")
+        url = reverse("mark_as_rented", kwargs={"listing_id": self.listing.id})
+        response = self.client.post(url)
+
+        self.listing.refresh_from_db()
+        self.assertTrue(self.listing.is_rented)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("my_listings"))
+
+    def test_mark_as_rented_message(self):
+        """Test marking as rented shows success message"""
+        self.client.login(email="test@nyu.edu", password="testpw0rd")
+        url = reverse("mark_as_rented", kwargs={"listing_id": self.listing.id})
+        response = self.client.post(url)
+
+        messages_list = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("marked as rented" in str(m) for m in messages_list))
+
+    def test_mark_as_rented_not_owner(self):
+        """Test user cannot mark other user's listing as rented"""
+        self.client.login(email="test2@nyu.edu", password="testpw0rd")
+        url = reverse("mark_as_rented", kwargs={"listing_id": self.listing.id})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 404)
+        self.listing.refresh_from_db()
+        self.assertFalse(self.listing.is_rented)
+
+    def test_mark_as_rented_not_logged_in(self):
+        """Test unauthenticated user is redirected"""
+        url = reverse("mark_as_rented", kwargs={"listing_id": self.listing.id})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 302)
+        self.listing.refresh_from_db()
+        self.assertFalse(self.listing.is_rented)
+
+    def test_mark_as_rented_get_request(self):
+        """Test GET request redirects to view_listing"""
+        self.client.login(email="test@nyu.edu", password="testpw0rd")
+        url = reverse("mark_as_rented", kwargs={"listing_id": self.listing.id})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 302)
+        expected_url = reverse("view_listing", kwargs={"listing_id": self.listing.id})
+        self.assertEqual(response.url, expected_url)
+        self.listing.refresh_from_db()
+        self.assertFalse(self.listing.is_rented)

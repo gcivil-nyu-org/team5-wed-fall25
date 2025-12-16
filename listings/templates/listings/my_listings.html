@@ -53,10 +53,15 @@
 					{% if listing.is_edited %}
 					<br><strong>Last Updated:</strong> {{ listing.updated_at|date:"F d, Y" }}
 					{% endif %}
+					{% if listing.is_rented %}
+					<span class="my-listing-badge-rented">
+						RENTED
+					</span>
+					{% endif %}
 				</p>
 				<p class="listing-info">
 					<strong>Status:</strong>
-					{% if listing.is_active %}
+					{% if not listing.is_rented %}
 					<span class="status-active">✓ Active</span>
 					{% else %}
 					<span class="status-inactive">✗ Inactive</span>
@@ -66,9 +71,17 @@
 					<a href="{% url 'view_listing' listing.id %}?next={{ request.path }}" class="btn-listing btn-view">
 						View Details
 					</a>
-					<a href="{% url 'edit_listing' listing.id %}" class="btn-listing btn-edit">
-						Edit
-					</a>
+					{% if not listing.is_rented %}
+						<a href="{% url 'edit_listing' listing.id %}" class="btn-listing btn-edit">
+							Edit
+						</a>
+						<form method="POST" action="{% url 'mark_as_rented' listing.id %}" class="mark-rented-form">
+							{% csrf_token %}
+							<button type="submit" class="btn-mark-rented">
+								Mark as Rented
+							</button>
+						</form>
+					{% endif %}
 					<a href="{% url 'delete_listing' listing.id %}" class="btn-listing btn-delete">
 						Delete
 					</a>
