@@ -198,7 +198,7 @@
                                         {% if conn_info.direction == "sent" %}
                                             <p class="connection-status pending">⏳ Request Sent</p>
                                         {% else %}
-                                            <a href="{% url 'connection_requests' %}" class="connection-status received">
+                                            <a href="{% url 'connection_requests' %}?next={{ request.path }}" class="connection-status received">
                                                 📬 Respond to Request
                                             </a>
                                         {% endif %}

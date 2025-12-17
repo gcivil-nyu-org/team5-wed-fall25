@@ -11,9 +11,15 @@
 <div class="content-card connection-requests-container">
     <h1 class="connection-requests-title">📬 Connection Requests</h1>
 
+    {% if next_url %}
+    <a href="{{ next_url }}" class="connection-requests-back-link">
+        ← Back
+    </a>
+    {% else %}
     <a href="{% url 'roommate_search' %}" class="connection-requests-back-link">
         ← Back to Search
     </a>
+    {% endif %}
 
     {% if received_requests %}
         <div class="connection-requests-list">

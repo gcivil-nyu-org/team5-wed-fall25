@@ -186,7 +186,7 @@
                             </div>
                         {% elif connection_request.status == 'pending' %}
                             {% if connection_request.is_received %}
-                                <a href="{% url 'connection_requests' %}" class="action-btn connect-btn-detail" style="text-decoration: none;">
+                                <a href="{% url 'connection_requests' %}?next={{ request.path }}" class="action-btn connect-btn-detail" style="text-decoration: none;">
                                     📬 Respond to Request
                                 </a>
                             {% else %}
@@ -357,7 +357,7 @@
                             </svg>
                             <div>
                                 <p class="account-label">Connections</p>
-                                <a href="{% url 'my_connections' profile.user.id %}" class="account-value" style="color: var(--color-primary); text-decoration: none; font-weight: 600; cursor: pointer;">
+                                <a href="{% url 'my_connections' profile.user.id %}?next={{ request.path }}" class="account-value" style="color: var(--color-primary); text-decoration: none; font-weight: 600; cursor: pointer;">
                                     {{ connection_count }} connection{% if connection_count != 1 %}s{% endif %}
                                 </a>
                             </div>
