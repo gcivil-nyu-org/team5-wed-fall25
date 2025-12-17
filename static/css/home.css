@@ -50,12 +50,15 @@
 }
 
 .feature-card {
+    display: flex;
+    flex-direction: column;
     padding: 2rem;
     border-radius: 1.25rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     transition: all 0.3s;
     position: relative;
     overflow: hidden;
+    height: 100%;
 }
 
 .feature-card.housing {
@@ -97,6 +100,8 @@
     border-radius: 0.5rem;
     margin-bottom: 1rem;
     font-size: 1.75rem;
+    flex-shrink: 0;
+    align-self: flex-start;
 }
 
 .feature-card.housing .feature-card-icon {
@@ -123,6 +128,7 @@
     position: relative;
     z-index: 1;
     font-family: 'Space Grotesk', sans-serif;
+    flex-shrink: 0;
 }
 
 .feature-card-description {
@@ -145,6 +151,8 @@
     transition: all 0.2s;
     position: relative;
     z-index: 1;
+    margin-top: auto;
+    align-self: flex-start;
 }
 
 .feature-card-button:hover {
