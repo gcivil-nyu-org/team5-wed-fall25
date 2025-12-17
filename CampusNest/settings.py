@@ -110,35 +110,35 @@ WSGI_APPLICATION = "CampusNest.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-# if os.getenv("RDS_HOSTNAME"):
-#     # Production/Development - PostgreSQL on AWS RDS
-#     DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.postgresql",
-#             "NAME": os.getenv("RDS_DB_NAME"),
-#             "USER": os.getenv("RDS_USERNAME"),
-#             "PASSWORD": os.getenv("RDS_PASSWORD"),
-#             "HOST": os.getenv("RDS_HOSTNAME"),
-#             "PORT": os.getenv("RDS_PORT", "5432"),
-#         }
-#     }
-# else:
-#     # Local development fallback - SQLite
-#     DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.sqlite3",
-#             "NAME": BASE_DIR / "db.sqlite3",
-#         }
-#     }
-#
-# # Uncomment while testing so that RDS does not get used when testing
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if os.getenv("RDS_HOSTNAME"):
+    # Production/Development - PostgreSQL on AWS RDS
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("RDS_DB_NAME"),
+            "USER": os.getenv("RDS_USERNAME"),
+            "PASSWORD": os.getenv("RDS_PASSWORD"),
+            "HOST": os.getenv("RDS_HOSTNAME"),
+            "PORT": os.getenv("RDS_PORT", "5432"),
+        }
     }
-}
+else:
+    # Local development fallback - SQLite
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
+# # Uncomment while testing so that RDS does not get used when testing
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+#
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 

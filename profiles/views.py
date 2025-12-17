@@ -561,6 +561,11 @@ def disconnect(request, user_id):
     else:
         messages.error(request, "Connection not found.")
 
+    # Support redirect back to profile page or my connections
+    next_url = request.POST.get("next") or request.GET.get("next")
+    if next_url:
+        return redirect(next_url)
+
     return redirect("my_connections", user_id=request.user.id)
 
 

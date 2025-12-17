@@ -181,9 +181,13 @@
 
                     {% if connection_request %}
                         {% if connection_request.status == 'accepted' %}
-                            <div class="connection-status-badge accepted">
-                                ✓ Connected
-                            </div>
+                            <form method="post" action="{% url 'disconnect' profile.user.id %}" style="flex: 1; min-width: 200px;" class="disconnect-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{% url 'roommate_detail' profile.user.id %}">
+                                <button type="submit" class="action-btn" style="background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%); color: white;">
+                                    🔌 Disconnect
+                                </button>
+                            </form>
                         {% elif connection_request.status == 'pending' %}
                             {% if connection_request.is_received %}
                                 <a href="{% url 'connection_requests' %}?next={{ request.path }}" class="action-btn connect-btn-detail" style="text-decoration: none;">
@@ -374,4 +378,55 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add confirmation dialog for disconnect button
+    document.addEventListener('DOMContentLoaded', function() {
+        const disconnectForm = document.querySelector('.disconnect-form');
+
+        if (disconnectForm) {
+            disconnectForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Get the user's name from the page
+                const userName = document.querySelector('.profile-name').textContent.trim();
+
+                // Show confirmation dialog
+                if (confirm(`Are you sure you want to disconnect from ${userName}? This action cannot be undone.`)) {
+                    // If confirmed, submit the form
+                    this.submit();
+                }
+            });
+        }
+
+        // Favorite button functionality
+        const favoriteBtn = document.querySelector('.favorite-btn-detail');
+        if (favoriteBtn) {
+            favoriteBtn.addEventListener('click', function() {
+                const userId = this.getAttribute('data-user-id');
+
+                fetch(`/roommates/${userId}/favorite/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.favorited) {
+                        this.classList.add('favorited');
+                        this.innerHTML = '❤️ Favorited';
+                    } else {
+                        this.classList.remove('favorited');
+                        this.innerHTML = '🤍 Add to Favorites';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
+    });
+</script>
 {% endblock %}
