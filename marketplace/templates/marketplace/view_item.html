@@ -111,7 +111,7 @@
 
   <div class="item-actions-container">
     {% if is_owner or request.user.is_staff %}
-      {% if not item.is_sold %}
+      {% if is_owner and not item.is_sold %}
       <a href="{% url 'edit_item' item.id %}" class="btn-edit-item">
         Edit Item
       </a>

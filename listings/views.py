@@ -138,7 +138,13 @@ def validate_images(files):
 @login_required
 def edit_listing(request, listing_id):  # noqa: C901
     """Edit an existing listing"""
-    listing = get_object_or_404(Listing, id=listing_id, user=request.user)
+    listing = get_object_or_404(Listing, id=listing_id)
+
+    # Only the owner can edit - staff can only delete
+    if listing.user != request.user:
+        if request.user.is_staff:
+            messages.error(request, "Admins can only delete listings, not edit them.")
+        raise Http404()
 
     if request.method == "POST":
         # Store original coordinates BEFORE creating form (form modifies instance on init)
