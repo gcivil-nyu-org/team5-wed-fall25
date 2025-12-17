@@ -50,12 +50,15 @@
 }
 
 .feature-card {
+    display: flex;
+    flex-direction: column;
     padding: 2rem;
     border-radius: 1.25rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     transition: all 0.3s;
     position: relative;
     overflow: hidden;
+    height: 100%;
 }
 
 .feature-card.housing {
@@ -71,6 +74,11 @@
 .feature-card.marketplace {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
     border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.feature-card.community {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(139, 92, 246, 0.03) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.15);
 }
 
 .feature-card:hover {
@@ -92,6 +100,8 @@
     border-radius: 0.5rem;
     margin-bottom: 1rem;
     font-size: 1.75rem;
+    flex-shrink: 0;
+    align-self: flex-start;
 }
 
 .feature-card.housing .feature-card-icon {
@@ -106,6 +116,10 @@
     background: rgba(16, 185, 129, 0.2);
 }
 
+.feature-card.community .feature-card-icon {
+    background: rgba(168, 85, 247, 0.15);
+}
+
 .feature-card-title {
     color: var(--color-text-primary);
     margin-bottom: 0.75rem;
@@ -114,6 +128,7 @@
     position: relative;
     z-index: 1;
     font-family: 'Space Grotesk', sans-serif;
+    flex-shrink: 0;
 }
 
 .feature-card-description {
@@ -136,6 +151,8 @@
     transition: all 0.2s;
     position: relative;
     z-index: 1;
+    margin-top: auto;
+    align-self: flex-start;
 }
 
 .feature-card-button:hover {
@@ -167,6 +184,15 @@
 
 .feature-card.marketplace .feature-card-button:hover {
     box-shadow: 0 0 30px rgba(16, 185, 129, 0.5) !important;
+}
+
+.feature-card.community .feature-card-button {
+    background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+.feature-card.community .feature-card-button:hover {
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.5) !important;
 }
 
 .feature-card-button-arrow {

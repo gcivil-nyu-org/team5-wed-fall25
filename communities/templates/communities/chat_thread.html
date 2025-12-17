@@ -3,6 +3,9 @@
 
 {% block title %}{{ community.name }} - Chat - CampusNest{% endblock %}
 
+{# Suppress Django messages on chat page - chat has its own real-time messaging UI #}
+{% block messages %}{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'communities/css/chat.css' %}">
 {% endblock %}

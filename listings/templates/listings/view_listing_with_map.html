@@ -165,7 +165,7 @@
   <br>
   <div class="action-buttons-container">
     {% if is_owner or request.user.is_staff %}
-      {% if not listing.is_rented %}
+      {% if is_owner and not listing.is_rented %}
         <a href="{% url 'edit_listing' listing.id %}" class="btn-edit">
           Edit Listing
         </a>

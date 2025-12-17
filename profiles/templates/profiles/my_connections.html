@@ -28,9 +28,15 @@
         <span class="connections-count">{{ connections|length }} connection{% if connections|length != 1 %}s{% endif %}</span>
     </div>
 
+    {% if next_url %}
+    <a href="{{ next_url }}" class="back-link">
+        ← Back
+    </a>
+    {% else %}
     <a href="{% url 'roommate_search' %}" class="back-link">
         ← Back to Search
     </a>
+    {% endif %}
 
     {% if connections %}
         <div class="favorites-grid">

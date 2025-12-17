@@ -444,8 +444,12 @@ def my_favorites(request):
         "favorite_profile"
     )
 
+    # Get the "next" parameter for context-aware back button
+    next_url = request.GET.get("next", None)
+
     context = {
         "favorites": favorites,
+        "next_url": next_url,
     }
 
     return render(request, "profiles/my_favorites.html", context)
@@ -461,8 +465,12 @@ def connection_requests(request):
         .order_by("-created_at")
     )
 
+    # Get the "next" parameter for context-aware back button
+    next_url = request.GET.get("next", None)
+
     context = {
         "received_requests": received_requests,
+        "next_url": next_url,
     }
 
     return render(request, "profiles/connection_requests.html", context)
@@ -513,10 +521,14 @@ def my_connections(request, user_id):
         if hasattr(connection_user, "profile"):
             connection_profiles.append(connection_user.profile)
 
+    # Get the "next" parameter for context-aware back button
+    next_url = request.GET.get("next", None)
+
     context = {
         "profile": profile,
         "connections": connection_profiles,
         "is_own_profile": user == request.user,
+        "next_url": next_url,
     }
 
     return render(request, "profiles/my_connections.html", context)
@@ -548,6 +560,11 @@ def disconnect(request, user_id):
         )
     else:
         messages.error(request, "Connection not found.")
+
+    # Support redirect back to profile page or my connections
+    next_url = request.POST.get("next") or request.GET.get("next")
+    if next_url:
+        return redirect(next_url)
 
     return redirect("my_connections", user_id=request.user.id)
 

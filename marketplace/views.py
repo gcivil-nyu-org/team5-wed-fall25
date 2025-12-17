@@ -154,7 +154,13 @@ def validate_create_item_images(files, form):
 def edit_item(request, item_id):
     # print("inside edit_item")
     """Edit an existing item"""
-    item = get_object_or_404(Item, id=item_id, user=request.user)
+    item = get_object_or_404(Item, id=item_id)
+
+    # Only the owner can edit - staff can only delete
+    if item.user != request.user:
+        if request.user.is_staff:
+            messages.error(request, "Admins can only delete items, not edit them.")
+        raise Http404()
 
     if request.method == "POST":
         # Store original coordinates BEFORE creating form (form modifies instance on init)

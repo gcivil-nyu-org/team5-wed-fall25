@@ -11,9 +11,15 @@
 <div class="content-card favorites-container">
     <h1 class="favorites-heading">❤️ My Favorite Roommates</h1>
 
+    {% if next_url %}
+    <a href="{{ next_url }}" class="back-link">
+        ← Back
+    </a>
+    {% else %}
     <a href="{% url 'roommate_search' %}" class="back-link">
         ← Back to Search
     </a>
+    {% endif %}
 
     {% if favorites %}
         <div class="favorites-grid">
