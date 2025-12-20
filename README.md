@@ -3,6 +3,9 @@
 [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/team5-wed-fall25.svg?token=WHHjuyD4b8zGdFuFp8yp)](https://app.travis-ci.com/gcivil-nyu-org/team5-wed-fall25)
 [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/team5-wed-fall25/badge.svg?branch=develop)](https://coveralls.io/github/gcivil-nyu-org/team5-wed-fall25?branch=develop)
 
+## Video Demonstration
+- https://drive.google.com/file/d/1ScsrWaBaZHOPLpYz85jaMxOKqKPg2015/view?usp=sharing
+
 ## CampusNest - Quick Start Guide
 
 ### Prerequisites
